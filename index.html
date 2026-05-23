@@ -274,7 +274,38 @@
             justify-content: space-between;
             align-items: center;
         }
+
+        /* Leaderboard Styles */
+        .leaderboard-box {
+            background: #ffffff;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            background: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+        .leaderboard-item.top-reader {
+            background: #e6f9ed;
+            border-color: var(--primary);
+            font-weight: bold;
+        }
     </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -324,6 +355,12 @@
         </div>
 
         <h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span id="total-minutes">0</span> minutes spent</h4>
+        
+        <div class="leaderboard-box">
+            <h3>🏆 Club Leaderboard</h3>
+            <ul id="leaderboard-list" class="leaderboard-list"></ul>
+        </div>
+
         <div id="log-history"></div>
 
         <hr>
@@ -335,6 +372,33 @@
 </div>
 
 <script>
+    // REPLACE THIS WITH YOUR OWN FIREBASE CONFIG FROM STEP 1
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs",
+  authDomain: "book-club-54785.firebaseapp.com",
+  databaseURL: "https://book-club-54785-default-rtdb.firebaseio.com",
+  projectId: "book-club-54785",
+  storageBucket: "book-club-54785.firebasestorage.app",
+  messagingSenderId: "476568040133",
+  appId: "1:476568040133:web:7155e40ba26924451c36ac",
+  measurementId: "G-115G2ZPTNB"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     const defaultBooks = [
         { title: "I.R.L.", author: "Chris Valdez", pages: 256, inStock: true },
         { title: "Donut Go Breaking My Heart", author: "Suzanne Nelson", pages: 272, inStock: true },
@@ -366,7 +430,7 @@
     ];
 
     let bookDatabase = [...defaultBooks];
-    let currentUserName = "";
+    let currentUserName = localStorage.getItem('autoClubUserName') || "";
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
@@ -386,29 +450,43 @@
     const totalPagesDisplay = document.getElementById('total-pages');
     const totalMinutesDisplay = document.getElementById('total-minutes');
     const logHistory = document.getElementById('log-history');
+    const leaderboardList = document.getElementById('leaderboard-list');
 
-    // Auto-load profile data instantly when tab opens
-    function initApp() {
-        const savedName = localStorage.getItem('autoClubUserName');
-        
-        if (savedName) {
-            currentUserName = savedName;
-            
-            const savedCatalog = localStorage.getItem('autoClubCatalogState');
-            if (savedCatalog) bookDatabase = JSON.parse(savedCatalog);
-
-            const savedBooks = localStorage.getItem('autoClubSelectedBooksData');
-            if (savedBooks) selectedBooks = JSON.parse(savedBooks);
-
-            const savedPages = localStorage.getItem('autoClubTotalPages');
-            if (savedPages) totalPagesRead = parseInt(savedPages);
-            
-            const savedMins = localStorage.getItem('autoClubTotalMinutes');
-            if (savedMins) totalMinutesRead = parseInt(savedMins);
-
-            loadDashboard();
-        } else {
+    // Live listening node connections across all devices
+    function initLiveSync() {
+        // 1. Monitor the common library book catalog
+        database.ref('bookCatalog').on('value', snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                bookDatabase = data;
+            } else {
+                // First initialize database setup if empty
+                database.ref('bookCatalog').set(defaultBooks);
+            }
             renderCatalog();
+            if (currentUserName) updateDashboardProgressUI();
+        });
+
+        // 2. Monitor the global club scoreboard ranking metrics
+        database.ref('users').on('value', snapshot => {
+            renderLeaderboard(snapshot.val());
+            
+            // Sync current login parameters if matches incoming stream data updates
+            if (currentUserName && snapshot.hasChild(currentUserName)) {
+                const userSnapshot = snapshot.child(currentUserName).val();
+                totalPagesRead = userSnapshot.totalPages || 0;
+                totalMinutesRead = userSnapshot.totalMinutes || 0;
+                selectedBooks = userSnapshot.selectedBooks || {};
+                
+                totalPagesDisplay.innerText = totalPagesRead;
+                totalMinutesDisplay.innerText = totalMinutesRead;
+                updateDashboardProgressUI();
+            }
+        });
+
+        // Check active setup route navigation profiles
+        if (currentUserName) {
+            loadDashboard();
         }
     }
 
@@ -434,14 +512,61 @@
         });
     }
 
+    function renderLeaderboard(usersData) {
+        leaderboardList.innerHTML = "";
+        let profiles = [];
+
+        if (usersData) {
+            Object.keys(usersData).forEach(name => {
+                profiles.push({
+                    name: name,
+                    pages: usersData[name].totalPages || 0
+                });
+            });
+        }
+
+        if (currentUserName && !profiles.some(p => p.name === currentUserName)) {
+            profiles.push({ name: currentUserName, pages: totalPagesRead });
+        }
+
+        profiles.sort((a, b) => b.pages - a.pages);
+
+        profiles.forEach((profile, index) => {
+            const li = document.createElement('li');
+            li.classList.add('leaderboard-item');
+            if (index === 0 && profile.pages > 0) {
+                li.classList.add('top-reader');
+            }
+            li.innerHTML = `
+                <span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 && profile.pages > 0 ? '👑' : ''}</span>
+                <span>${profile.pages} pages</span>
+            `;
+            leaderboardList.appendChild(li);
+        });
+    }
+
     authForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const inputName = authName.value.trim();
+        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, ""); // Filter database forbidden characters
         if (inputName !== "") {
             currentUserName = inputName;
             localStorage.setItem('autoClubUserName', currentUserName);
-            saveToStorage();
-            loadDashboard();
+
+            // Fetch registration baseline checks or provision empty profile shell structures online
+            database.ref('users/' + currentUserName).once('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    selectedBooks = val.selectedBooks || {};
+                    totalPagesRead = val.totalPages || 0;
+                    totalMinutesRead = val.totalMinutes || 0;
+                } else {
+                    selectedBooks = {};
+                    totalPagesRead = 0;
+                    totalMinutesRead = 0;
+                    saveProfileToCloud();
+                }
+                loadDashboard();
+            });
         }
     });
 
@@ -449,7 +574,6 @@
         authSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
         userDisplayName.innerText = currentUserName;
-
         totalPagesDisplay.innerText = totalPagesRead;
         totalMinutesDisplay.innerText = totalMinutesRead;
 
@@ -463,9 +587,8 @@
             selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
             book.inStock = false; 
             
-            saveToStorage();
-            renderCatalog(); 
-            updateDashboardProgressUI();
+            saveProfileToCloud();
+            saveCatalogToCloud();
         }
     }
 
@@ -476,9 +599,8 @@
             delete selectedBooks[title]; 
             book.inStock = true;
 
-            saveToStorage();
-            renderCatalog();
-            updateDashboardProgressUI();
+            saveProfileToCloud();
+            saveCatalogToCloud();
 
             const entry = document.createElement('div');
             entry.classList.add('log-entry');
@@ -537,8 +659,7 @@
         totalPagesRead += pagesEntered;
         totalPagesDisplay.innerText = totalPagesRead;
 
-        saveToStorage();
-        updateDashboardProgressUI();
+        saveProfileToCloud();
 
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
@@ -556,7 +677,7 @@
         totalMinutesRead += mins;
         totalMinutesDisplay.innerText = totalMinutesRead;
         
-        saveToStorage();
+        saveProfileToCloud();
 
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
@@ -566,20 +687,26 @@
         document.getElementById('minutes-read').value = '';
     });
 
-    function saveToStorage() {
-        localStorage.setItem('autoClubSelectedBooksData', JSON.stringify(selectedBooks));
-        localStorage.setItem('autoClubTotalPages', totalPagesRead);
-        localStorage.setItem('autoClubTotalMinutes', totalMinutesRead);
-        localStorage.setItem('autoClubCatalogState', JSON.stringify(bookDatabase));
+    function saveProfileToCloud() {
+        if (!currentUserName) return;
+        database.ref('users/' + currentUserName).set({
+            selectedBooks: selectedBooks,
+            totalPages: totalPagesRead,
+            totalMinutes: totalMinutesRead
+        });
+    }
+
+    function saveCatalogToCloud() {
+        database.ref('bookCatalog').set(bookDatabase);
     }
 
     function clearProfile() {
-        localStorage.clear();
+        localStorage.removeItem('autoClubUserName');
         location.reload();
     }
 
-    // Run baseline browser memory verification
-    initApp();
+    // Execute application cloud initiation loops
+    initLiveSync();
 </script>
 </body>
 </html>
