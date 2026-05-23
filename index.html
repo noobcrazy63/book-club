@@ -274,34 +274,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        /* Leaderboard Styles */
-        .leaderboard-box {
-            background: #ffffff;
-            border: 2px solid var(--secondary);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .leaderboard-list {
-            list-style: none;
-            padding: 0;
-            margin: 10px 0 0 0;
-        }
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 12px;
-            margin-bottom: 5px;
-            background: #fdfdfd;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-        }
-        .leaderboard-item.top-reader {
-            background: #e6f9ed;
-            border-color: var(--primary);
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -352,12 +324,6 @@
         </div>
 
         <h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span id="total-minutes">0</span> minutes spent</h4>
-        
-        <div class="leaderboard-box">
-            <h3>🏆 Club Leaderboard</h3>
-            <ul id="leaderboard-list" class="leaderboard-list"></ul>
-        </div>
-
         <div id="log-history"></div>
 
         <hr>
@@ -420,25 +386,24 @@
     const totalPagesDisplay = document.getElementById('total-pages');
     const totalMinutesDisplay = document.getElementById('total-minutes');
     const logHistory = document.getElementById('log-history');
-    const leaderboardList = document.getElementById('leaderboard-list');
 
+    // Auto-load profile data instantly when tab opens
     function initApp() {
-        const savedCatalog = localStorage.getItem('autoClubCatalogState');
-        if (savedCatalog) {
-            bookDatabase = JSON.parse(savedCatalog);
-        }
-
         const savedName = localStorage.getItem('autoClubUserName');
+        
         if (savedName) {
             currentUserName = savedName;
+            
+            const savedCatalog = localStorage.getItem('autoClubCatalogState');
+            if (savedCatalog) bookDatabase = JSON.parse(savedCatalog);
 
-            const savedBooks = localStorage.getItem(`autoClubSelectedBooksData_${currentUserName}`);
+            const savedBooks = localStorage.getItem('autoClubSelectedBooksData');
             if (savedBooks) selectedBooks = JSON.parse(savedBooks);
 
-            const savedPages = localStorage.getItem(`autoClubTotalPages_${currentUserName}`);
+            const savedPages = localStorage.getItem('autoClubTotalPages');
             if (savedPages) totalPagesRead = parseInt(savedPages);
             
-            const savedMins = localStorage.getItem(`autoClubTotalMinutes_${currentUserName}`);
+            const savedMins = localStorage.getItem('autoClubTotalMinutes');
             if (savedMins) totalMinutesRead = parseInt(savedMins);
 
             loadDashboard();
@@ -469,59 +434,13 @@
         });
     }
 
-    // Added function to automatically scan memory and construct leaderboard rankings
-    function renderLeaderboard() {
-        leaderboardList.innerHTML = "";
-        let profiles = [];
-
-        // Scan storage keys to find user accounts dynamically
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key.startsWith("autoClubTotalPages_")) {
-                const name = key.replace("autoClubTotalPages_", "");
-                const pages = parseInt(localStorage.getItem(key)) || 0;
-                profiles.push({ name: name, pages: pages });
-            }
-        }
-
-        // Always include current user if they haven't saved pages yet
-        if (currentUserName && !profiles.some(p => p.name === currentUserName)) {
-            profiles.push({ name: currentUserName, pages: totalPagesRead });
-        }
-
-        // Sort profiles highest score to lowest score
-        profiles.sort((a, b) => b.pages - a.pages);
-
-        profiles.forEach((profile, index) => {
-            const li = document.createElement('li');
-            li.classList.add('leaderboard-item');
-            if (index === 0 && profile.pages > 0) {
-                li.classList.add('top-reader');
-            }
-            li.innerHTML = `
-                <span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 && profile.pages > 0 ? '👑' : ''}</span>
-                <span>${profile.pages} pages</span>
-            `;
-            leaderboardList.appendChild(li);
-        });
-    }
-
     authForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const inputName = authName.value.trim();
         if (inputName !== "") {
             currentUserName = inputName;
             localStorage.setItem('autoClubUserName', currentUserName);
-            
-            const savedBooks = localStorage.getItem(`autoClubSelectedBooksData_${currentUserName}`);
-            selectedBooks = savedBooks ? JSON.parse(savedBooks) : {};
-
-            const savedPages = localStorage.getItem(`autoClubTotalPages_${currentUserName}`);
-            totalPagesRead = savedPages ? parseInt(savedPages) : 0;
-            
-            const savedMins = localStorage.getItem(`autoClubTotalMinutes_${currentUserName}`);
-            totalMinutesRead = savedMins ? parseInt(savedMins) : 0;
-
+            saveToStorage();
             loadDashboard();
         }
     });
@@ -536,7 +455,6 @@
 
         renderCatalog();
         updateDashboardProgressUI();
-        renderLeaderboard();
     }
 
     function chooseBook(index) {
@@ -621,7 +539,6 @@
 
         saveToStorage();
         updateDashboardProgressUI();
-        renderLeaderboard();
 
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
@@ -650,17 +567,18 @@
     });
 
     function saveToStorage() {
-        localStorage.setItem(`autoClubSelectedBooksData_${currentUserName}`, JSON.stringify(selectedBooks));
-        localStorage.setItem(`autoClubTotalPages_${currentUserName}`, totalPagesRead);
-        localStorage.setItem(`autoClubTotalMinutes_${currentUserName}`, totalMinutesRead);
+        localStorage.setItem('autoClubSelectedBooksData', JSON.stringify(selectedBooks));
+        localStorage.setItem('autoClubTotalPages', totalPagesRead);
+        localStorage.setItem('autoClubTotalMinutes', totalMinutesRead);
         localStorage.setItem('autoClubCatalogState', JSON.stringify(bookDatabase));
     }
 
     function clearProfile() {
-        localStorage.removeItem('autoClubUserName');
+        localStorage.clear();
         location.reload();
     }
 
+    // Run baseline browser memory verification
     initApp();
 </script>
 </body>
