@@ -347,21 +347,77 @@
     const totalMinutesDisplay = document.getElementById('total-minutes');
     const logHistory = document.getElementById('log-history');
 
-    // Build Catalog on Boot
-    function renderCatalog() {
-        catalogGrid.innerHTML = "";
-        bookDatabase.forEach((book, index) => {
-            const card = document.createElement('div');
-            card.classList.add('book-card');
-            card.innerHTML = `
-                <div class="book-title">${book.title}</div>
-                <div class="status-container">
-                    <span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'In Stock' : 'Out of Stock'}</span>
-                    ${book.inStock ? `<button class="choose-btn" onclick="chooseBook(${index})">Choose</button>` : ''}
-                </div>
-            `;
-            catalogGrid.appendChild(card);
-        });
+    // Create a dynamic error message container below the form button
+    const errorDisplay = document.createElement('p');
+    errorDisplay.style.color = 'var(--outstock)';
+    errorDisplay.style.textAlign = 'center';
+    errorDisplay.style.fontWeight = 'bold';
+    errorDisplay.style.marginTop = '10px';
+    authForm.appendChild(errorDisplay);
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        errorDisplay.innerText = ""; // Clear errors when toggling modes
+        authForm.reset();
+        
+        if (isSignUpMode) {
+            authTitle.innerText = "Create Your Book Club Account";
+            authBtn.innerText = "Sign Up";
+            authName.classList.remove('hidden');
+            authName.required = true;
+            authToggle.innerText = "Already have an account? Log In";
+        } else {
+            authTitle.innerText = "Log In to View Your Books";
+            authBtn.innerText = "Log In";
+            authName.classList.add('hidden');
+            authName.required = false;
+            authToggle.innerText = "Don't have an account? Sign Up";
+        }
+    }
+
+    authForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        errorDisplay.innerText = ""; // Reset error display text
+
+        const emailInput = document.getElementById('email').value.trim().toLowerCase();
+        const passwordInput = document.getElementById('password').value;
+        const nameInput = authName.value.trim();
+
+        // Retrieve existing database of registered club users
+        let registeredUsers = JSON.parse(localStorage.getItem('clubRegisteredUsers')) || {};
+
+        if (isSignUpMode) {
+            // Check if the account email profile already exists
+            if (registeredUsers[emailInput]) {
+                errorDisplay.innerText = "❌ An account with this email address already exists!";
+                return;
+            }
+
+            // Save the new user record credentials locally
+            registeredUsers[emailInput] = {
+                name: nameInput,
+                password: passwordInput
+            };
+            localStorage.setItem('clubRegisteredUsers', JSON.stringify(registeredUsers));
+            
+            currentUser = nameInput;
+            localStorage.setItem('clubUserName', currentUser);
+            loadDashboard();
+        } else {
+            // Processing Login Mode Verification Check
+            const existingUser = registeredUsers[emailInput];
+
+            if (!existingUser || existingUser.password !== passwordInput) {
+                errorDisplay.innerText = "❌ Invalid username or password!";
+                return;
+            }
+
+            // Credentials match successfully
+            currentUser = existingUser.name;
+            localStorage.setItem('clubUserName', currentUser);
+            loadDashboard();
+        }
+    });
     }
 
     function toggleAuthMode() {
