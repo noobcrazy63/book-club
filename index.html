@@ -27,7 +27,7 @@
 
         .container {
             width: 100%;
-            max-width: 800px; 
+            max-width: 850px; 
             background: var(--white);
             padding: 30px;
             border-radius: 12px;
@@ -104,6 +104,15 @@
             text-decoration: underline;
         }
 
+        /* Error Banner Styling */
+        #error-display {
+            color: var(--outstock);
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
         /* Dashboard Navbar */
         .nav-bar {
             display: flex;
@@ -122,7 +131,7 @@
             border: 1px solid var(--secondary);
         }
 
-        /* Twin Input Columns for Logs */
+        /* Twin Input Columns */
         .log-row {
             display: flex;
             gap: 15px;
@@ -134,8 +143,8 @@
         /* Book Grid Layout */
         .book-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
             margin-top: 15px;
         }
 
@@ -147,12 +156,28 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            min-height: 100px;
+        }
+
+        .book-info-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+            gap: 12px;
         }
 
         .book-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .book-author {
+            font-size: 13px;
+            color: var(--muted-text);
+            font-style: italic;
+            margin-top: 2px;
         }
 
         .status-container {
@@ -163,9 +188,9 @@
         }
 
         .stock-status {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
-            padding: 3px 8px;
+            padding: 3px 6px;
             border-radius: 4px;
         }
 
@@ -190,21 +215,57 @@
 
         .progress-item {
             margin: 15px 0;
+            background: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .progress-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
         .progress-labels {
             display: flex;
-            justify-content: space-between;
-            font-size: 14px;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .progress-book-name {
             font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+        .progress-book-stats {
+            font-size: 13px;
+            color: var(--muted-text);
+        }
+
+        .turn-in-btn {
+            background-color: #e63946;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .turn-in-btn:hover {
+            background-color: #b8222e;
+            color: white;
         }
 
         .progress-bar-bg {
             background-color: #e0e0e0;
             border-radius: 10px;
             overflow: hidden;
-            height: 14px;
+            height: 12px;
             width: 100%;
         }
 
@@ -236,8 +297,8 @@
 <div class="container">
     
     <div class="brand-header">
-    <img src="banner.png" alt="The Green-Seel Book Club Banner">
-</div>
+        <img src="banner.png" alt="The Green-Seel Book Club Banner">
+    </div>
     
     <div id="auth-section">
         <h2 id="auth-title">Log In to View Your Books</h2>
@@ -246,6 +307,7 @@
             <input type="email" id="email" placeholder="Email Address" required>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit" id="auth-btn">Log In</button>
+            <div id="error-display"></div>
         </form>
         <p class="switch-link" id="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</p>
     </div>
@@ -293,37 +355,43 @@
 </div>
 
 <script>
-    // System Book Catalog Database Mapping Real Page Counts
-    const bookDatabase = [
-        { title: "I.R.L.", pages: 256, inStock: true },
-        { title: "Donut Go Breaking My Heart", pages: 304, inStock: true },
-        { title: "The Bletchley Riddle", pages: 368, inStock: false },
-        { title: "Middle School Get Me Out Of Here", pages: 304, inStock: true },
-        { title: "All's Faire in Middle School", pages: 240, inStock: true },
-        { title: "What is Juneteenth?", pages: 112, inStock: true },
-        { title: "Everything for a Dog", pages: 240, inStock: true },
-        { title: "Growing Home", pages: 208, inStock: true },
-        { title: "Olivetti", pages: 256, inStock: true },
-        { title: "Return to Sender", pages: 336, inStock: true },
-        { title: "The Playbook", pages: 176, inStock: true },
-        { title: "Out of My Mind", pages: 320, inStock: true },
-        { title: "Where the Red Fern Grows", pages: 256, inStock: true },
-        { title: "Where is the Bermuda Triangle?", pages: 112, inStock: true },
-        { title: "I Survived Graphic Novel: The Great Molasses Flood, 1919", pages: 160, inStock: true },
-        { title: "Where is the Eiffel Tower?", pages: 112, inStock: true },
-        { title: "Percy Jackson I", pages: 384, inStock: true },
-        { title: "Percy Jackson II", pages: 288, inStock: true },
-        { title: "Percy Jackson III", pages: 320, inStock: true },
-        { title: "Me Frida", pages: 40, inStock: true },
-        { title: "My Jasper June", pages: 304, inStock: true },
-        { title: "Are you there God? It's Me Margaret", pages: 192, inStock: true },
-        { title: "Zeus", pages: 80, inStock: true },
-        { title: "Deep Water", pages: 272, inStock: true },
-        { title: "Anne Frank", pages: 352, inStock: true }
+    // Master Book Database Config
+    const defaultBooks = [
+        { title: "I.R.L.", author: "Chris Valdez", pages: 256, inStock: true },
+        { title: "Donut Go Breaking My Heart", author: "Suzanne Nelson", pages: 272, inStock: true },
+        { title: "The Misfits", author: "James Patterson", pages: 290, inStock: true },
+        { title: "The Bletchley Riddle", author: "Ruta Sepetys & Kristy Cambron", pages: 368, inStock: true },
+        { title: "Middle School Get Me Out Of Here", author: "James Patterson", pages: 304, inStock: true },
+        { title: "All's Faire in Middle School", author: "Victoria Jamieson", pages: 240, inStock: true },
+        { title: "What is Juneteenth?", author: "Kirsti Jewel", pages: 112, inStock: true },
+        { title: "Everything for a Dog", author: "Ann M. Martin", pages: 240, inStock: true },
+        { title: "A Batch Made In Heaven", author: "Suzanne Nelson", pages: 250, inStock: true },
+        { title: "Growing Home", author: "Susan L. Lipson", pages: 208, inStock: true },
+        { title: "Olivetti", author: "Allie Millington", pages: 256, inStock: true },
+        { title: "Return to Sender", author: "Julia Alvarez", pages: 336, inStock: true },
+        { title: "The Playbook", author: "Kwame Alexander", pages: 176, inStock: true },
+        { title: "Out of My Mind", author: "Sharon M. Draper", pages: 320, inStock: true },
+        { title: "Where the Red Fern Grows", author: "Wilson Rawls", pages: 256, inStock: true },
+        { title: "Where is the Bermuda Triangle?", author: "Megan Stine", pages: 112, inStock: true },
+        { title: "I Survived Graphic Novel: The Great Molasses Flood, 1919", author: "Lauren Tarshis", pages: 160, inStock: true },
+        { title: "Where is the Eiffel Tower?", author: "Dina Anastasio", pages: 112, inStock: true },
+        { title: "Percy Jackson I", author: "Rick Riordan", pages: 384, inStock: true },
+        { title: "Percy Jackson II", author: "Rick Riordan", pages: 288, inStock: true },
+        { title: "Percy Jackson III", author: "Rick Riordan", pages: 320, inStock: true },
+        { title: "Me Frida", author: "Amy Novesky", pages: 40, inStock: true },
+        { title: "My Jasper June", author: "Laurel Snyder", pages: 304, inStock: true },
+        { title: "Are you there God? It's Me Margaret", author: "Judy Blume", pages: 192, inStock: true },
+        { title: "Zeus", author: "George O'Connor", pages: 80, inStock: true },
+        { title: "Deep Water", author: "Watt Key", pages: 272, inStock: true },
+        { title: "Anne Frank", author: "Anne Frank", pages: 352, inStock: true }
     ];
 
+    let bookDatabase = [...defaultBooks];
     let isSignUpMode = false;
-    let currentUser = "Reader";
+    
+    // User Context Information Variables
+    let currentUserEmail = "";
+    let currentUserName = "Reader";
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
@@ -336,6 +404,7 @@
     const authTitle = document.getElementById('auth-title');
     const authBtn = document.getElementById('auth-btn');
     const authToggle = document.getElementById('auth-toggle');
+    const errorDisplay = document.getElementById('error-display');
     const userDisplayName = document.getElementById('user-display-name');
     const catalogGrid = document.getElementById('catalog-grid');
     const trackingBox = document.getElementById('tracking-box');
@@ -347,17 +416,31 @@
     const totalMinutesDisplay = document.getElementById('total-minutes');
     const logHistory = document.getElementById('log-history');
 
-    // Create a dynamic error message container below the form button
-    const errorDisplay = document.createElement('p');
-    errorDisplay.style.color = 'var(--outstock)';
-    errorDisplay.style.textAlign = 'center';
-    errorDisplay.style.fontWeight = 'bold';
-    errorDisplay.style.marginTop = '10px';
-    authForm.appendChild(errorDisplay);
+    function renderCatalog() {
+        catalogGrid.innerHTML = "";
+        bookDatabase.forEach((book, index) => {
+            const card = document.createElement('div');
+            card.classList.add('book-card');
+            
+            card.innerHTML = `
+                <div class="book-info-container">
+                    <div>
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">by ${book.author}</div>
+                    </div>
+                    <div class="status-container">
+                        <span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'In Stock' : 'Out of Stock'}</span>
+                        ${book.inStock ? `<button class="choose-btn" onclick="chooseBook(${index})">Choose</button>` : ''}
+                    </div>
+                </div>
+            `;
+            catalogGrid.appendChild(card);
+        });
+    }
 
     function toggleAuthMode() {
         isSignUpMode = !isSignUpMode;
-        errorDisplay.innerText = ""; // Clear errors when toggling modes
+        errorDisplay.innerText = "";
         authForm.reset();
         
         if (isSignUpMode) {
@@ -377,34 +460,36 @@
 
     authForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        errorDisplay.innerText = ""; // Reset error display text
+        errorDisplay.innerText = "";
 
         const emailInput = document.getElementById('email').value.trim().toLowerCase();
         const passwordInput = document.getElementById('password').value;
         const nameInput = authName.value.trim();
 
-        // Retrieve existing database of registered club users
         let registeredUsers = JSON.parse(localStorage.getItem('clubRegisteredUsers')) || {};
 
         if (isSignUpMode) {
-            // Check if the account email profile already exists
             if (registeredUsers[emailInput]) {
-                errorDisplay.innerText = "❌ An account with this email address already exists!";
+                errorDisplay.innerText = "❌ An account with this email already exists!";
                 return;
             }
 
-            // Save the new user record credentials locally
+            // Write registration payload values
             registeredUsers[emailInput] = {
                 name: nameInput,
-                password: passwordInput
+                password: passwordInput,
+                selectedBooks: {},
+                totalPagesRead: 0,
+                totalMinutesRead: 0,
+                bookDatabaseState: [...defaultBooks]
             };
-            localStorage.setItem('clubRegisteredUsers', JSON.stringify(registeredUsers));
             
-            currentUser = nameInput;
-            localStorage.setItem('clubUserName', currentUser);
-            loadDashboard();
+            localStorage.setItem('clubRegisteredUsers', JSON.stringify(registeredUsers));
+            currentUserEmail = emailInput;
+            currentUserName = nameInput;
+            
+            loadUserDashboardData(registeredUsers[emailInput]);
         } else {
-            // Processing Login Mode Verification Check
             const existingUser = registeredUsers[emailInput];
 
             if (!existingUser || existingUser.password !== passwordInput) {
@@ -412,48 +497,73 @@
                 return;
             }
 
-            // Credentials match successfully
-            currentUser = existingUser.name;
-            localStorage.setItem('clubUserName', currentUser);
-            loadDashboard();
+            currentUserEmail = emailInput;
+            currentUserName = existingUser.name;
+            
+            loadUserDashboardData(existingUser);
         }
     });
+
+    function loadUserDashboardData(userDataObject) {
+        selectedBooks = userDataObject.selectedBooks || {};
+        totalPagesRead = userDataObject.totalPagesRead || 0;
+        totalMinutesRead = userDataObject.totalMinutesRead || 0;
+        bookDatabase = userDataObject.bookDatabaseState || [...defaultBooks];
+
+        authSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        userDisplayName.innerText = currentUserName;
+
+        totalPagesDisplay.innerText = totalPagesRead;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+        logHistory.innerHTML = ""; 
+
+        renderCatalog();
+        updateDashboardProgressUI();
     }
 
-    function toggleAuthMode() {
-        isSignUpMode = !isSignUpMode;
-        if (isSignUpMode) {
-            authTitle.innerText = "Create Your Book Club Account";
-            authBtn.innerText = "Sign Up";
-            authName.classList.remove('hidden');
-            authName.required = true;
-            authToggle.innerText = "Already have an account? Log In";
-        } else {
-            authTitle.innerText = "Log In to View Your Books";
-            authBtn.innerText = "Log In";
-            authName.classList.add('hidden');
-            authName.required = false;
-            authToggle.innerText = "Don't have an account? Sign Up";
+    function saveUserProgressToStorage() {
+        if (!currentUserEmail) return;
+        let registeredUsers = JSON.parse(localStorage.getItem('clubRegisteredUsers')) || {};
+        
+        if (registeredUsers[currentUserEmail]) {
+            registeredUsers[currentUserEmail].selectedBooks = selectedBooks;
+            registeredUsers[currentUserEmail].totalPagesRead = totalPagesRead;
+            registeredUsers[currentUserEmail].totalMinutesRead = totalMinutesRead;
+            registeredUsers[currentUserEmail].bookDatabaseState = bookDatabase;
+            
+            localStorage.setItem('clubRegisteredUsers', JSON.stringify(registeredUsers));
         }
     }
-
-    authForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (isSignUpMode && authName.value.trim() !== "") {
-            currentUser = authName.value.trim();
-            localStorage.setItem('clubUserName', currentUser);
-        } else {
-            currentUser = localStorage.getItem('clubUserName') || "Bookworm";
-        }
-        loadDashboard();
-    });
 
     function chooseBook(index) {
         const book = bookDatabase[index];
         if (!selectedBooks[book.title]) {
-            selectedBooks[book.title] = { read: 0, total: book.pages };
-            saveToStorage();
+            selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
+            book.inStock = false; 
+            
+            saveUserProgressToStorage();
+            renderCatalog(); 
             updateDashboardProgressUI();
+        }
+    }
+
+    function turnInBook(index) {
+        const book = bookDatabase[index];
+        if (book && selectedBooks[book.title]) {
+            const title = book.title;
+            delete selectedBooks[title]; 
+            book.inStock = true;
+
+            saveUserProgressToStorage();
+            renderCatalog();
+            updateDashboardProgressUI();
+
+            const entry = document.createElement('div');
+            entry.classList.add('log-entry');
+            entry.style.borderLeftColor = "#e63946";
+            entry.innerHTML = `<span>🔄 Returned: <strong>"${title}"</strong> has been turned back in to the library!</span>`;
+            logHistory.prepend(entry);
         }
     }
 
@@ -462,7 +572,6 @@
         logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
         
         const keys = Object.keys(selectedBooks);
-        
         if (keys.length === 0) {
             trackingBox.classList.add('hidden');
             return;
@@ -473,13 +582,15 @@
             const data = selectedBooks[title];
             const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
             
-            // Add progress HTML element
             const progItem = document.createElement('div');
             progItem.classList.add('progress-item');
             progItem.innerHTML = `
-                <div class="progress-labels">
-                    <span>${title}</span>
-                    <span>${data.read} / ${data.total} pages (${percentage}%)</span>
+                <div class="progress-header-row">
+                    <div class="progress-labels">
+                        <span class="progress-book-name">${title}</span>
+                        <span class="progress-book-stats">${data.read} / ${data.total} pages completed (${percentage}%)</span>
+                    </div>
+                    <button class="turn-in-btn" onclick="turnInBook(${data.index})">Turn In Book</button>
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: ${percentage}%"></div>
@@ -487,7 +598,6 @@
             `;
             progressContainer.appendChild(progItem);
 
-            // Populate Dropdown option list
             const opt = document.createElement('option');
             opt.value = title;
             opt.innerText = title;
@@ -500,13 +610,13 @@
         const selectedTitle = logBookSelect.value;
         const pagesEntered = parseInt(document.getElementById('pages-read').value);
         
-        if (!selectedTitle) return;
+        if (!selectedTitle || isNaN(pagesEntered)) return;
 
         selectedBooks[selectedTitle].read += pagesEntered;
         totalPagesRead += pagesEntered;
         totalPagesDisplay.innerText = totalPagesRead;
 
-        saveToStorage();
+        saveUserProgressToStorage();
         updateDashboardProgressUI();
 
         const entry = document.createElement('div');
@@ -520,9 +630,12 @@
     minuteForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const mins = parseInt(document.getElementById('minutes-read').value);
+        if (isNaN(mins)) return;
+        
         totalMinutesRead += mins;
         totalMinutesDisplay.innerText = totalMinutesRead;
-        localStorage.setItem('clubTotalMinutes', totalMinutesRead);
+        
+        saveUserProgressToStorage();
 
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
@@ -532,39 +645,15 @@
         document.getElementById('minutes-read').value = '';
     });
 
-    function saveToStorage() {
-        localStorage.setItem('clubSelectedBooksData', JSON.stringify(selectedBooks));
-        localStorage.setItem('clubTotalPages', totalPagesRead);
-    }
-
-    function loadDashboard() {
-        authSection.classList.add('hidden');
-        dashboardSection.classList.remove('hidden');
-        userDisplayName.innerText = currentUser;
-        
-        // Restore values
-        const savedBooks = localStorage.getItem('clubSelectedBooksData');
-        if (savedBooks) selectedBooks = JSON.parse(savedBooks);
-        
-        const savedPages = localStorage.getItem('clubTotalPages');
-        if (savedPages) totalPagesRead = parseInt(savedPages);
-        
-        const savedMins = localStorage.getItem('clubTotalMinutes');
-        if (savedMins) totalMinutesRead = parseInt(savedMins);
-
-        totalPagesDisplay.innerText = totalPagesRead;
-        totalMinutesDisplay.innerText = totalMinutesRead;
-
-        updateDashboardProgressUI();
-    }
-
     function logout() {
         authSection.classList.remove('hidden');
         dashboardSection.classList.add('hidden');
+        currentUserEmail = "";
+        currentUserName = "Reader";
         authForm.reset();
     }
 
-    // Initialize 
+    // Set initial baseline layout for logged out catalog structure view
     renderCatalog();
 </script>
 </body>
