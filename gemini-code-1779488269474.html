@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Green-Seel Book Club</title>
+    <style>
+        :root {
+            --primary: #3ade65;     
+            --secondary: #000000;   
+            --bg: #f2fbf4;          
+            --white: #ffffff;
+            --muted-text: #555555;
+            --instock: #2a9d8f;     
+            --outstock: #e63946;    
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--secondary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px; 
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+        }
+
+        .brand-header img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+
+        h2, h3, h4 {
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Forms */
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 2px solid var(--primary);
+            background-color: var(--white);
+            color: var(--secondary);
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            background-color: var(--primary);
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+            color: var(--primary);
+        }
+
+        .switch-link {
+            text-align: center;
+            color: var(--muted-text);
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 15px;
+            text-decoration: underline;
+        }
+
+        /* Dashboard Navbar */
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .logout-btn {
+            width: auto;
+            padding: 6px 15px;
+            background-color: var(--secondary);
+            color: var(--white);
+            border: 1px solid var(--secondary);
+        }
+
+        /* Twin Input Columns for Logs */
+        .log-row {
+            display: flex;
+            gap: 15px;
+        }
+        .log-col {
+            flex: 1;
+        }
+
+        /* Book Grid Layout */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .book-card {
+            border: 2px solid #eeeeee;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .book-title {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+
+        .stock-status {
+            font-size: 13px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .stock-status.in { background-color: #e2f4f1; color: var(--instock); }
+        .stock-status.out { background-color: #ffeef0; color: var(--outstock); }
+
+        .choose-btn {
+            width: auto;
+            padding: 4px 12px;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        /* Selected Progress Section */
+        .selected-box {
+            background-color: #f9f9f9;
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-item {
+            margin: 15px 0;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-bg {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 14px;
+            width: 100%;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        hr {
+            border: 0; height: 2px; background: var(--primary); margin: 30px 0;
+        }
+
+        .log-entry {
+            background: #e6f9ed;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 5px solid var(--primary);
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="brand-header">
+        <img src="Screenshot 2026-05-22 4.56.22 PM.png" alt="The Green-Seel Book Club Banner">
+    </div>
+    
+    <div id="auth-section">
+        <h2 id="auth-title">Log In to View Your Books</h2>
+        <form id="auth-form">
+            <input type="text" id="auth-name" placeholder="Full Name" class="hidden">
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" id="auth-btn">Log In</button>
+        </form>
+        <p class="switch-link" id="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</p>
+    </div>
+
+    <div id="dashboard-section" class="hidden">
+        <div class="nav-bar">
+            <h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
+            <button class="logout-btn" onclick="logout()">Log Out</button>
+        </div>
+
+        <div id="tracking-box" class="selected-box hidden">
+            <h3>📈 Your Reading Progress</h3>
+            <div id="progress-container"></div>
+        </div>
+
+        <div class="log-row">
+            <div class="log-col">
+                <h3>⏱️ Update Pages Read</h3>
+                <form id="log-form">
+                    <select id="log-book-select" required>
+                        <option value="" disabled selected>Choose book to update...</option>
+                    </select>
+                    <input type="number" id="pages-read" placeholder="Pages read this session?" min="1" required>
+                    <button type="submit">Log Pages</button>
+                </form>
+            </div>
+            <div class="log-col">
+                <h3>⏳ Session Clock</h3>
+                <form id="minute-form">
+                    <input type="number" id="minutes-read" placeholder="How many minutes?" min="1" required>
+                    <button type="submit">Log Minutes</button>
+                </form>
+            </div>
+        </div>
+
+        <h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span id="total-minutes">0</span> minutes spent</h4>
+        <div id="log-history"></div>
+
+        <hr>
+
+        <h3>📚 Available Library Books</h3>
+        <div class="book-grid" id="catalog-grid"></div>
+    </div>
+
+</div>
+
+<script>
+    // System Book Catalog Database Mapping Real Page Counts
+    const bookDatabase = [
+        { title: "I.R.L.", pages: 256, inStock: true },
+        { title: "Donut Go Breaking My Heart", pages: 304, inStock: true },
+        { title: "The Bletchley Riddle", pages: 368, inStock: false },
+        { title: "Middle School Get Me Out Of Here", pages: 304, inStock: true },
+        { title: "All's Faire in Middle School", pages: 240, inStock: true },
+        { title: "What is Juneteenth?", pages: 112, inStock: true },
+        { title: "Everything for a Dog", pages: 240, inStock: true },
+        { title: "Growing Home", pages: 208, inStock: true },
+        { title: "Olivetti", pages: 256, inStock: true },
+        { title: "Return to Sender", pages: 336, inStock: true },
+        { title: "The Playbook", pages: 176, inStock: true },
+        { title: "Out of My Mind", pages: 320, inStock: true },
+        { title: "Where the Red Fern Grows", pages: 256, inStock: true },
+        { title: "Where is the Bermuda Triangle?", pages: 112, inStock: true },
+        { title: "I Survived Graphic Novel: The Great Molasses Flood, 1919", pages: 160, inStock: true },
+        { title: "Where is the Eiffel Tower?", pages: 112, inStock: true },
+        { title: "Percy Jackson I", pages: 384, inStock: true },
+        { title: "Percy Jackson II", pages: 288, inStock: true },
+        { title: "Percy Jackson III", pages: 320, inStock: true },
+        { title: "Me Frida", pages: 40, inStock: true },
+        { title: "My Jasper June", pages: 304, inStock: true },
+        { title: "Are you there God? It's Me Margaret", pages: 192, inStock: true },
+        { title: "Zeus", pages: 80, inStock: true },
+        { title: "Deep Water", pages: 272, inStock: true },
+        { title: "Anne Frank", pages: 352, inStock: true }
+    ];
+
+    let isSignUpMode = false;
+    let currentUser = "Reader";
+    let selectedBooks = {}; 
+    let totalPagesRead = 0;
+    let totalMinutesRead = 0;
+
+    // DOM Bindings
+    const authSection = document.getElementById('auth-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+    const authForm = document.getElementById('auth-form');
+    const authName = document.getElementById('auth-name');
+    const authTitle = document.getElementById('auth-title');
+    const authBtn = document.getElementById('auth-btn');
+    const authToggle = document.getElementById('auth-toggle');
+    const userDisplayName = document.getElementById('user-display-name');
+    const catalogGrid = document.getElementById('catalog-grid');
+    const trackingBox = document.getElementById('tracking-box');
+    const progressContainer = document.getElementById('progress-container');
+    const logBookSelect = document.getElementById('log-book-select');
+    const logForm = document.getElementById('log-form');
+    const minuteForm = document.getElementById('minute-form');
+    const totalPagesDisplay = document.getElementById('total-pages');
+    const totalMinutesDisplay = document.getElementById('total-minutes');
+    const logHistory = document.getElementById('log-history');
+
+    // Build Catalog on Boot
+    function renderCatalog() {
+        catalogGrid.innerHTML = "";
+        bookDatabase.forEach((book, index) => {
+            const card = document.createElement('div');
+            card.classList.add('book-card');
+            card.innerHTML = `
+                <div class="book-title">${book.title}</div>
+                <div class="status-container">
+                    <span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'In Stock' : 'Out of Stock'}</span>
+                    ${book.inStock ? `<button class="choose-btn" onclick="chooseBook(${index})">Choose</button>` : ''}
+                </div>
+            `;
+            catalogGrid.appendChild(card);
+        });
+    }
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        if (isSignUpMode) {
+            authTitle.innerText = "Create Your Book Club Account";
+            authBtn.innerText = "Sign Up";
+            authName.classList.remove('hidden');
+            authName.required = true;
+            authToggle.innerText = "Already have an account? Log In";
+        } else {
+            authTitle.innerText = "Log In to View Your Books";
+            authBtn.innerText = "Log In";
+            authName.classList.add('hidden');
+            authName.required = false;
+            authToggle.innerText = "Don't have an account? Sign Up";
+        }
+    }
+
+    authForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (isSignUpMode && authName.value.trim() !== "") {
+            currentUser = authName.value.trim();
+            localStorage.setItem('clubUserName', currentUser);
+        } else {
+            currentUser = localStorage.getItem('clubUserName') || "Bookworm";
+        }
+        loadDashboard();
+    });
+
+    function chooseBook(index) {
+        const book = bookDatabase[index];
+        if (!selectedBooks[book.title]) {
+            selectedBooks[book.title] = { read: 0, total: book.pages };
+            saveToStorage();
+            updateDashboardProgressUI();
+        }
+    }
+
+    function updateDashboardProgressUI() {
+        progressContainer.innerHTML = "";
+        logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
+        
+        const keys = Object.keys(selectedBooks);
+        
+        if (keys.length === 0) {
+            trackingBox.classList.add('hidden');
+            return;
+        }
+        
+        trackingBox.classList.remove('hidden');
+        keys.forEach(title => {
+            const data = selectedBooks[title];
+            const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
+            
+            // Add progress HTML element
+            const progItem = document.createElement('div');
+            progItem.classList.add('progress-item');
+            progItem.innerHTML = `
+                <div class="progress-labels">
+                    <span>${title}</span>
+                    <span>${data.read} / ${data.total} pages (${percentage}%)</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                </div>
+            `;
+            progressContainer.appendChild(progItem);
+
+            // Populate Dropdown option list
+            const opt = document.createElement('option');
+            opt.value = title;
+            opt.innerText = title;
+            logBookSelect.appendChild(opt);
+        });
+    }
+
+    logForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const selectedTitle = logBookSelect.value;
+        const pagesEntered = parseInt(document.getElementById('pages-read').value);
+        
+        if (!selectedTitle) return;
+
+        selectedBooks[selectedTitle].read += pagesEntered;
+        totalPagesRead += pagesEntered;
+        totalPagesDisplay.innerText = totalPagesRead;
+
+        saveToStorage();
+        updateDashboardProgressUI();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('pages-read').value = '';
+    });
+
+    minuteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const mins = parseInt(document.getElementById('minutes-read').value);
+        totalMinutesRead += mins;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+        localStorage.setItem('clubTotalMinutes', totalMinutesRead);
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('minutes-read').value = '';
+    });
+
+    function saveToStorage() {
+        localStorage.setItem('clubSelectedBooksData', JSON.stringify(selectedBooks));
+        localStorage.setItem('clubTotalPages', totalPagesRead);
+    }
+
+    function loadDashboard() {
+        authSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        userDisplayName.innerText = currentUser;
+        
+        // Restore values
+        const savedBooks = localStorage.getItem('clubSelectedBooksData');
+        if (savedBooks) selectedBooks = JSON.parse(savedBooks);
+        
+        const savedPages = localStorage.getItem('clubTotalPages');
+        if (savedPages) totalPagesRead = parseInt(savedPages);
+        
+        const savedMins = localStorage.getItem('clubTotalMinutes');
+        if (savedMins) totalMinutesRead = parseInt(savedMins);
+
+        totalPagesDisplay.innerText = totalPagesRead;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+
+        updateDashboardProgressUI();
+    }
+
+    function logout() {
+        authSection.classList.remove('hidden');
+        dashboardSection.classList.add('hidden');
+        authForm.reset();
+    }
+
+    // Initialize 
+    renderCatalog();
+</script>
+</body>
+</html>
