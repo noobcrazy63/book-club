@@ -44,6 +44,8 @@
         .brand-header img {
             max-width: 100%;
             height: auto;
+            max-height: 350px;
+            object-fit: contain;
             border-radius: 6px;
         }
 
@@ -93,24 +95,6 @@
         button:hover {
             background-color: var(--secondary);
             color: var(--primary);
-        }
-
-        .switch-link {
-            text-align: center;
-            color: var(--muted-text);
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 15px;
-            text-decoration: underline;
-        }
-
-        /* Error Banner Styling */
-        #error-display {
-            color: var(--outstock);
-            text-align: center;
-            font-weight: bold;
-            margin-top: 10px;
-            min-height: 20px;
         }
 
         /* Dashboard Navbar */
@@ -297,25 +281,21 @@
 <div class="container">
     
     <div class="brand-header">
-        <img src="banner.png" alt="The Green-Seel Book Club Banner">
+        <img src="Screenshot 2026-05-22 4.56.22 PM.png" alt="The Green-Seel Book Club Banner">
     </div>
     
     <div id="auth-section">
-        <h2 id="auth-title">Log In to View Your Books</h2>
+        <h2>Welcome! Please Set Up Your Profile</h2>
         <form id="auth-form">
-            <input type="text" id="auth-name" placeholder="Full Name" class="hidden">
-            <input type="email" id="email" placeholder="Email Address" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit" id="auth-btn">Log In</button>
-            <div id="error-display"></div>
+            <input type="text" id="auth-name" placeholder="What is your name?" required>
+            <button type="submit">Start Tracking Progress</button>
         </form>
-        <p class="switch-link" id="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</p>
     </div>
 
     <div id="dashboard-section" class="hidden">
         <div class="nav-bar">
             <h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
-            <button class="logout-btn" onclick="logout()">Log Out</button>
+            <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
         </div>
 
         <div id="tracking-box" class="selected-box hidden">
@@ -355,7 +335,6 @@
 </div>
 
 <script>
-    // Master Book Database Config
     const defaultBooks = [
         { title: "I.R.L.", author: "Chris Valdez", pages: 256, inStock: true },
         { title: "Donut Go Breaking My Heart", author: "Suzanne Nelson", pages: 272, inStock: true },
@@ -387,11 +366,7 @@
     ];
 
     let bookDatabase = [...defaultBooks];
-    let isSignUpMode = false;
-    
-    // User Context Information Variables
-    let currentUserEmail = "";
-    let currentUserName = "Reader";
+    let currentUserName = "";
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
@@ -401,10 +376,6 @@
     const dashboardSection = document.getElementById('dashboard-section');
     const authForm = document.getElementById('auth-form');
     const authName = document.getElementById('auth-name');
-    const authTitle = document.getElementById('auth-title');
-    const authBtn = document.getElementById('auth-btn');
-    const authToggle = document.getElementById('auth-toggle');
-    const errorDisplay = document.getElementById('error-display');
     const userDisplayName = document.getElementById('user-display-name');
     const catalogGrid = document.getElementById('catalog-grid');
     const trackingBox = document.getElementById('tracking-box');
@@ -415,6 +386,31 @@
     const totalPagesDisplay = document.getElementById('total-pages');
     const totalMinutesDisplay = document.getElementById('total-minutes');
     const logHistory = document.getElementById('log-history');
+
+    // Auto-load profile data instantly when tab opens
+    function initApp() {
+        const savedName = localStorage.getItem('autoClubUserName');
+        
+        if (savedName) {
+            currentUserName = savedName;
+            
+            const savedCatalog = localStorage.getItem('autoClubCatalogState');
+            if (savedCatalog) bookDatabase = JSON.parse(savedCatalog);
+
+            const savedBooks = localStorage.getItem('autoClubSelectedBooksData');
+            if (savedBooks) selectedBooks = JSON.parse(savedBooks);
+
+            const savedPages = localStorage.getItem('autoClubTotalPages');
+            if (savedPages) totalPagesRead = parseInt(savedPages);
+            
+            const savedMins = localStorage.getItem('autoClubTotalMinutes');
+            if (savedMins) totalMinutesRead = parseInt(savedMins);
+
+            loadDashboard();
+        } else {
+            renderCatalog();
+        }
+    }
 
     function renderCatalog() {
         catalogGrid.innerHTML = "";
@@ -438,102 +434,27 @@
         });
     }
 
-    function toggleAuthMode() {
-        isSignUpMode = !isSignUpMode;
-        errorDisplay.innerText = "";
-        authForm.reset();
-        
-        if (isSignUpMode) {
-            authTitle.innerText = "Create Your Book Club Account";
-            authBtn.innerText = "Sign Up";
-            authName.classList.remove('hidden');
-            authName.required = true;
-            authToggle.innerText = "Already have an account? Log In";
-        } else {
-            authTitle.innerText = "Log In to View Your Books";
-            authBtn.innerText = "Log In";
-            authName.classList.add('hidden');
-            authName.required = false;
-            authToggle.innerText = "Don't have an account? Sign Up";
-        }
-    }
-
     authForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        errorDisplay.innerText = "";
-
-        const emailInput = document.getElementById('email').value.trim().toLowerCase();
-        const passwordInput = document.getElementById('password').value;
-        const nameInput = authName.value.trim();
-
-        let registeredUsers = JSON.parse(localStorage.getItem('clubRegisteredUsers')) || {};
-
-        if (isSignUpMode) {
-            if (registeredUsers[emailInput]) {
-                errorDisplay.innerText = "❌ An account with this email already exists!";
-                return;
-            }
-
-            // Write registration payload values
-            registeredUsers[emailInput] = {
-                name: nameInput,
-                password: passwordInput,
-                selectedBooks: {},
-                totalPagesRead: 0,
-                totalMinutesRead: 0,
-                bookDatabaseState: [...defaultBooks]
-            };
-            
-            localStorage.setItem('clubRegisteredUsers', JSON.stringify(registeredUsers));
-            currentUserEmail = emailInput;
-            currentUserName = nameInput;
-            
-            loadUserDashboardData(registeredUsers[emailInput]);
-        } else {
-            const existingUser = registeredUsers[emailInput];
-
-            if (!existingUser || existingUser.password !== passwordInput) {
-                errorDisplay.innerText = "❌ Invalid username or password!";
-                return;
-            }
-
-            currentUserEmail = emailInput;
-            currentUserName = existingUser.name;
-            
-            loadUserDashboardData(existingUser);
+        const inputName = authName.value.trim();
+        if (inputName !== "") {
+            currentUserName = inputName;
+            localStorage.setItem('autoClubUserName', currentUserName);
+            saveToStorage();
+            loadDashboard();
         }
     });
 
-    function loadUserDashboardData(userDataObject) {
-        selectedBooks = userDataObject.selectedBooks || {};
-        totalPagesRead = userDataObject.totalPagesRead || 0;
-        totalMinutesRead = userDataObject.totalMinutesRead || 0;
-        bookDatabase = userDataObject.bookDatabaseState || [...defaultBooks];
-
+    function loadDashboard() {
         authSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
         userDisplayName.innerText = currentUserName;
 
         totalPagesDisplay.innerText = totalPagesRead;
         totalMinutesDisplay.innerText = totalMinutesRead;
-        logHistory.innerHTML = ""; 
 
         renderCatalog();
         updateDashboardProgressUI();
-    }
-
-    function saveUserProgressToStorage() {
-        if (!currentUserEmail) return;
-        let registeredUsers = JSON.parse(localStorage.getItem('clubRegisteredUsers')) || {};
-        
-        if (registeredUsers[currentUserEmail]) {
-            registeredUsers[currentUserEmail].selectedBooks = selectedBooks;
-            registeredUsers[currentUserEmail].totalPagesRead = totalPagesRead;
-            registeredUsers[currentUserEmail].totalMinutesRead = totalMinutesRead;
-            registeredUsers[currentUserEmail].bookDatabaseState = bookDatabase;
-            
-            localStorage.setItem('clubRegisteredUsers', JSON.stringify(registeredUsers));
-        }
     }
 
     function chooseBook(index) {
@@ -542,7 +463,7 @@
             selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
             book.inStock = false; 
             
-            saveUserProgressToStorage();
+            saveToStorage();
             renderCatalog(); 
             updateDashboardProgressUI();
         }
@@ -555,7 +476,7 @@
             delete selectedBooks[title]; 
             book.inStock = true;
 
-            saveUserProgressToStorage();
+            saveToStorage();
             renderCatalog();
             updateDashboardProgressUI();
 
@@ -616,7 +537,7 @@
         totalPagesRead += pagesEntered;
         totalPagesDisplay.innerText = totalPagesRead;
 
-        saveUserProgressToStorage();
+        saveToStorage();
         updateDashboardProgressUI();
 
         const entry = document.createElement('div');
@@ -635,7 +556,7 @@
         totalMinutesRead += mins;
         totalMinutesDisplay.innerText = totalMinutesRead;
         
-        saveUserProgressToStorage();
+        saveToStorage();
 
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
@@ -645,16 +566,20 @@
         document.getElementById('minutes-read').value = '';
     });
 
-    function logout() {
-        authSection.classList.remove('hidden');
-        dashboardSection.classList.add('hidden');
-        currentUserEmail = "";
-        currentUserName = "Reader";
-        authForm.reset();
+    function saveToStorage() {
+        localStorage.setItem('autoClubSelectedBooksData', JSON.stringify(selectedBooks));
+        localStorage.setItem('autoClubTotalPages', totalPagesRead);
+        localStorage.setItem('autoClubTotalMinutes', totalMinutesRead);
+        localStorage.setItem('autoClubCatalogState', JSON.stringify(bookDatabase));
     }
 
-    // Set initial baseline layout for logged out catalog structure view
-    renderCatalog();
+    function clearProfile() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    // Run baseline browser memory verification
+    initApp();
 </script>
 </body>
 </html>
