@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Green-Seel Book Club</title>
+    <title>The Seelhoefer Summer Book-Club</title>
     <style>
         :root {
-            --primary: #3ade65;     
-            --secondary: #000000;   
+            --primary: #64E3FF;     /* The exact cyan from your new logo banner */
+            --secondary: #000000;   /* Solid black */
             --bg: #f2fbf4;          
             --white: #ffffff;
             --muted-text: #555555;
@@ -312,7 +312,7 @@
 <div class="container">
     
     <div class="brand-header">
-        <img src="Screenshot 2026-05-22 4.56.22 PM.png" alt="The Green-Seel Book Club Banner">
+        <img src="ChatGPT Image May 23, 2026, 11_20_05 AM.png" alt="Seelhoefer Summer Book-Club Banner">
     </div>
     
     <div id="auth-section">
@@ -372,7 +372,6 @@
 </div>
 
 <script>
-    // Successfully connected with your exact app keys
     const firebaseConfig = {
         apiKey: "AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs",
         authDomain: "book-club-54785.firebaseapp.com",
@@ -384,7 +383,6 @@
         measurementId: "G-115G2ZPTNB"
     };
 
-    // Correctly initialize using the global compat setup
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
@@ -424,7 +422,6 @@
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
 
-    // DOM Bindings
     const authSection = document.getElementById('auth-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const authForm = document.getElementById('auth-form');
@@ -441,9 +438,7 @@
     const logHistory = document.getElementById('log-history');
     const leaderboardList = document.getElementById('leaderboard-list');
 
-    // Live listening node connections across all devices
     function initLiveSync() {
-        // 1. Monitor the common library book catalog
         database.ref('bookCatalog').on('value', snapshot => {
             const data = snapshot.val();
             if (data) {
@@ -455,7 +450,6 @@
             if (currentUserName) updateDashboardProgressUI();
         });
 
-        // 2. Monitor the global club scoreboard ranking metrics
         database.ref('users').on('value', snapshot => {
             renderLeaderboard(snapshot.val());
             
