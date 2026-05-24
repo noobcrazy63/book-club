@@ -12,7 +12,8 @@
             --white: #ffffff;
             --muted-text: #555555;
             --instock: #2a9d8f;     
-            --outstock: #e63946;    
+            --outstock: #e63946;
+            --gold-yellow: #FFD700; /* Bright treasure yellow */    
         }
 
         body {
@@ -276,13 +277,63 @@
             align-items: center;
         }
 
+        /* Community Chest Layout */
+        .community-goal-box {
+            text-align: center;
+            background: #fdfdfd;
+            border: 2px dashed #b1d8ef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0 15px 0;
+        }
+
+        .community-goal-box img {
+            max-width: 140px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .chest-bar-bg {
+            background-color: #e0e0e0;
+            border: 2px solid var(--secondary);
+            border-radius: 20px;
+            overflow: hidden;
+            height: 28px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chest-bar-fill {
+            background-color: var(--gold-yellow);
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 1;
+        }
+
+        .chest-bar-text {
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
         /* Leaderboard Styles */
         .leaderboard-box {
             background: #ffffff;
             border: 2px solid var(--secondary);
             border-radius: 8px;
             padding: 15px;
-            margin: 20px 0;
+            margin: 15px 0 20px 0;
         }
         .leaderboard-list {
             list-style: none;
@@ -432,6 +483,15 @@
 
         <h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span id="total-minutes">0</span> minutes spent</h4>
         
+        <div class="community-goal-box">
+            <h3>🏴‍☠️ Club Treasure Quest</h3>
+            <img src="aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png" alt="Treasure Chest">
+            <div class="chest-bar-bg">
+                <div id="chest-bar-fill" class="chest-bar-fill"></div>
+                <div id="chest-bar-text" class="chest-bar-text">0 / 1000 pages read</div>
+            </div>
+        </div>
+
         <div class="leaderboard-box">
             <h3>🏆 Club Leaderboard</h3>
             <ul id="leaderboard-list" class="leaderboard-list"></ul>
@@ -534,6 +594,9 @@
     const totalMinutesDisplay = document.getElementById('total-minutes');
     const logHistory = document.getElementById('log-history');
     const leaderboardList = document.getElementById('leaderboard-list');
+    
+    const chestBarFill = document.getElementById('chest-bar-fill');
+    const chestBarText = document.getElementById('chest-bar-text');
 
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
@@ -548,7 +611,9 @@
         });
 
         database.ref('users').on('value', snapshot => {
-            renderLeaderboard(snapshot.val());
+            const usersData = snapshot.val();
+            renderLeaderboard(usersData);
+            calculateCommunityProgress(usersData);
             
             if (currentUserName && snapshot.hasChild(currentUserName)) {
                 const userSnapshot = snapshot.child(currentUserName).val();
@@ -622,6 +687,24 @@
         });
     }
 
+    /* Calculates the cumulative pages read across all user logs */
+    function calculateCommunityProgress(usersData) {
+        let globalTotalPages = 0;
+        const goalTarget = 1000;
+
+        if (usersData) {
+            Object.keys(usersData).forEach(name => {
+                globalTotalPages += (usersData[name].totalPages || 0);
+            });
+        }
+
+        chestBarText.innerText = `${globalTotalPages} / ${goalTarget} pages read`;
+        
+        // Calculate fill ratio percentage maxed out at 100%
+        const fillPercentage = Math.min((globalTotalPages / goalTarget) * 100, 100);
+        chestBarFill.style.width = `${fillPercentage}%`;
+    }
+
     authForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const inputName = authName.value.trim().replace(/[.#$\[\]]/g, ""); 
@@ -649,7 +732,7 @@
     function loadDashboard() {
         authSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
-        fabButton.classList.remove('hidden'); // Show FAB once user is signed in
+        fabButton.classList.remove('hidden'); 
         userDisplayName.innerText = currentUserName;
         totalPagesDisplay.innerText = totalPagesRead;
         totalMinutesDisplay.innerText = totalMinutesRead;
@@ -674,7 +757,6 @@
         const pages = parseInt(document.getElementById('modal-pages').value);
 
         if (title && author && !isNaN(pages)) {
-            // Push new custom book directly to catalog database
             bookDatabase.push({
                 title: title,
                 author: author,
