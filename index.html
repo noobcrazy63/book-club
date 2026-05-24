@@ -126,12 +126,23 @@
             flex: 1;
         }
 
+        /* Search Section */
+        .search-container {
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .search-container input {
+            padding: 10px 15px;
+            font-size: 15px;
+        }
+
         /* Book Grid Layout */
         .book-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px;
             margin-top: 15px;
+            min-height: 250px;
         }
 
         .book-card {
@@ -188,6 +199,41 @@
             padding: 4px 12px;
             margin: 0;
             font-size: 13px;
+        }
+
+        /* Pagination Layout */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .page-arrow-btn {
+            width: 45px;
+            height: 45px;
+            padding: 0;
+            margin: 0;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        .page-arrow-btn:disabled {
+            background-color: #eeeeee;
+            border-color: #cccccc;
+            color: #bbbbbb;
+            cursor: not-allowed;
+        }
+
+        .page-indicator-text {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--muted-text);
         }
 
         /* Selected Progress Section */
@@ -502,7 +548,18 @@
         <hr>
 
         <h3>📚 Available Library Books</h3>
+        
+        <div class="search-container">
+            <input type="text" id="catalog-search" placeholder="🔍 Search library by title... (try typing 'blet')" oninput="handleSearchSearch()">
+        </div>
+
         <div class="book-grid" id="catalog-grid"></div>
+
+        <div class="pagination-controls">
+            <button id="prev-page-btn" class="page-arrow-btn" onclick="goToPrevPage()">←</button>
+            <span id="page-indicator" class="page-indicator-text">Page 1 of 1</span>
+            <button id="next-page-btn" class="page-arrow-btn" onclick="goToNextPage()">→</button>
+        </div>
     </div>
 
 </div>
@@ -569,11 +626,16 @@
         { title: "Anne Frank", author: "Anne Frank", pages: 352, inStock: true }
     ];
 
-    let bookDatabase = [...defaultBooks];
+    let bookDatabase = [];
+    let filteredBooks = [];
     let currentUserName = localStorage.getItem('autoClubUserName') || "";
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
+
+    // Pagination Configurations
+    let currentPage = 1;
+    const booksPerPage = 25;
 
     const authSection = document.getElementById('auth-section');
     const dashboardSection = document.getElementById('dashboard-section');
@@ -597,6 +659,11 @@
     
     const chestBarFill = document.getElementById('chest-bar-fill');
     const chestBarText = document.getElementById('chest-bar-text');
+    const catalogSearch = document.getElementById('catalog-search');
+
+    const prevPageBtn = document.getElementById('prev-page-btn');
+    const nextPageBtn = document.getElementById('next-page-btn');
+    const pageIndicator = document.getElementById('page-indicator');
 
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
@@ -604,9 +671,14 @@
             if (data) {
                 bookDatabase = data;
             } else {
+                bookDatabase = [...defaultBooks];
                 database.ref('bookCatalog').set(defaultBooks);
             }
-            renderCatalog();
+            
+            // Strictly enforce A-Z sorting across titles
+            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
+            
+            applyFilterAndRender();
             if (currentUserName) updateDashboardProgressUI();
         });
 
@@ -632,26 +704,79 @@
         }
     }
 
-    function renderCatalog() {
+    // Handles keyword searching + resetting page views back to 1
+    function handleSearchSearch() {
+        currentPage = 1;
+        applyFilterAndRender();
+    }
+
+    function applyFilterAndRender() {
+        const query = catalogSearch.value.toLowerCase().trim();
+        
+        if (query === "") {
+            filteredBooks = [...bookDatabase];
+        } else {
+            filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
+        }
+        
+        renderCatalogPage();
+    }
+
+    function renderCatalogPage() {
         catalogGrid.innerHTML = "";
-        bookDatabase.forEach((book, index) => {
-            const card = document.createElement('div');
-            card.classList.add('book-card');
-            
-            card.innerHTML = `
-                <div class="book-info-container">
-                    <div>
-                        <div class="book-title">${book.title}</div>
-                        <div class="book-author">by ${book.author}</div>
+        
+        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
+        if (currentPage > totalPagesCount) currentPage = totalPagesCount;
+
+        // Calculate array split coordinates
+        const startIndex = (currentPage - 1) * booksPerPage;
+        const endIndex = startIndex + booksPerPage;
+        const pageItems = filteredBooks.slice(startIndex, endIndex);
+
+        if (pageItems.length === 0) {
+            catalogGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--muted-text); padding: 30px;">No books match your search criteria.</div>`;
+        } else {
+            pageItems.forEach((book) => {
+                // Pinpoint original index position inside root catalogue array
+                const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
+
+                const card = document.createElement('div');
+                card.classList.add('book-card');
+                card.innerHTML = `
+                    <div class="book-info-container">
+                        <div>
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-author">by ${book.author}</div>
+                        </div>
+                        <div class="status-container">
+                            <span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'In Stock' : 'Out of Stock'}</span>
+                            ${book.inStock ? `<button class="choose-btn" onclick="chooseBook(${originalIndex})">Choose</button>` : ''}
+                        </div>
                     </div>
-                    <div class="status-container">
-                        <span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'In Stock' : 'Out of Stock'}</span>
-                        ${book.inStock ? `<button class="choose-btn" onclick="chooseBook(${index})">Choose</button>` : ''}
-                    </div>
-                </div>
-            `;
-            catalogGrid.appendChild(card);
-        });
+                `;
+                catalogGrid.appendChild(card);
+            });
+        }
+
+        // Refresh panel counters & disable/enable buttons dynamically
+        pageIndicator.innerText = `${currentPage} out of ${totalPagesCount} pages`;
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPagesCount;
+    }
+
+    function goToPrevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderCatalogPage();
+        }
+    }
+
+    function goToNextPage() {
+        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
+        if (currentPage < totalPagesCount) {
+            currentPage++;
+            renderCatalogPage();
+        }
     }
 
     function renderLeaderboard(usersData) {
@@ -687,12 +812,9 @@
         });
     }
 
-    /* Calculates and sets the logged-in reader's custom treasure box goal status */
     function updatePersonalGoalUI() {
         const goalTarget = 1000;
         chestBarText.innerText = `${totalPagesRead} / ${goalTarget} pages read`;
-        
-        // Calculate fill ratio percentage maxed out at 100%
         const fillPercentage = Math.min((totalPagesRead / goalTarget) * 100, 100);
         chestBarFill.style.width = `${fillPercentage}%`;
     }
@@ -729,7 +851,7 @@
         totalPagesDisplay.innerText = totalPagesRead;
         totalMinutesDisplay.innerText = totalMinutesRead;
 
-        renderCatalog();
+        applyFilterAndRender();
         updateDashboardProgressUI();
         updatePersonalGoalUI();
     }
@@ -756,6 +878,10 @@
                 pages: pages,
                 inStock: true
             });
+            
+            // Re-sort catalog A-Z instantly on additions
+            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
+            
             saveCatalogToCloud();
             closeAddBookModal();
         }
