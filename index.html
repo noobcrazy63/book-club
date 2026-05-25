@@ -1016,12 +1016,16 @@
         }
     }
 
-    function turnInBook(index) {
-        const book = bookDatabase[index];
-        if (book && selectedBooks[book.title]) {
-            const title = book.title;
-            delete selectedBooks[title]; 
-            book.inStock = true;
+    /* FIX: Looks up the book target directly by its string Title key inside selectedBooks */
+    function turnInBook(bookTitle) {
+        if (selectedBooks[bookTitle]) {
+            // Find the original object location in the master catalog array to restock it
+            const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
+            if (bookInCatalog) {
+                bookInCatalog.inStock = true;
+            }
+
+            delete selectedBooks[bookTitle]; 
 
             saveProfileToCloud();
             saveCatalogToCloud();
@@ -1029,7 +1033,7 @@
             const entry = document.createElement('div');
             entry.classList.add('log-entry');
             entry.style.borderLeftColor = "#e63946";
-            entry.innerHTML = `<span>🔄 Returned: <strong>"${title}"</strong> has been turned back in to the library!</span>`;
+            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
             logHistory.prepend(entry);
         }
     }
@@ -1049,6 +1053,9 @@
             const data = selectedBooks[title];
             const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
             
+            // Escapes single quotes in book titles safely for the inline JavaScript call
+            const safeTitleString = title.replace(/'/g, "\\'");
+
             const progItem = document.createElement('div');
             progItem.classList.add('progress-item');
             progItem.innerHTML = `
@@ -1057,7 +1064,7 @@
                         <span class="progress-book-name">${title}</span>
                         <span class="progress-book-stats">${data.read} / ${data.total} pages completed (${percentage}%)</span>
                     </div>
-                    <button class="turn-in-btn" onclick="turnInBook(${data.index})">Turn In Book</button>
+                    <button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In Book</button>
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: ${percentage}%"></div>
