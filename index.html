@@ -6,7 +6,7 @@
     <title>The Seelhoefer Summer Book-Club</title>
     <style>
         :root {
-            --primary: #BFE8FF;     /* The exact soft summer cyan from your new beach banner */
+            --primary: #BFE8FF;     /* The exact soft summer cyan from your beach banner */
             --secondary: #000000;   /* Solid black */
             --bg: #f5fafd;          
             --white: #ffffff;
@@ -560,6 +560,70 @@
             background-color: #dddddd;
             color: #000000;
         }
+
+        /* --- 3D Avatar Creation UI styles --- */
+        .avatar-creator-container {
+            background: #ffffff;
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .avatar-preview-box {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 15px auto;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            background: #ebf8ff;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .base-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            color: var(--secondary);
+        }
+
+        .base-btn.active {
+            border-color: var(--secondary);
+            background-color: var(--primary);
+        }
+
+        /* Spinner CSS */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--secondary);
+            animation: spin 1s linear infinite;
+            position: absolute;
+            z-index: 5;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -585,6 +649,35 @@
         <div class="nav-bar">
             <h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
             <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
+        </div>
+
+        <div class="avatar-creator-container">
+            <h3>✨ Your Summer 3D Avatar ✨</h3>
+            
+            <div class="avatar-preview-box">
+                <div id="avatar-loading-spinner" class="spinner hidden"></div>
+                <img id="avatar-current-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=Seelhoefer" alt="Your Avatar" />
+            </div>
+
+            <div id="avatar-creation-inputs">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">1. Choose Your Base Style:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="btn-base-boy" class="base-btn active" onclick="setAvatarBase('boy')">👦 3D Boy Base</button>
+                        <button type="button" id="btn-base-girl" class="base-btn" onclick="setAvatarBase('girl')">👧 3D Girl Base</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">2. Describe Your Beach Outfit & Hair:</label>
+                    <input type="text" id="avatar-description" placeholder="e.g., green sunglasses, red hawaiian shirt, spikey blue hair" maxlength="80" oninput="updateCharCount()" style="margin: 0;">
+                    <div style="font-size: 11px; color: var(--muted-text); text-align: right; margin-top: 4px;">
+                        <span id="current-chars">0</span>/80 characters
+                    </div>
+                </div>
+
+                <button type="button" id="generate-avatar-btn" onclick="summonAvatar()" style="margin: 0;">🌊 Summon My Character!</button>
+            </div>
         </div>
 
         <div id="tracking-box" class="selected-box hidden">
@@ -723,6 +816,7 @@
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
+    let selectedAvatarBase = "boy";
 
     // Pagination Configurations
     let currentPage = 1;
@@ -784,6 +878,12 @@
                 
                 totalPagesDisplay.innerText = totalPagesRead;
                 totalMinutesDisplay.innerText = totalMinutesRead;
+
+                // Download their custom 3D image URL automatically from Firebase
+                if (userSnapshot.avatarUrl) {
+                    document.getElementById('avatar-current-img').src = userSnapshot.avatarUrl;
+                }
+
                 updateDashboardProgressUI();
                 updatePersonalGoalUI();
                 renderAchievements();
@@ -906,7 +1006,6 @@
         chestBarFill.style.width = `${fillPercentage}%`;
     }
 
-    /* Evaluates club metrics and maps them to your uploaded custom asset images */
     function renderAchievements() {
         achievementsGrid.innerHTML = "";
         
@@ -1019,7 +1118,6 @@
     /* FIX: Looks up the book target directly by its string Title key inside selectedBooks */
     function turnInBook(bookTitle) {
         if (selectedBooks[bookTitle]) {
-            // Find the original object location in the master catalog array to restock it
             const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
             if (bookInCatalog) {
                 bookInCatalog.inStock = true;
@@ -1053,7 +1151,6 @@
             const data = selectedBooks[title];
             const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
             
-            // Escapes single quotes in book titles safely for the inline JavaScript call
             const safeTitleString = title.replace(/'/g, "\\'");
 
             const progItem = document.createElement('div');
@@ -1123,10 +1220,16 @@
 
     function saveProfileToCloud() {
         if (!currentUserName) return;
+        
+        // Fetch current avatar value to ensure it isn't overwritten during typical log resets
+        const currentImgSrc = document.getElementById('avatar-current-img').src;
+        const savedUrl = currentImgSrc.includes("dicebear.com") ? "" : currentImgSrc;
+
         database.ref('users/' + currentUserName).set({
             selectedBooks: selectedBooks,
             totalPages: totalPagesRead,
-            totalMinutes: totalMinutesRead
+            totalMinutes: totalMinutesRead,
+            avatarUrl: savedUrl
         });
     }
 
@@ -1137,6 +1240,69 @@
     function clearProfile() {
         localStorage.removeItem('autoClubUserName');
         location.reload();
+    }
+
+    /* --- 3D Avatar Generation Engine Logic Code Blocks --- */
+    function setAvatarBase(style) {
+        selectedAvatarBase = style;
+        document.getElementById('btn-base-boy').classList.toggle('active', style === 'boy');
+        document.getElementById('btn-base-girl').classList.toggle('active', style === 'girl');
+    }
+
+    function updateCharCount() {
+        const len = document.getElementById('avatar-description').value.length;
+        document.getElementById('current-chars').innerText = len;
+    }
+
+    async function summonAvatar() {
+        const userText = document.getElementById('avatar-description').value.trim();
+        if (!userText) {
+            alert("Please describe your outfit or style choices first!");
+            return;
+        }
+
+        // Structural prompt injection template designed to match your 3D reference model asset
+        const structuralPrompt = `A 3D render of a stylized ${selectedAvatarBase} avatar character, smooth glossy plastic clothing, stylized hair, ${userText}, game character select screen style, solid light-blue pastel background, Pixar style lighting, octane render, clean front-facing portrait.`;
+
+        const spinner = document.getElementById('avatar-loading-spinner');
+        const avatarImg = document.getElementById('avatar-current-img');
+        const actionBtn = document.getElementById('generate-avatar-btn');
+
+        try {
+            spinner.classList.remove('hidden');
+            avatarImg.style.opacity = "0.3";
+            actionBtn.disabled = true;
+            actionBtn.innerText = "⚡ Baking Your 3D Assets...";
+
+            // Connects directly up to your secure API endpoint handling the generation server wrapper
+            const response = await fetch('/api/generate-avatar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: structuralPrompt })
+            });
+            
+            const result = await response.json();
+
+            if (result.success && result.imageUrl) {
+                avatarImg.src = result.imageUrl;
+                
+                if (currentUserName) {
+                    database.ref('users/' + currentUserName).update({
+                        avatarUrl: result.imageUrl
+                    });
+                }
+            } else {
+                alert("The prompt generator timed out. Please click summon again!");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Connection error. Ensure your backend endpoint routing is listening.");
+        } finally {
+            spinner.classList.add('hidden');
+            avatarImg.style.opacity = "1";
+            actionBtn.disabled = false;
+            actionBtn.innerText = "🌊 Summon My Character!";
+        }
     }
 
     initLiveSync();
