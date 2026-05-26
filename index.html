@@ -572,12 +572,13 @@
         }
 
         .avatar-preview-box {
-            width: 180px;
-            height: 240px;
+            /* INCREASED SIZES BELOW */
+            width: 240px;
+            height: 320px;
             margin: 0 auto 15px auto;
             border-radius: 12px;
             border: 3px solid var(--primary);
-            background: #ebf8ff;
+            background: #e2e8f0;
             overflow: hidden;
             position: relative;
             display: flex;
@@ -656,7 +657,7 @@
             
             <div class="avatar-preview-box">
                 <div id="avatar-loading-spinner" class="spinner hidden"></div>
-                <img id="avatar-current-img" src="https://api.dicebear.com/7.x/initials/svg?seed=Gray&backgroundColor=b0b0b0&chars=3D" alt="Your Avatar" />
+                <img id="avatar-current-img" src="https://placehold.co/240x320/cccccc/555555?text=Plain+Gray%5Cn3D+Base+Model" alt="Your Avatar" />
             </div>
 
             <div id="avatar-creation-inputs">
@@ -1220,7 +1221,8 @@
         if (!currentUserName) return;
         
         const currentImgSrc = document.getElementById('avatar-current-img').src;
-        const savedUrl = currentImgSrc.includes("dicebear.com") && currentImgSrc.includes("seed=Gray") ? "" : currentImgSrc;
+        // Don't save default placeholders so it regenerates properly
+        const savedUrl = currentImgSrc.includes("placehold.co") ? "" : currentImgSrc;
 
         database.ref('users/' + currentUserName).set({
             selectedBooks: selectedBooks,
@@ -1258,10 +1260,8 @@
             return;
         }
 
-        // Automatic hair modifier rule mapping based on variant selections
         const hairModifier = (selectedAvatarBase === 'girl') ? 'stylized long flowing hair' : 'stylized short haircut';
 
-        // Master prompt structure designed to explicitly match clean, full-body, 3D plain gray modeling assets
         const structuralPrompt = `A detailed 3D render of a stylized plain gray full-body ${selectedAvatarBase} figurine avatar model character, claymorphic smooth glossy texture, ${hairModifier}, wearing ${userText}, video game asset select layout, solid light-blue background, uniform soft studio lighting, high-resolution front portrait render.`;
 
         const spinner = document.getElementById('avatar-loading-spinner');
@@ -1295,11 +1295,11 @@
                 throw new Error("API Route offline or missing setup wrapper");
             }
         } catch (err) {
-            console.log("Backend offline, launching sandbox local 3D render engine mode instead.");
+            console.log("Backend offline, launching safe placeholder render mode instead.");
             
-            // Local fallback avatar option
-            const seedVariant = encodeURIComponent(`${selectedAvatarBase}_${userText}`);
-            const sandboxMockUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${seedVariant}&colors[]=blueGray`;
+            // Safe fallback avatar placeholder that won't show a broken image
+            const seedVariant = encodeURIComponent(`${selectedAvatarBase} ${userText}`);
+            const sandboxMockUrl = `https://placehold.co/240x320/bfe8ff/000000?text=Summoned+Avatar%5Cn(${seedVariant})`;
             
             avatarImg.src = sandboxMockUrl;
             
