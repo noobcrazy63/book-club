@@ -6,14 +6,14 @@
     <title>The Seelhoefer Summer Book-Club</title>
     <style>
         :root {
-            --primary: #BFE8FF;     /* The exact soft summer cyan from your beach banner */
-            --secondary: #000000;   /* Solid black */
+            --primary: #BFE8FF;     
+            --secondary: #000000;   
             --bg: #f5fafd;          
             --white: #ffffff;
             --muted-text: #555555;
             --instock: #2a9d8f;     
             --outstock: #e63946;
-            --gold-yellow: #FFD700; /* Bright treasure yellow */    
+            --gold-yellow: #FFD700; 
         }
 
         body {
@@ -415,7 +415,6 @@
             transition: filter 0.3s, opacity 0.3s;
         }
 
-        /* Locked state styling using CSS grayscale filter */
         .badge-card.locked {
             background: #f7f9fa;
             border-color: #e6ebed;
@@ -561,7 +560,7 @@
             color: #000000;
         }
 
-        /* --- 3D Avatar Creation UI styles --- */
+        /* --- Avatar Creation UI styles --- */
         .avatar-creator-container {
             background: #ffffff;
             border: 2px solid var(--secondary);
@@ -572,13 +571,12 @@
         }
 
         .avatar-preview-box {
-            /* INCREASED SIZES BELOW */
             width: 240px;
             height: 320px;
             margin: 0 auto 15px auto;
             border-radius: 12px;
             border: 3px solid var(--primary);
-            background: #e2e8f0;
+            background: #BFE8FF;
             overflow: hidden;
             position: relative;
             display: flex;
@@ -653,25 +651,25 @@
         </div>
 
         <div class="avatar-creator-container">
-            <h3>✨ Your Summer 3D Avatar ✨</h3>
+            <h3>✨ Your Summer Adventurer Avatar ✨</h3>
             
             <div class="avatar-preview-box">
                 <div id="avatar-loading-spinner" class="spinner hidden"></div>
-                <img id="avatar-current-img" src="https://placehold.co/240x320/cccccc/555555?text=Plain+Gray%5Cn3D+Base+Model" alt="Your Avatar" />
+                <img id="avatar-current-img" src="https://api.dicebear.com/8.x/adventurer/svg?seed=SummerReader&backgroundColor=bfe8ff" alt="Your Avatar" />
             </div>
 
             <div id="avatar-creation-inputs">
                 <div style="margin-bottom: 12px;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">1. Choose Your Base Style:</label>
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">1. Choose a Style Vibe:</label>
                     <div style="display: flex; gap: 10px;">
-                        <button type="button" id="btn-base-boy" class="base-btn active" onclick="setAvatarBase('boy')">👦 3D Boy Base</button>
-                        <button type="button" id="btn-base-girl" class="base-btn" onclick="setAvatarBase('girl')">👧 3D Girl Base</button>
+                        <button type="button" id="btn-base-boy" class="base-btn active" onclick="setAvatarBase('Cool')">😎 Cool</button>
+                        <button type="button" id="btn-base-girl" class="base-btn" onclick="setAvatarBase('Cute')">🥰 Cute</button>
                     </div>
                 </div>
 
                 <div style="margin-bottom: 15px; text-align: left;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">2. Describe Your Beach Outfit & Custom Colors:</label>
-                    <input type="text" id="avatar-description" placeholder="e.g., neon sunglasses, bright red hawaiian shirt, green swim trunks" maxlength="80" oninput="updateCharCount()" style="margin: 0;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">2. Type any random text to generate a unique character:</label>
+                    <input type="text" id="avatar-description" placeholder="e.g., Beach Explorer 99" maxlength="80" oninput="updateCharCount()" style="margin: 0;">
                     <div style="font-size: 11px; color: var(--muted-text); text-align: right; margin-top: 4px;">
                         <span id="current-chars">0</span>/80 characters
                     </div>
@@ -817,7 +815,7 @@
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
-    let selectedAvatarBase = "boy";
+    let selectedAvatarBase = "Cool";
 
     // Pagination Configurations
     let currentPage = 1;
@@ -1221,14 +1219,12 @@
         if (!currentUserName) return;
         
         const currentImgSrc = document.getElementById('avatar-current-img').src;
-        // Don't save default placeholders so it regenerates properly
-        const savedUrl = currentImgSrc.includes("placehold.co") ? "" : currentImgSrc;
 
         database.ref('users/' + currentUserName).set({
             selectedBooks: selectedBooks,
             totalPages: totalPagesRead,
             totalMinutes: totalMinutesRead,
-            avatarUrl: savedUrl
+            avatarUrl: currentImgSrc
         });
     }
 
@@ -1241,11 +1237,11 @@
         location.reload();
     }
 
-    /* --- 3D Avatar Generation Engine Logic Code Blocks --- */
+    /* --- INSTANT AVATAR GENERATION WITH DICEBEAR API --- */
     function setAvatarBase(style) {
         selectedAvatarBase = style;
-        document.getElementById('btn-base-boy').classList.toggle('active', style === 'boy');
-        document.getElementById('btn-base-girl').classList.toggle('active', style === 'girl');
+        document.getElementById('btn-base-boy').classList.toggle('active', style === 'Cool');
+        document.getElementById('btn-base-girl').classList.toggle('active', style === 'Cute');
     }
 
     function updateCharCount() {
@@ -1253,67 +1249,46 @@
         document.getElementById('current-chars').innerText = len;
     }
 
-    async function summonAvatar() {
+    function summonAvatar() {
         const userText = document.getElementById('avatar-description').value.trim();
         if (!userText) {
-            alert("Please describe your outfit or style choices first!");
+            alert("Please type some text to seed your character!");
             return;
         }
-
-        const hairModifier = (selectedAvatarBase === 'girl') ? 'stylized long flowing hair' : 'stylized short haircut';
-
-        const structuralPrompt = `A detailed 3D render of a stylized plain gray full-body ${selectedAvatarBase} figurine avatar model character, claymorphic smooth glossy texture, ${hairModifier}, wearing ${userText}, video game asset select layout, solid light-blue background, uniform soft studio lighting, high-resolution front portrait render.`;
 
         const spinner = document.getElementById('avatar-loading-spinner');
         const avatarImg = document.getElementById('avatar-current-img');
         const actionBtn = document.getElementById('generate-avatar-btn');
 
-        try {
-            spinner.classList.remove('hidden');
-            avatarImg.style.opacity = "0.3";
-            actionBtn.disabled = true;
-            actionBtn.innerText = "⚡ Baking Your 3D Assets...";
+        spinner.classList.remove('hidden');
+        avatarImg.style.opacity = "0.3";
+        actionBtn.disabled = true;
+        actionBtn.innerText = "⚡ Summoning...";
 
-            // Connects to your backend route
-            const response = await fetch('/api/generate-avatar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: structuralPrompt })
-            });
-            
-            const result = await response.json();
+        // Combine their style choice and text to make a unique seed string
+        const uniqueSeed = encodeURIComponent(selectedAvatarBase + " " + userText);
+        
+        // Fetch an instant SVG character from the highly-reliable DiceBear Adventurer API
+        const newAvatarUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=bfe8ff`;
 
-            if (result.success && result.imageUrl) {
-                avatarImg.src = result.imageUrl;
-                
-                if (currentUserName) {
-                    database.ref('users/' + currentUserName).update({
-                        avatarUrl: result.imageUrl
-                    });
-                }
-            } else {
-                throw new Error("API Route offline or missing setup wrapper");
-            }
-        } catch (err) {
-            console.log("Backend offline, launching safe placeholder render mode instead.");
-            
-            // Safe fallback avatar placeholder that won't show a broken image
-            const seedVariant = encodeURIComponent(`${selectedAvatarBase} ${userText}`);
-            const sandboxMockUrl = `https://placehold.co/240x320/bfe8ff/000000?text=Summoned+Avatar%5Cn(${seedVariant})`;
-            
-            avatarImg.src = sandboxMockUrl;
+        // Simulate a tiny loading pause so it feels magical
+        setTimeout(() => {
+            avatarImg.src = newAvatarUrl;
             
             if (currentUserName) {
                 database.ref('users/' + currentUserName).update({
-                    avatarUrl: sandboxMockUrl
+                    avatarUrl: newAvatarUrl
                 });
             }
-        } finally {
+
             spinner.classList.add('hidden');
             avatarImg.style.opacity = "1";
             actionBtn.disabled = false;
             actionBtn.innerText = "🌊 Summon My Character!";
-        }
+            
+            document.getElementById('avatar-description').value = '';
+            updateCharCount();
+        }, 600);
     }
 
     initLiveSync();
