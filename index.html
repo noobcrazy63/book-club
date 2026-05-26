@@ -107,6 +107,13 @@
             border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
             margin-bottom: 15px;
+            position: relative;
+        }
+
+        .nav-right-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .logout-btn {
@@ -115,6 +122,33 @@
             background-color: var(--secondary);
             color: var(--white);
             border: 1px solid var(--secondary);
+            margin: 0;
+        }
+
+        /* Top Right Mini Avatar Badge */
+        .avatar-badge-clickable {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid var(--secondary);
+            background-color: var(--primary);
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .avatar-badge-clickable:hover {
+            transform: scale(1.08);
+        }
+
+        .avatar-badge-clickable img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         /* Twin Input Columns */
@@ -512,7 +546,7 @@
             background-color: var(--white);
         }
 
-        /* Modal Popup Styles */
+        /* Modal Overlay Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -531,7 +565,7 @@
             padding: 25px;
             border-radius: 10px;
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             position: relative;
         }
@@ -560,21 +594,12 @@
             color: #000000;
         }
 
-        /* --- Avatar Creation UI styles --- */
-        .avatar-creator-container {
-            background: #ffffff;
-            border: 2px solid var(--secondary);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
+        /* Avatar Menu Specifics */
         .avatar-preview-box {
-            width: 240px;
-            height: 320px;
+            width: 180px;
+            height: 180px;
             margin: 0 auto 15px auto;
-            border-radius: 12px;
+            border-radius: 50%;
             border: 3px solid var(--primary);
             background: #BFE8FF;
             overflow: hidden;
@@ -590,8 +615,14 @@
             object-fit: contain;
         }
 
-        .base-btn {
-            flex: 1;
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .style-btn {
             padding: 10px;
             border: 2px solid #e2e8f0;
             background: #fff;
@@ -600,9 +631,11 @@
             font-weight: bold;
             transition: all 0.2s;
             color: var(--secondary);
+            font-size: 14px;
+            text-align: center;
         }
 
-        .base-btn.active {
+        .style-btn.active {
             border-color: var(--secondary);
             background-color: var(--primary);
         }
@@ -610,8 +643,8 @@
         /* Spinner CSS */
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             border-left-color: var(--secondary);
             animation: spin 1s linear infinite;
@@ -647,35 +680,11 @@
     <div id="dashboard-section" class="hidden">
         <div class="nav-bar">
             <h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
-            <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
-        </div>
-
-        <div class="avatar-creator-container">
-            <h3>✨ Your Summer Adventurer Avatar ✨</h3>
-            
-            <div class="avatar-preview-box">
-                <div id="avatar-loading-spinner" class="spinner hidden"></div>
-                <img id="avatar-current-img" src="https://api.dicebear.com/8.x/adventurer/svg?seed=SummerReader&backgroundColor=bfe8ff" alt="Your Avatar" />
-            </div>
-
-            <div id="avatar-creation-inputs">
-                <div style="margin-bottom: 12px;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">1. Choose a Style Vibe:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <button type="button" id="btn-base-boy" class="base-btn active" onclick="setAvatarBase('Cool')">😎 Cool</button>
-                        <button type="button" id="btn-base-girl" class="base-btn" onclick="setAvatarBase('Cute')">🥰 Cute</button>
-                    </div>
+            <div class="nav-right-container">
+                <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
+                <div id="avatar-badge" class="avatar-badge-clickable" onclick="openAvatarModal()" title="Customize Avatar">
+                    <img id="nav-avatar-img" src="https://api.dicebear.com/8.x/adventurer/svg?seed=Felix&backgroundColor=bfe8ff" alt="Avatar Badge">
                 </div>
-
-                <div style="margin-bottom: 15px; text-align: left;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">2. Type any random text to generate a unique character:</label>
-                    <input type="text" id="avatar-description" placeholder="e.g., Beach Explorer 99" maxlength="80" oninput="updateCharCount()" style="margin: 0;">
-                    <div style="font-size: 11px; color: var(--muted-text); text-align: right; margin-top: 4px;">
-                        <span id="current-chars">0</span>/80 characters
-                    </div>
-                </div>
-
-                <button type="button" id="generate-avatar-btn" onclick="summonAvatar()" style="margin: 0;">🌊 Summon My Character!</button>
             </div>
         </div>
 
@@ -764,6 +773,32 @@
     </div>
 </div>
 
+<div id="avatar-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 360px; text-align: center;">
+        <h3>✨ Choose Your Look ✨</h3>
+        
+        <div class="avatar-preview-box">
+            <div id="avatar-loading-spinner" class="spinner hidden"></div>
+            <img id="modal-avatar-preview-img" src="https://api.dicebear.com/8.x/adventurer/svg?seed=Felix&backgroundColor=bfe8ff" alt="Avatar Preview" />
+        </div>
+
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label style="font-weight: bold; display: block; margin-bottom: 8px; font-size: 14px;">Select an Adventurer Style Preset:</label>
+            <div class="preset-grid">
+                <button type="button" id="style-b1" class="style-btn active" onclick="selectStylePreset('Felix', 'style-b1')">👦 Boy Style 1</button>
+                <button type="button" id="style-b2" class="style-btn" onclick="selectStylePreset('Jack', 'style-b2')">🧑 Boy Style 2</button>
+                <button type="button" id="style-g1" class="style-btn" onclick="selectStylePreset('Aneka', 'style-g1')">👧 Girl Style 1</button>
+                <button type="button" id="style-g2" class="style-btn" onclick="selectStylePreset('Sadie', 'style-g2')">👩 Girl Style 2</button>
+            </div>
+        </div>
+
+        <div class="modal-buttons">
+            <button type="button" class="cancel-btn" onclick="closeAvatarModal()">Close</button>
+            <button type="button" style="margin:0;" onclick="saveSelectedAvatar()">Save Selection</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs",
@@ -815,7 +850,7 @@
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
-    let selectedAvatarBase = "Cool";
+    let temporarySeedChoice = "Felix";
 
     // Pagination Configurations
     let currentPage = 1;
@@ -825,6 +860,7 @@
     const dashboardSection = document.getElementById('dashboard-section');
     const fabButton = document.getElementById('fab-add-book');
     const bookModal = document.getElementById('book-modal');
+    const avatarModal = document.getElementById('avatar-modal');
     const modalForm = document.getElementById('modal-book-form');
     
     const authForm = document.getElementById('auth-form');
@@ -879,7 +915,8 @@
                 totalMinutesDisplay.innerText = totalMinutesRead;
 
                 if (userSnapshot.avatarUrl) {
-                    document.getElementById('avatar-current-img').src = userSnapshot.avatarUrl;
+                    document.getElementById('nav-avatar-img').src = userSnapshot.avatarUrl;
+                    document.getElementById('modal-avatar-preview-img').src = userSnapshot.avatarUrl;
                 }
 
                 updateDashboardProgressUI();
@@ -1218,7 +1255,7 @@
     function saveProfileToCloud() {
         if (!currentUserName) return;
         
-        const currentImgSrc = document.getElementById('avatar-current-img').src;
+        const currentImgSrc = document.getElementById('nav-avatar-img').src;
 
         database.ref('users/' + currentUserName).set({
             selectedBooks: selectedBooks,
@@ -1237,58 +1274,52 @@
         location.reload();
     }
 
-    /* --- INSTANT AVATAR GENERATION WITH DICEBEAR API --- */
-    function setAvatarBase(style) {
-        selectedAvatarBase = style;
-        document.getElementById('btn-base-boy').classList.toggle('active', style === 'Cool');
-        document.getElementById('btn-base-girl').classList.toggle('active', style === 'Cute');
+
+    /* --- NEW MODAL & AVATAR SELECTION LOGIC --- */
+    function openAvatarModal() {
+        avatarModal.classList.remove('hidden');
     }
 
-    function updateCharCount() {
-        const len = document.getElementById('avatar-description').value.length;
-        document.getElementById('current-chars').innerText = len;
+    function closeAvatarModal() {
+        avatarModal.classList.add('hidden');
     }
 
-    function summonAvatar() {
-        const userText = document.getElementById('avatar-description').value.trim();
-        if (!userText) {
-            alert("Please type some text to seed your character!");
-            return;
-        }
+    function selectStylePreset(seedName, buttonId) {
+        temporarySeedChoice = seedName;
+
+        // Toggle active border states on selection buttons
+        document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(buttonId).classList.add('active');
 
         const spinner = document.getElementById('avatar-loading-spinner');
-        const avatarImg = document.getElementById('avatar-current-img');
-        const actionBtn = document.getElementById('generate-avatar-btn');
+        const previewImg = document.getElementById('modal-avatar-preview-img');
 
         spinner.classList.remove('hidden');
-        avatarImg.style.opacity = "0.3";
-        actionBtn.disabled = true;
-        actionBtn.innerText = "⚡ Summoning...";
+        previewImg.style.opacity = "0.3";
 
-        // Combine their style choice and text to make a unique seed string
-        const uniqueSeed = encodeURIComponent(selectedAvatarBase + " " + userText);
-        
-        // Fetch an instant SVG character from the highly-reliable DiceBear Adventurer API
-        const newAvatarUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${uniqueSeed}&backgroundColor=bfe8ff`;
+        const targetUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${seedName}&backgroundColor=bfe8ff`;
 
-        // Simulate a tiny loading pause so it feels magical
+        // Small timeout to give feedback on transformation changes
         setTimeout(() => {
-            avatarImg.src = newAvatarUrl;
-            
-            if (currentUserName) {
-                database.ref('users/' + currentUserName).update({
-                    avatarUrl: newAvatarUrl
-                });
-            }
-
+            previewImg.src = targetUrl;
             spinner.classList.add('hidden');
-            avatarImg.style.opacity = "1";
-            actionBtn.disabled = false;
-            actionBtn.innerText = "🌊 Summon My Character!";
-            
-            document.getElementById('avatar-description').value = '';
-            updateCharCount();
-        }, 600);
+            previewImg.style.opacity = "1";
+        }, 300);
+    }
+
+    function saveSelectedAvatar() {
+        const selectedUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${temporarySeedChoice}&backgroundColor=bfe8ff`;
+        
+        // Update both local displays immediately
+        document.getElementById('nav-avatar-img').src = selectedUrl;
+        document.getElementById('modal-avatar-preview-img').src = selectedUrl;
+
+        if (currentUserName) {
+            database.ref('users/' + currentUserName).update({
+                avatarUrl: selectedUrl
+            });
+        }
+        closeAvatarModal();
     }
 
     initLiveSync();
