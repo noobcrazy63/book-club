@@ -14,6 +14,14 @@
             --instock: #2a9d8f;     
             --outstock: #e63946;
             --gold-yellow: #FFD700; 
+            
+            /* 3D Gaming Console Theme Colors */
+            --game-bg: linear-gradient(135deg, #161233 0%, #0d0a1a 100%);
+            --game-card: rgba(255, 255, 255, 0.07);
+            --game-border: rgba(255, 255, 255, 0.15);
+            --game-accent-blue: #00d2ff;
+            --game-accent-pink: #ff007f;
+            --game-text: #ffffff;
         }
 
         body {
@@ -125,29 +133,31 @@
             margin: 0;
         }
 
-        /* Top Right Mini Avatar Badge */
+        /* Top Right Mini 3D Avatar Badge */
         .avatar-badge-clickable {
-            width: 55px;
-            height: 55px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
-            border: 2px solid var(--secondary);
-            background-color: var(--primary);
+            border: 3px solid #111;
+            background: linear-gradient(135deg, #a5f3fc 0%, #0284c7 100%);
             cursor: pointer;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 10px rgba(2, 132, 199, 0.3);
         }
 
         .avatar-badge-clickable:hover {
-            transform: scale(1.08);
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+            border-color: #00d2ff;
         }
 
         .avatar-badge-clickable img {
-            width: 100%;
-            height: 100%;
+            width: 92%;
+            height: 92%;
             object-fit: contain;
         }
 
@@ -553,11 +563,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.65);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2000;
+            backdrop-filter: blur(4px);
         }
 
         .modal-content {
@@ -589,64 +600,135 @@
             color: #333333;
         }
 
-        .cancel-btn:hover {
-            background-color: #dddddd;
-            color: #000000;
+        /* --- SLEEK 3D GAMING STYLES FOR AVATAR CUSTOMIZER --- */
+        .game-modal-content {
+            background: var(--game-bg);
+            border: 2px solid var(--game-border);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 210, 255, 0.15);
+            color: var(--game-text);
+            text-align: center;
+            position: relative;
         }
 
-        /* Avatar Menu Specifics */
+        .game-modal-content h3 {
+            color: #fff;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
         .avatar-preview-box {
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 15px auto;
+            width: 170px;
+            height: 170px;
+            margin: 0 auto 20px auto;
             border-radius: 50%;
-            border: 3px solid var(--primary);
-            background: #BFE8FF;
+            border: 4px solid var(--game-accent-blue);
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.25) 0%, rgba(13, 10, 26, 0.6) 100%);
             overflow: hidden;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.6);
+            transition: border-color 0.3s ease;
         }
 
         .avatar-preview-box img {
-            width: 100%;
-            height: 100%;
+            width: 85%;
+            height: 85%;
             object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
         }
 
         .preset-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
         .style-btn {
-            padding: 10px;
-            border: 2px solid #e2e8f0;
-            background: #fff;
-            border-radius: 6px;
+            padding: 14px 10px;
+            border: 2px solid var(--game-border);
+            background: var(--game-card);
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.2s;
-            color: var(--secondary);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #d1d5db;
             font-size: 14px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .style-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
         }
 
         .style-btn.active {
-            border-color: var(--secondary);
-            background-color: var(--primary);
+            border-color: var(--game-accent-blue);
+            background: rgba(0, 210, 255, 0.15);
+            color: var(--game-accent-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+        }
+
+        /* Specific active style highlights */
+        .style-btn.active-girl {
+            border-color: var(--game-accent-pink);
+            background: rgba(255, 0, 127, 0.15);
+            color: #ff66b2;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
+        }
+
+        .game-save-btn {
+            background: linear-gradient(90deg, #00d2ff 0%, #0084ff 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+            margin: 0;
+        }
+
+        .game-save-btn:hover {
+            background: linear-gradient(90deg, #00e5ff 0%, #0099ff 100%);
+            color: #fff;
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.6);
+        }
+
+        .game-cancel-btn {
+            background: #252144;
+            border: 2px solid rgba(255,255,255,0.1);
+            color: #a1a1aa;
+        }
+
+        .game-cancel-btn:hover {
+            background: #312b5a;
+            color: #fff;
+            border-color: rgba(255,255,255,0.25);
         }
 
         /* Spinner CSS */
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 30px;
-            height: 30px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            border-left-color: var(--secondary);
+            border-left-color: var(--game-accent-blue);
             animation: spin 1s linear infinite;
             position: absolute;
             z-index: 5;
@@ -683,7 +765,7 @@
             <div class="nav-right-container">
                 <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
                 <div id="avatar-badge" class="avatar-badge-clickable" onclick="openAvatarModal()" title="Customize Avatar">
-                    <img id="nav-avatar-img" src="https://api.dicebear.com/8.x/adventurer/svg?seed=Felix&backgroundColor=bfe8ff" alt="Avatar Badge">
+                    <img id="nav-avatar-img" src="https://avatar.iran.liara.run/public/boy?username=Boy1" alt="Avatar Badge">
                 </div>
             </div>
         </div>
@@ -774,27 +856,27 @@
 </div>
 
 <div id="avatar-modal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 360px; text-align: center;">
-        <h3>✨ Choose Your Look ✨</h3>
+    <div class="game-modal-content">
+        <h3>✨ Customize 3D Look ✨</h3>
         
-        <div class="avatar-preview-box">
+        <div id="avatar-frame" class="avatar-preview-box">
             <div id="avatar-loading-spinner" class="spinner hidden"></div>
-            <img id="modal-avatar-preview-img" src="https://api.dicebear.com/8.x/adventurer/svg?seed=Felix&backgroundColor=bfe8ff" alt="Avatar Preview" />
+            <img id="modal-avatar-preview-img" src="https://avatar.iran.liara.run/public/boy?username=Boy1" alt="3D Avatar Preview" />
         </div>
 
-        <div style="margin-bottom: 15px; text-align: left;">
-            <label style="font-weight: bold; display: block; margin-bottom: 8px; font-size: 14px;">Select an Adventurer Style Preset:</label>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="font-weight: bold; display: block; margin-bottom: 10px; font-size: 14px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">Select Character Base:</label>
             <div class="preset-grid">
-                <button type="button" id="style-b1" class="style-btn active" onclick="selectStylePreset('Felix', 'style-b1')">👦 Boy Style 1</button>
-                <button type="button" id="style-b2" class="style-btn" onclick="selectStylePreset('Jack', 'style-b2')">🧑 Boy Style 2</button>
-                <button type="button" id="style-g1" class="style-btn" onclick="selectStylePreset('Aneka', 'style-g1')">👧 Girl Style 1</button>
-                <button type="button" id="style-g2" class="style-btn" onclick="selectStylePreset('Sadie', 'style-g2')">👩 Girl Style 2</button>
+                <button type="button" id="style-b1" class="style-btn active" onclick="selectStylePreset('boy?username=Boy1', 'style-b1', false)">👦 Boy Style 1</button>
+                <button type="button" id="style-b2" class="style-btn" onclick="selectStylePreset('boy?username=Boy2', 'style-b2', false)">🧑 Boy Style 2</button>
+                <button type="button" id="style-g1" class="style-btn" onclick="selectStylePreset('girl?username=Girl1', 'style-g1', true)">👧 Girl Style 1</button>
+                <button type="button" id="style-g2" class="style-btn" onclick="selectStylePreset('girl?username=Girl2', 'style-g2', true)">👩 Girl Style 2</button>
             </div>
         </div>
 
         <div class="modal-buttons">
-            <button type="button" class="cancel-btn" onclick="closeAvatarModal()">Close</button>
-            <button type="button" style="margin:0;" onclick="saveSelectedAvatar()">Save Selection</button>
+            <button type="button" class="style-btn game-cancel-btn" onclick="closeAvatarModal()">Close</button>
+            <button type="button" class="style-btn game-save-btn" onclick="saveSelectedAvatar()">Save Selection</button>
         </div>
     </div>
 </div>
@@ -850,7 +932,7 @@
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
-    let temporarySeedChoice = "Felix";
+    let temporarySeedChoice = "boy?username=Boy1";
 
     // Pagination Configurations
     let currentPage = 1;
@@ -1275,7 +1357,7 @@
     }
 
 
-    /* --- NEW MODAL & AVATAR SELECTION LOGIC --- */
+    /* --- ADVANCED 3D GAME INTERFACE & SELECTION LOGIC --- */
     function openAvatarModal() {
         avatarModal.classList.remove('hidden');
     }
@@ -1284,33 +1366,44 @@
         avatarModal.classList.add('hidden');
     }
 
-    function selectStylePreset(seedName, buttonId) {
-        temporarySeedChoice = seedName;
+    function selectStylePreset(apiPath, buttonId, isGirlStyle) {
+        temporarySeedChoice = apiPath;
 
-        // Toggle active border states on selection buttons
-        document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(buttonId).classList.add('active');
+        // Reset active styling classes across variants
+        document.querySelectorAll('.style-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.classList.remove('active-girl');
+        });
+        
+        const selectedBtn = document.getElementById(buttonId);
+        if (isGirlStyle) {
+            selectedBtn.classList.add('active-girl');
+            document.getElementById('avatar-frame').style.borderColor = "var(--game-accent-pink)";
+            document.getElementById('avatar-frame').style.boxShadow = "0 0 25px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(0,0,0,0.6)";
+        } else {
+            selectedBtn.classList.add('active');
+            document.getElementById('avatar-frame').style.borderColor = "var(--game-accent-blue)";
+            document.getElementById('avatar-frame').style.boxShadow = "0 0 25px rgba(0, 210, 255, 0.4), inset 0 0 15px rgba(0,0,0,0.6)";
+        }
 
         const spinner = document.getElementById('avatar-loading-spinner');
         const previewImg = document.getElementById('modal-avatar-preview-img');
 
         spinner.classList.remove('hidden');
-        previewImg.style.opacity = "0.3";
+        previewImg.style.opacity = "0.2";
 
-        const targetUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${seedName}&backgroundColor=bfe8ff`;
+        const targetUrl = `https://avatar.iran.liara.run/public/${apiPath}`;
 
-        // Small timeout to give feedback on transformation changes
         setTimeout(() => {
             previewImg.src = targetUrl;
             spinner.classList.add('hidden');
             previewImg.style.opacity = "1";
-        }, 300);
+        }, 250);
     }
 
     function saveSelectedAvatar() {
-        const selectedUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${temporarySeedChoice}&backgroundColor=bfe8ff`;
+        const selectedUrl = `https://avatar.iran.liara.run/public/${temporarySeedChoice}`;
         
-        // Update both local displays immediately
         document.getElementById('nav-avatar-img').src = selectedUrl;
         document.getElementById('modal-avatar-preview-img').src = selectedUrl;
 
