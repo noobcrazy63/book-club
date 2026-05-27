@@ -573,7 +573,7 @@
         <img src="ChatGPT Image May 23, 2026, 11_32_08 AM.png" alt="Seelhoefer Summer Book-Club Banner">
     </div>
     
-    <div id="auth-section" class="hidden">
+    <div id="auth-section">
         <h2>Welcome! Please Set Up Your Profile</h2>
         <form id="auth-form">
             <input type="text" id="auth-name" placeholder="What is your name?" required>
@@ -625,7 +625,8 @@
 
         <div class="achievements-box">
             <h3>🏅 Your Beach Badges</h3>
-            <div class="achievements-grid" id="achievements-grid"></div>
+            <div class="achievements-grid" id="achievements-grid">
+                </div>
         </div>
 
         <div class="leaderboard-box">
@@ -727,7 +728,6 @@
     let currentPage = 1;
     const booksPerPage = 25;
 
-    // Element References
     const authSection = document.getElementById('auth-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const fabButton = document.getElementById('fab-add-book');
@@ -757,28 +757,6 @@
     const pageIndicator = document.getElementById('page-indicator');
     const achievementsGrid = document.getElementById('achievements-grid');
 
-    // On Load Initialization
-    window.onload = () => {
-        if (currentUserName) {
-            loadDashboard();
-            initLiveSync();
-        } else {
-            authSection.classList.remove('hidden');
-            database.ref('bookCatalog').once('value', snapshot => {
-                const data = snapshot.val();
-                if (data) {
-                    bookDatabase = data;
-                } else {
-                    bookDatabase = [...defaultBooks];
-                    database.ref('bookCatalog').set(defaultBooks);
-                }
-                bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
-                applyFilterAndRender();
-            });
-        }
-    };
-
-    // Firebase Data Synchronization
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
             const data = snapshot.val();
@@ -811,49 +789,12 @@
                 renderAchievements();
             }
         });
-    }
 
-    // Authentication Actions
-    authForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = authName.value.trim();
-        if (name) {
-            currentUserName = name;
-            localStorage.setItem('autoClubUserName', name);
-            database.ref('users/' + name).once('value', snapshot => {
-                if (!snapshot.exists()) {
-                    database.ref('users/' + name).set({ totalPages: 0, totalMinutes: 0, selectedBooks: {} });
-                }
-            });
-            loadDashboard();
-            initLiveSync();
-        }
-    });
-
-    function loadDashboard() {
-        authSection.classList.add('hidden');
-        dashboardSection.classList.remove('hidden');
-        fabButton.classList.remove('hidden');
-        userDisplayName.innerText = currentUserName;
-    }
-
-    function clearProfile() {
-        localStorage.removeItem('autoClubUserName');
-        location.reload();
-    }
-
-    // Saving Data Helper
-    function saveUserData() {
         if (currentUserName) {
-            database.ref('users/' + currentUserName).update({
-                totalPages: totalPagesRead,
-                totalMinutes: totalMinutesRead,
-                selectedBooks: selectedBooks
-            });
+            loadDashboard();
         }
     }
 
-    // Book Catalog and Searching
     function handleSearchSearch() {
         currentPage = 1;
         applyFilterAndRender();
@@ -925,149 +866,116 @@
         }
     }
 
-    // Dashboard Actions (Choosing, Progress, Logging)
-    function chooseBook(index) {
-        if (!currentUserName) return alert('Please log in first!');
-        const book = bookDatabase[index];
-        if (!selectedBooks[index]) {
-            selectedBooks[index] = { ...book, pagesRead: 0 };
-            saveUserData();
-        } else {
-            alert('This book is already on your tracking list!');
-        }
-    }
-
-    function updateDashboardProgressUI() {
-        progressContainer.innerHTML = '';
-        logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
-        
-        const keys = Object.keys(selectedBooks || {});
-        if (keys.length === 0) {
-            trackingBox.classList.add('hidden');
-            return;
-        }
-        
-        trackingBox.classList.remove('hidden');
-        
-        keys.forEach(key => {
-            const book = selectedBooks[key];
-            const percentage = Math.min((book.pagesRead / book.pages) * 100, 100);
-            
-            const item = document.createElement('div');
-            item.className = 'progress-item';
-            item.innerHTML = `
-                <div class="progress-header-row">
-                    <div class="progress-labels">
-                        <span class="progress-book-name">${book.title}</span>
-                        <span class="progress-book-stats">${book.pagesRead} / ${book.pages} pages (${Math.round(percentage)}%)</span>
-                    </div>
-                    ${percentage >= 100 ? `<span class="badge-status unlocked-label">🎉 Completed</span>` : ''}
-                </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: ${percentage}%"></div>
-                </div>
-            `;
-            progressContainer.appendChild(item);
-
-            if (percentage < 100) {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = book.title;
-                logBookSelect.appendChild(option);
-            }
-        });
-    }
-
-    // Form Event Listeners for Session Updates
-    logForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const bookKey = logBookSelect.value;
-        const pages = parseInt(document.getElementById('pages-read').value, 10);
-        
-        if (bookKey && pages > 0 && selectedBooks[bookKey]) {
-            const book = selectedBooks[bookKey];
-            const allowedPages = Math.min(pages, book.pages - book.pagesRead);
-            
-            selectedBooks[bookKey].pagesRead += allowedPages;
-            totalPagesRead += allowedPages;
-            
-            saveUserData();
-            logForm.reset();
-        }
-    });
-
-    minuteForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const minutes = parseInt(document.getElementById('minutes-read').value, 10);
-        if (minutes > 0) {
-            totalMinutesRead += minutes;
-            saveUserData();
-            minuteForm.reset();
-        }
-    });
-
-    // Personal 1000 Page Goal
-    function updatePersonalGoalUI() {
-        const goal = 1000;
-        const percentage = Math.min((totalPagesRead / goal) * 100, 100);
-        chestBarFill.style.width = percentage + '%';
-        chestBarText.innerText = `${totalPagesRead} / ${goal} pages read`;
-    }
-
-    // Gamified Beach Badges Layout
-    function renderAchievements() {
-        achievementsGrid.innerHTML = '';
-        const badges = [
-            { title: "First Splash", desc: "Log your first page", check: totalPagesRead > 0 },
-            { title: "Castle Builder", desc: "Read 250 pages total", check: totalPagesRead >= 250 },
-            { title: "Deep Diver", desc: "Read 500 pages total", check: totalPagesRead >= 500 },
-            { title: "Treasure Master", desc: "Unlock the 1000 page chest", check: totalPagesRead >= 1000 },
-            { title: "Time Investor", desc: "Track 100 minutes of reading", check: totalMinutesRead >= 100 }
-        ];
-
-        // Self-contained custom SVG background vectors matching your grayscale setup
-        const inlineSVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='75' height='75'><circle cx='12' cy='12' r='10' fill='%23BFE8FF' stroke='black' stroke-width='1.5'/><path d='M12 7v10M7 12h10' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>";
-
-        badges.forEach(badge => {
-            const card = document.createElement('div');
-            card.className = `badge-card ${badge.check ? 'unlocked' : 'locked'}`;
-            card.innerHTML = `
-                <img class="badge-image" src="${inlineSVG}" alt="Badge Icon">
-                <div class="badge-title">${badge.title}</div>
-                <div class="badge-desc">${badge.desc}</div>
-                <span class="badge-status ${badge.check ? 'unlocked-label' : 'locked-label'}">
-                    ${badge.check ? 'Unlocked' : 'Locked'}
-                </span>
-            `;
-            achievementsGrid.appendChild(card);
-        });
-    }
-
-    // Interactive Real-Time Club Leaderboard 
     function renderLeaderboard(usersData) {
-        leaderboardList.innerHTML = '';
-        if (!usersData) return;
+        leaderboardList.innerHTML = "";
+        let profiles = [];
 
-        const sortedUsers = Object.keys(usersData).map(key => ({
-            name: key,
-            totalPages: usersData[key].totalPages || 0,
-            totalMinutes: usersData[key].totalMinutes || 0
-        })).sort((a, b) => b.totalPages - a.totalPages);
+        if (usersData) {
+            Object.keys(usersData).forEach(name => {
+                profiles.push({
+                    name: name,
+                    pages: usersData[name].totalPages || 0
+                });
+            });
+        }
 
-        sortedUsers.forEach((user, index) => {
+        if (currentUserName && !profiles.some(p => p.name === currentUserName)) {
+            profiles.push({ name: currentUserName, pages: totalPagesRead });
+        }
+
+        profiles.sort((a, b) => b.pages - a.pages);
+
+        profiles.forEach((profile, index) => {
             const li = document.createElement('li');
-            li.className = 'leaderboard-item';
-            if (index === 0) li.classList.add('top-reader');
-            
+            li.classList.add('leaderboard-item');
+            if (index === 0 && profile.pages > 0) {
+                li.classList.add('top-reader');
+            }
             li.innerHTML = `
-                <span>${index + 1}. ${user.name} ${index === 0 ? '👑' : ''}</span>
-                <span>${user.totalPages} pages (${user.totalMinutes} mins)</span>
+                <span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 && profile.pages > 0 ? '👑' : ''}</span>
+                <span>${profile.pages} pages</span>
             `;
             leaderboardList.appendChild(li);
         });
     }
 
-    // Modal Control Windows
+    function updatePersonalGoalUI() {
+        const goalTarget = 1000;
+        chestBarText.innerText = `${totalPagesRead} / ${goalTarget} pages read`;
+        const fillPercentage = Math.min((totalPagesRead / goalTarget) * 100, 100);
+        chestBarFill.style.width = `${fillPercentage}%`;
+    }
+
+    /* Evaluates club metrics and maps them to your uploaded custom asset images */
+    function renderAchievements() {
+        achievementsGrid.innerHTML = "";
+        
+        const badgesConfig = [
+            { id: "comber", img: "Beach_Comber.png", title: "Beach Comber", desc: "Log your first page read", unlocked: totalPagesRead >= 1 },
+            { id: "worm", img: "Book_Worm.png", title: "Book Worm", desc: "Start exploring stories", unlocked: totalPagesRead >= 50 },
+            { id: "speed", img: "Speed_Demon.png", title: "Speed Demon", desc: "Log 150+ total club pages", unlocked: totalPagesRead >= 150 },
+            { id: "snorkel", img: "Snorkeler.png", title: "Snorkeler", desc: "Reach 250 total pages read", unlocked: totalPagesRead >= 250 },
+            { id: "diver", img: "Deep_Sea_Diver.png", title: "Deep Sea Diver", desc: "Reach 500 total pages read", unlocked: totalPagesRead >= 500 },
+            { id: "legend", img: "Library_Legend.png", title: "Library Legend", desc: "Reach 750 total pages read", unlocked: totalPagesRead >= 750 },
+            { id: "hunter", img: "aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png", title: "Treasure Hunter", desc: "Hit the 1,000 pages milestone", unlocked: totalPagesRead >= 1000 },
+            { id: "warmup", img: "Warm_Up.png", title: "Warm Up", desc: "Log 60 minutes of reading time", unlocked: totalMinutesRead >= 60 },
+            { id: "marathon", img: "Marathoner.png", title: "Marathoner", desc: "Log 300 minutes of reading time", unlocked: totalMinutesRead >= 300 },
+            { id: "streak", img: "Daily_Streak.png", title: "Daily Streak", desc: "Log 500+ minutes or keep reading", unlocked: totalMinutesRead >= 500 }
+        ];
+
+        badgesConfig.forEach(badge => {
+            const el = document.createElement('div');
+            el.className = `badge-card ${badge.unlocked ? 'unlocked' : 'locked'}`;
+            el.innerHTML = `
+                <img src="${badge.img}" class="badge-image" alt="${badge.title}">
+                <div class="badge-title">${badge.title}</div>
+                <div class="badge-desc">${badge.desc}</div>
+                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
+                    ${badge.unlocked ? 'Earned' : 'Locked'}
+                </div>
+            `;
+            achievementsGrid.appendChild(el);
+        });
+    }
+
+    authForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, ""); 
+        if (inputName !== "") {
+            currentUserName = inputName;
+            localStorage.setItem('autoClubUserName', currentUserName);
+
+            database.ref('users/' + currentUserName).once('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    selectedBooks = val.selectedBooks || {};
+                    totalPagesRead = val.totalPages || 0;
+                    totalMinutesRead = val.totalMinutes || 0;
+                } else {
+                    selectedBooks = {};
+                    totalPagesRead = 0;
+                    totalMinutesRead = 0;
+                    saveProfileToCloud();
+                }
+                loadDashboard();
+            });
+        }
+    });
+
+    function loadDashboard() {
+        authSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        fabButton.classList.remove('hidden'); 
+        userDisplayName.innerText = currentUserName;
+        totalPagesDisplay.innerText = totalPagesRead;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+
+        applyFilterAndRender();
+        updateDashboardProgressUI();
+        updatePersonalGoalUI();
+        renderAchievements();
+    }
+
     function openAddBookModal() {
         bookModal.classList.remove('hidden');
     }
@@ -1077,19 +985,163 @@
         modalForm.reset();
     }
 
-    modalForm.addEventListener('submit', (e) => {
+    modalForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const title = document.getElementById('modal-title').value.trim();
         const author = document.getElementById('modal-author').value.trim();
-        const pages = parseInt(document.getElementById('modal-pages').value, 10);
+        const pages = parseInt(document.getElementById('modal-pages').value);
 
-        if (title && author && pages > 0) {
-            const newBook = { title, author, pages, inStock: true };
-            bookDatabase.push(newBook);
-            database.ref('bookCatalog').set(bookDatabase);
+        if (title && author && !isNaN(pages)) {
+            bookDatabase.push({
+                title: title,
+                author: author,
+                pages: pages,
+                inStock: true
+            });
+            
+            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
+            saveCatalogToCloud();
             closeAddBookModal();
         }
     });
+
+    function chooseBook(index) {
+        const book = bookDatabase[index];
+        if (!selectedBooks[book.title]) {
+            selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
+            book.inStock = false; 
+            
+            saveProfileToCloud();
+            saveCatalogToCloud();
+        }
+    }
+
+    /* FIX: Looks up the book target directly by its string Title key inside selectedBooks */
+    function turnInBook(bookTitle) {
+        if (selectedBooks[bookTitle]) {
+            // Find the original object location in the master catalog array to restock it
+            const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
+            if (bookInCatalog) {
+                bookInCatalog.inStock = true;
+            }
+
+            delete selectedBooks[bookTitle]; 
+
+            saveProfileToCloud();
+            saveCatalogToCloud();
+
+            const entry = document.createElement('div');
+            entry.classList.add('log-entry');
+            entry.style.borderLeftColor = "#e63946";
+            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
+            logHistory.prepend(entry);
+        }
+    }
+
+    function updateDashboardProgressUI() {
+        progressContainer.innerHTML = "";
+        logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
+        
+        const keys = Object.keys(selectedBooks);
+        if (keys.length === 0) {
+            trackingBox.classList.add('hidden');
+            return;
+        }
+        
+        trackingBox.classList.remove('hidden');
+        keys.forEach(title => {
+            const data = selectedBooks[title];
+            const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
+            
+            // Escapes single quotes in book titles safely for the inline JavaScript call
+            const safeTitleString = title.replace(/'/g, "\\'");
+
+            const progItem = document.createElement('div');
+            progItem.classList.add('progress-item');
+            progItem.innerHTML = `
+                <div class="progress-header-row">
+                    <div class="progress-labels">
+                        <span class="progress-book-name">${title}</span>
+                        <span class="progress-book-stats">${data.read} / ${data.total} pages completed (${percentage}%)</span>
+                    </div>
+                    <button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In Book</button>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                </div>
+            `;
+            progressContainer.appendChild(progItem);
+
+            const opt = document.createElement('option');
+            opt.value = title;
+            opt.innerText = title;
+            logBookSelect.appendChild(opt);
+        });
+    }
+
+    logForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const selectedTitle = logBookSelect.value;
+        const pagesEntered = parseInt(document.getElementById('pages-read').value);
+        
+        if (!selectedTitle || isNaN(pagesEntered)) return;
+
+        selectedBooks[selectedTitle].read += pagesEntered;
+        totalPagesRead += pagesEntered;
+        totalPagesDisplay.innerText = totalPagesRead;
+
+        saveProfileToCloud();
+        updatePersonalGoalUI();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('pages-read').value = '';
+    });
+
+    minuteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const mins = parseInt(document.getElementById('minutes-read').value);
+        if (isNaN(mins)) return;
+        
+        totalMinutesRead += mins;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+        
+        saveProfileToCloud();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('minutes-read').value = '';
+    });
+
+    function saveProfileToCloud() {
+        if (!currentUserName) return;
+        database.ref('users/' + currentUserName).set({
+            selectedBooks: selectedBooks,
+            totalPages: totalPagesRead,
+            totalMinutes: totalMinutesRead
+        });
+    }
+
+    function saveCatalogToCloud() {
+        database.ref('bookCatalog').set(bookDatabase);
+    }
+
+    function clearProfile() {
+        localStorage.removeItem('autoClubUserName');
+        location.reload();
+    }
+
+    initLiveSync();
 </script>
 </body>
 </html>
+
+
