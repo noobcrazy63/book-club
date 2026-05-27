@@ -625,7 +625,8 @@
 
         <div class="achievements-box">
             <h3>🏅 Your Beach Badges</h3>
-            <div class="achievements-grid" id="achievements-grid"></div>
+            <div class="achievements-grid" id="achievements-grid">
+                </div>
         </div>
 
         <div class="leaderboard-box">
@@ -723,6 +724,7 @@
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
 
+    // Pagination Configurations
     let currentPage = 1;
     const booksPerPage = 25;
 
@@ -755,51 +757,6 @@
     const pageIndicator = document.getElementById('page-indicator');
     const achievementsGrid = document.getElementById('achievements-grid');
 
-    // ==========================================
-    // LUMA AI INTEGRATION BLUEPRINT (ISOLATED)
-    // ==========================================
-    const LUMA_API_KEY = "luma-api-Qofhvhn18zEOqThswUJrY2txv6Yt1Si1TquWX7_9SZw";
-
-    async function triggerLuma3DGeneration(promptText) {
-        try {
-            const response = await fetch("https://api.lumalabs.ai/v1/genie", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${LUMA_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ prompt: promptText })
-            });
-            const data = await response.json();
-            return data.id;
-        } catch (error) {
-            console.error("Luma trigger error:", error);
-            throw error;
-        }
-    }
-
-    async function checkLuma3DStatus(taskId) {
-        try {
-            const response = await fetch(`https://api.lumalabs.ai/v1/genie/${taskId}`, {
-                method: "GET",
-                headers: { "Authorization": `Bearer ${LUMA_API_KEY}` }
-            });
-            const data = await response.json();
-            if (data.status === "completed") {
-                return { success: true, urls: data.assets };
-            } else if (data.status === "failed") {
-                return { success: false, error: "Generation failed." };
-            }
-            return { success: false, status: data.status };
-        } catch (error) {
-            console.error("Luma poll error:", error);
-            throw error;
-        }
-    }
-
-    // ==========================================
-    // SYNC AND INTERFACE MANAGEMENT
-    // ==========================================
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
             const data = snapshot.val();
@@ -909,7 +866,6 @@
         }
     }
 
-    /* UNTOUCHED LEADERBOARD RENDER LOGIC */
     function renderLeaderboard(usersData) {
         leaderboardList.innerHTML = "";
         let profiles = [];
@@ -943,7 +899,6 @@
         });
     }
 
-    /* UNTOUCHED COMPLETED PERCENTAGE BAR LOGIC */
     function updatePersonalGoalUI() {
         const goalTarget = 1000;
         chestBarText.innerText = `${totalPagesRead} / ${goalTarget} pages read`;
@@ -951,6 +906,7 @@
         chestBarFill.style.width = `${fillPercentage}%`;
     }
 
+    /* Evaluates club metrics and maps them to your uploaded custom asset images */
     function renderAchievements() {
         achievementsGrid.innerHTML = "";
         
@@ -968,231 +924,224 @@
         ];
 
         badgesConfig.forEach(badge => {
-            const card = document.createElement('div');
-            card.classList.add('badge-card');
-            if (!badge.unlocked) card.classList.add('locked');
-            
-            card.innerHTML = `
-                <img class="badge-image" src="${badge.img}" alt="${badge.title}">
+            const el = document.createElement('div');
+            el.className = `badge-card ${badge.unlocked ? 'unlocked' : 'locked'}`;
+            el.innerHTML = `
+                <img src="${badge.img}" class="badge-image" alt="${badge.title}">
                 <div class="badge-title">${badge.title}</div>
                 <div class="badge-desc">${badge.desc}</div>
-                <span class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
-                    ${badge.unlocked ? 'Unlocked' : 'Locked'}
-                </span>
+                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
+                    ${badge.unlocked ? 'Earned' : 'Locked'}
+                </div>
             `;
-            achievementsGrid.appendChild(card);
+            achievementsGrid.appendChild(el);
         });
     }
 
-    /* UNTOUCHED COMPLETED PERCENTAGE PROGRESS UI WORKFLOW */
+    authForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, ""); 
+        if (inputName !== "") {
+            currentUserName = inputName;
+            localStorage.setItem('autoClubUserName', currentUserName);
+
+            database.ref('users/' + currentUserName).once('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    selectedBooks = val.selectedBooks || {};
+                    totalPagesRead = val.totalPages || 0;
+                    totalMinutesRead = val.totalMinutes || 0;
+                } else {
+                    selectedBooks = {};
+                    totalPagesRead = 0;
+                    totalMinutesRead = 0;
+                    saveProfileToCloud();
+                }
+                loadDashboard();
+            });
+        }
+    });
+
+    function loadDashboard() {
+        authSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        fabButton.classList.remove('hidden'); 
+        userDisplayName.innerText = currentUserName;
+        totalPagesDisplay.innerText = totalPagesRead;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+
+        applyFilterAndRender();
+        updateDashboardProgressUI();
+        updatePersonalGoalUI();
+        renderAchievements();
+    }
+
+    function openAddBookModal() {
+        bookModal.classList.remove('hidden');
+    }
+
+    function closeAddBookModal() {
+        bookModal.classList.add('hidden');
+        modalForm.reset();
+    }
+
+    modalForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const title = document.getElementById('modal-title').value.trim();
+        const author = document.getElementById('modal-author').value.trim();
+        const pages = parseInt(document.getElementById('modal-pages').value);
+
+        if (title && author && !isNaN(pages)) {
+            bookDatabase.push({
+                title: title,
+                author: author,
+                pages: pages,
+                inStock: true
+            });
+            
+            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
+            saveCatalogToCloud();
+            closeAddBookModal();
+        }
+    });
+
+    function chooseBook(index) {
+        const book = bookDatabase[index];
+        if (!selectedBooks[book.title]) {
+            selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
+            book.inStock = false; 
+            
+            saveProfileToCloud();
+            saveCatalogToCloud();
+        }
+    }
+
+    /* FIX: Looks up the book target directly by its string Title key inside selectedBooks */
+    function turnInBook(bookTitle) {
+        if (selectedBooks[bookTitle]) {
+            // Find the original object location in the master catalog array to restock it
+            const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
+            if (bookInCatalog) {
+                bookInCatalog.inStock = true;
+            }
+
+            delete selectedBooks[bookTitle]; 
+
+            saveProfileToCloud();
+            saveCatalogToCloud();
+
+            const entry = document.createElement('div');
+            entry.classList.add('log-entry');
+            entry.style.borderLeftColor = "#e63946";
+            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
+            logHistory.prepend(entry);
+        }
+    }
+
     function updateDashboardProgressUI() {
-        logBookSelect.innerHTML = `<option value="" disabled selected>Choose book to update...</option>`;
         progressContainer.innerHTML = "";
+        logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
         
-        const currentSelectionKeys = Object.keys(selectedBooks);
-        
-        if (currentSelectionKeys.length === 0) {
+        const keys = Object.keys(selectedBooks);
+        if (keys.length === 0) {
             trackingBox.classList.add('hidden');
             return;
         }
         
         trackingBox.classList.remove('hidden');
-        
-        currentSelectionKeys.forEach(bookKey => {
-            const targetBookData = bookDatabase.find(b => b.title === bookKey);
-            if (!targetBookData) return;
+        keys.forEach(title => {
+            const data = selectedBooks[title];
+            const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
             
-            const currentProgress = selectedBooks[bookKey] || 0;
-            const totalBookPages = targetBookData.pages || 1;
-            const completionPercent = Math.min(Math.round((currentProgress / totalBookPages) * 100), 100);
-            
-            const opt = document.createElement('option');
-            opt.value = bookKey;
-            opt.innerText = bookKey;
-            logBookSelect.appendChild(opt);
-            
+            // Escapes single quotes in book titles safely for the inline JavaScript call
+            const safeTitleString = title.replace(/'/g, "\\'");
+
             const progItem = document.createElement('div');
             progItem.classList.add('progress-item');
             progItem.innerHTML = `
                 <div class="progress-header-row">
                     <div class="progress-labels">
-                        <div class="progress-book-name">${bookKey}</div>
-                        <div class="progress-book-stats">${currentProgress} of ${totalBookPages} pages read (${completionPercent}%)</div>
+                        <span class="progress-book-name">${title}</span>
+                        <span class="progress-book-stats">${data.read} / ${data.total} pages completed (${percentage}%)</span>
                     </div>
-                    <button class="turn-in-btn" onclick="turnInBook('${bookKey}')">Return</button>
+                    <button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In Book</button>
                 </div>
                 <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: ${completionPercent}%;"></div>
+                    <div class="progress-bar-fill" style="width: ${percentage}%"></div>
                 </div>
             `;
             progressContainer.appendChild(progItem);
+
+            const opt = document.createElement('option');
+            opt.value = title;
+            opt.innerText = title;
+            logBookSelect.appendChild(opt);
         });
-    }
-
-    function chooseBook(index) {
-        const targetBook = bookDatabase[index];
-        if (!targetBook || !targetBook.inStock) return;
-        
-        if (selectedBooks[targetBook.title] !== undefined) {
-            alert("You are already actively reading this book!");
-            return;
-        }
-        
-        targetBook.inStock = false;
-        selectedBooks[targetBook.title] = 0;
-        
-        database.ref('bookCatalog').set(bookDatabase);
-        database.ref(`users/${currentUserName}`).update({
-            selectedBooks: selectedBooks
-        });
-    }
-
-    function turnInBook(bookTitle) {
-        const targetBook = bookDatabase.find(b => b.title === bookTitle);
-        if (targetBook) {
-            targetBook.inStock = true;
-        }
-        delete selectedBooks[bookTitle];
-        
-        database.ref('bookCatalog').set(bookDatabase);
-        database.ref(`users/${currentUserName}/selectedBooks`).set(selectedBooks);
-    }
-
-    authForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const rawName = authName.value.trim();
-        if (!rawName) return;
-        
-        currentUserName = rawName.replace(/[.#$\[\]]/g, ""); 
-        localStorage.setItem('autoClubUserName', currentUserName);
-        
-        database.ref(`users/${currentUserName}`).once('value', snapshot => {
-            if (!snapshot.exists()) {
-                database.ref(`users/${currentUserName}`).set({
-                    totalPages: 0,
-                    totalMinutes: 0,
-                    selectedBooks: {}
-                });
-            }
-            loadDashboard();
-        });
-    });
-
-    function loadDashboard() {
-        userDisplayName.innerText = currentUserName;
-        authSection.classList.add('hidden');
-        dashboardSection.classList.remove('hidden');
-        fabButton.classList.remove('hidden');
-        
-        database.ref(`users/${currentUserName}`).once('value', snapshot => {
-            const data = snapshot.val() || {};
-            totalPagesRead = data.totalPages || 0;
-            totalMinutesRead = data.totalMinutes || 0;
-            selectedBooks = data.selectedBooks || {};
-            
-            totalPagesDisplay.innerText = totalPagesRead;
-            totalMinutesDisplay.innerText = totalMinutesRead;
-            
-            updateDashboardProgressUI();
-            updatePersonalGoalUI();
-            renderAchievements();
-        });
-    }
-
-    function clearProfile() {
-        if(confirm("Are you sure you want to log out or switch profiles? Your progress remains synced to your name!")) {
-            localStorage.removeItem('autoClubUserName');
-            window.location.reload();
-        }
     }
 
     logForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const chosenBook = logBookSelect.value;
-        const inputPages = parseInt(document.getElementById('pages-read').value) || 0;
+        const selectedTitle = logBookSelect.value;
+        const pagesEntered = parseInt(document.getElementById('pages-read').value);
         
-        if (!chosenBook || inputPages <= 0) return;
-        
-        const matchedBookData = bookDatabase.find(b => b.title === chosenBook);
-        if (!matchedBookData) return;
-        
-        const priorRead = selectedBooks[chosenBook] || 0;
-        const boundLimit = matchedBookData.pages || 9999;
-        
-        let progressiveAddition = inputPages;
-        if (priorRead + inputPages > boundLimit) {
-            progressiveAddition = boundLimit - priorRead;
-        }
-        
-        if (progressiveAddition <= 0) {
-            alert("According to your logs, you have already finished reading this text!");
-            logForm.reset();
-            return;
-        }
-        
-        selectedBooks[chosenBook] = priorRead + progressiveAddition;
-        const finalCalculatedTotal = totalPagesRead + progressiveAddition;
-        
-        database.ref(`users/${currentUserName}`).update({
-            totalPages: finalCalculatedTotal,
-            selectedBooks: selectedBooks
-        });
-        
-        const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const entryLog = document.createElement('div');
-        entryLog.classList.add('log-entry');
-        entryLog.innerHTML = `<span>📖 logged <strong>${progressiveAddition} pages</strong> for <em>${chosenBook}</em> at ${timestamp}</span>`;
-        logHistory.insertBefore(entryLog, logHistory.firstChild);
-        
-        logForm.reset();
+        if (!selectedTitle || isNaN(pagesEntered)) return;
+
+        selectedBooks[selectedTitle].read += pagesEntered;
+        totalPagesRead += pagesEntered;
+        totalPagesDisplay.innerText = totalPagesRead;
+
+        saveProfileToCloud();
+        updatePersonalGoalUI();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('pages-read').value = '';
     });
 
     minuteForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const inputMinutes = parseInt(document.getElementById('minutes-read').value) || 0;
-        if (inputMinutes <= 0) return;
+        const mins = parseInt(document.getElementById('minutes-read').value);
+        if (isNaN(mins)) return;
         
-        const finalCalculatedMinutes = totalMinutesRead + inputMinutes;
+        totalMinutesRead += mins;
+        totalMinutesDisplay.innerText = totalMinutesRead;
         
-        database.ref(`users/${currentUserName}`).update({
-            totalMinutes: finalCalculatedMinutes
-        });
-        
-        const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const entryLog = document.createElement('div');
-        entryLog.classList.add('log-entry');
-        entryLog.innerHTML = `<span>⏳ logged <strong>${inputMinutes} minutes</strong> of reading focus at ${timestamp}</span>`;
-        logHistory.insertBefore(entryLog, logHistory.firstChild);
-        
-        minuteForm.reset();
+        saveProfileToCloud();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('minutes-read').value = '';
     });
 
-    function openAddBookModal() { bookModal.classList.remove('hidden'); }
-    function closeAddBookModal() { bookModal.classList.remove('hidden'); bookModal.classList.add('hidden'); modalForm.reset(); }
-
-    modalForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const t = document.getElementById('modal-title').value.trim();
-        const a = document.getElementById('modal-author').value.trim();
-        const p = parseInt(document.getElementById('modal-pages').value) || 0;
-        
-        if (!t || !a || p <= 0) return;
-        
-        const matchFound = bookDatabase.some(b => b.title.toLowerCase() === t.toLowerCase());
-        if (matchFound) {
-            alert("This title is already registered inside our collection catalog index!");
-            return;
-        }
-        
-        const newBookObj = { title: t, author: a, pages: p, inStock: true };
-        bookDatabase.push(newBookObj);
-        
-        database.ref('bookCatalog').set(bookDatabase).then(() => {
-            closeAddBookModal();
+    function saveProfileToCloud() {
+        if (!currentUserName) return;
+        database.ref('users/' + currentUserName).set({
+            selectedBooks: selectedBooks,
+            totalPages: totalPagesRead,
+            totalMinutes: totalMinutesRead
         });
-    });
+    }
 
-    window.onload = initLiveSync;
+    function saveCatalogToCloud() {
+        database.ref('bookCatalog').set(bookDatabase);
+    }
+
+    function clearProfile() {
+        localStorage.removeItem('autoClubUserName');
+        location.reload();
+    }
+
+    initLiveSync();
 </script>
 </body>
 </html>
+
+
