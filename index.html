@@ -804,6 +804,7 @@
     const achievementsGrid = document.getElementById('achievements-grid');
     const avatarWidget = document.getElementById('avatar-widget');
     const userAvatarFrame = document.getElementById('user-avatar-frame');
+    const leaderboardList = document.getElementById('leaderboard-list');
 
     initLiveSync();
 
@@ -823,7 +824,47 @@
         });
 
         database.ref('users').on('value', snapshot => {
-            // Render leaderboard omitted for brevity, but you can build this easily
+            // FIX 3: Implemented fully functional leaderboard layout logic from snapshot loop data
+            leaderboardList.innerHTML = "";
+            let leaderboardData = [];
+
+            snapshot.forEach(userSnap => {
+                const username = userSnap.key;
+                const userData = userSnap.val();
+                if (userData) {
+                    leaderboardData.push({
+                        name: username,
+                        totalPages: userData.totalPages || 0,
+                        avatarUrl: userData.avatarUrl || ""
+                    });
+                }
+            });
+
+            // Sort readers by total pages read descending
+            leaderboardData.sort((a, b) => b.totalPages - a.totalPages);
+
+            if (leaderboardData.length === 0) {
+                leaderboardList.innerHTML = "<li>No active club readers found yet!</li>";
+            } else {
+                leaderboardData.forEach((user, index) => {
+                    const li = document.createElement('li');
+                    li.className = `leaderboard-item ${index === 0 ? 'top-reader' : ''}`;
+                    
+                    const avatarMarkup = user.avatarUrl 
+                        ? `<img src="${user.avatarUrl}" class="leaderboard-avatar" alt="Avatar">`
+                        : `<div class="leaderboard-avatar">📖</div>`;
+
+                    li.innerHTML = `
+                        <div class="leaderboard-item-meta">
+                            <span>#${index + 1}</span>
+                            ${avatarMarkup}
+                            <span>${user.name}</span>
+                        </div>
+                        <span>${user.totalPages} pages</span>
+                    `;
+                    leaderboardList.appendChild(li);
+                });
+            }
             
             if (currentUserName && snapshot.hasChild(currentUserName)) {
                 const userSnapshot = snapshot.child(currentUserName).val();
@@ -890,7 +931,6 @@
         authName.value = "";
     }
 
-    // FIX 1: Changed variable "prompt" to "userDescription" to avoid conflicts
     async function triggerAvatarGenerationPrompt() {
         if (!currentUserName) return;
         
@@ -930,7 +970,8 @@
                 renderWidgetAvatar();
             }
         } catch (error) {
-            alert("Error connecting to avatar service.");
+            // FIX 1: Removed blocking alerts from API failure catch block for silent recovery handling
+            console.error("Avatar generation connection failed:", error);
             renderWidgetAvatar();
         }
     }
@@ -943,14 +984,22 @@
         }
     }
 
-    // FIX 2 & 3: Complete Progress UI logic and fix calculation math
     function updateDashboardProgressUI() {
         progressContainer.innerHTML = "";
         logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
 
         const checkedOutBookKeys = Object.keys(selectedBooks || {});
 
-        // Correctly handling "No Books Checked Out" logic
+        // Render Milestones/Badges
+        renderBadgesUI();
+
+        // Update overall goal bar UI
+        const overallGoal = 1000;
+        let chestPercent = Math.floor((totalPagesRead / overallGoal) * 100);
+        if (chestPercent > 100) chestPercent = 100;
+        chestBarFill.style.width = `${chestPercent}%`;
+        chestBarText.innerText = `${totalPagesRead} / ${overallGoal} pages read`;
+
         if (checkedOutBookKeys.length === 0) {
             progressContainer.innerHTML = "<p>You don't have any books checked out right now! Search below to add one.</p>";
             trackingBox.classList.remove('hidden');
@@ -962,8 +1011,11 @@
         checkedOutBookKeys.forEach(bookTitle => {
             const bookInfo = selectedBooks[bookTitle];
             
-            // Progress Math Fix: Calculate percent and cap at 100
-            let percentage = Math.floor((bookInfo.pagesRead / bookInfo.totalPages) * 100);
+            // FIX 2: Applied standard fallback parsing evaluation to prevent undefined and structural NaN% errors
+            const pagesRead = bookInfo && bookInfo.pagesRead !== undefined ? bookInfo.pagesRead : 0;
+            const totalPages = bookInfo && bookInfo.totalPages !== undefined ? bookInfo.totalPages : 0;
+            
+            let percentage = totalPages > 0 ? Math.floor((pagesRead / totalPages) * 100) : 0;
             if (percentage > 100) percentage = 100;
 
             const div = document.createElement('div');
@@ -972,9 +1024,9 @@
                 <div class="progress-header-row">
                     <div class="progress-labels">
                         <span class="progress-book-name">${bookTitle}</span>
-                        <span class="progress-book-stats">Read: ${bookInfo.pagesRead} / ${bookInfo.totalPages} pages (${percentage}%)</span>
+                        <span class="progress-book-stats">Read: ${pagesRead} / ${totalPages} pages (${percentage}%)</span>
                     </div>
-                    <button class="turn-in-btn" onclick="turnInBook('${bookTitle}')">Turn In</button>
+                    <button class="turn-in-btn" onclick="turnInBook('${bookTitle.replace(/'/g, "\\'")}')">Turn In</button>
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: ${percentage}%"></div>
@@ -989,135 +1041,161 @@
         });
     }
 
-    // Checking out a book from the Catalog
-    window.checkoutBook = function(title, pages) {
-        if (!selectedBooks[title]) {
-            selectedBooks[title] = { pagesRead: 0, totalPages: pages };
-            database.ref('users/' + currentUserName + '/selectedBooks').set(selectedBooks);
-        } else {
-            alert("You already have this book checked out!");
-        }
+    // Helper UI Renderer for Badges
+    function renderBadgesUI() {
+        achievementsGrid.innerHTML = "";
+        const milestones = [
+            { title: "First Chapter", desc: "Logged your first book club pages", unlocked: totalPagesRead > 0 },
+            { title: "Bronze Surfer", desc: "Reached 100 total pages read", unlocked: totalPagesRead >= 100 },
+            { title: "Silver Sailor", desc: "Reached 500 total pages read", unlocked: totalPagesRead >= 500 },
+            { title: "Gold Captain", desc: "Hit the summer 1,000 page chest goal!", unlocked: totalPagesRead >= 1000 }
+        ];
+
+        milestones.forEach(m => {
+            const card = document.createElement('div');
+            card.className = `badge-card ${m.unlocked ? '' : 'locked'}`;
+            card.innerHTML = `
+                <div class="badge-title">${m.title}</div>
+                <div class="badge-desc">${m.desc}</div>
+                <span class="badge-status ${m.unlocked ? 'unlocked-label' : 'locked-label'}">
+                    ${m.unlocked ? '🏆 Unlocked' : '🔒 Locked'}
+                </span>
+            `;
+            achievementsGrid.appendChild(card);
+        });
     }
 
-    // Turning in a book
-    window.turnInBook = function(title) {
-        if(confirm(`Are you sure you want to turn in "${title}"?`)) {
-            delete selectedBooks[title];
-            database.ref('users/' + currentUserName + '/selectedBooks').set(selectedBooks);
-        }
-    }
-
-    // Logging Pages Read Form
-    logForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const bookTitle = logBookSelect.value;
-        const pagesToLog = parseInt(document.getElementById('pages-read').value);
-
-        if (bookTitle && pagesToLog > 0) {
-            selectedBooks[bookTitle].pagesRead += pagesToLog;
-            totalPagesRead += pagesToLog;
-
-            database.ref('users/' + currentUserName + '/selectedBooks').set(selectedBooks);
-            database.ref('users/' + currentUserName + '/totalPages').set(totalPagesRead);
-
-            document.getElementById('pages-read').value = '';
-            alert(`Logged ${pagesToLog} pages for ${bookTitle}!`);
-        }
-    });
-
-    // Logging Minutes Form
-    minuteForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const minutesToLog = parseInt(document.getElementById('minutes-read').value);
-
-        if (minutesToLog > 0) {
-            totalMinutesRead += minutesToLog;
-            database.ref('users/' + currentUserName + '/totalMinutes').set(totalMinutesRead);
-            document.getElementById('minutes-read').value = '';
-            alert(`Logged ${minutesToLog} minutes!`);
-        }
-    });
-
-    // Search and Catalog Logic
+    // Catalog Catalog Search and Filtering Logic
     function handleSearchSearch() {
+        currentPage = 1;
         applyFilterAndRender();
     }
 
     function applyFilterAndRender() {
-        const query = catalogSearch.value.toLowerCase();
-        filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query) || book.author.toLowerCase().includes(query));
-        currentPage = 1;
-        renderCatalog();
-    }
+        const query = catalogSearch.value.toLowerCase().trim();
+        filteredBooks = bookDatabase.filter(book => 
+            book.title.toLowerCase().includes(query) || 
+            book.author.toLowerCase().includes(query)
+        );
 
-    function renderCatalog() {
+        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
+        if (currentPage > totalPagesCount) currentPage = totalPagesCount;
+
+        pageIndicator.innerText = `Page ${currentPage} of ${totalPagesCount}`;
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPagesCount;
+
         catalogGrid.innerHTML = "";
         const startIndex = (currentPage - 1) * booksPerPage;
         const endIndex = startIndex + booksPerPage;
-        const booksToShow = filteredBooks.slice(startIndex, endIndex);
+        const pageBooks = filteredBooks.slice(startIndex, endIndex);
 
-        booksToShow.forEach(book => {
+        if (pageBooks.length === 0) {
+            catalogGrid.innerHTML = "<p>No matching books found inside the library catalog.</p>";
+            return;
+        }
+
+        pageBooks.forEach(book => {
+            const isCheckedOut = selectedBooks && selectedBooks[book.title];
             const card = document.createElement('div');
             card.className = 'book-card';
-            const statusClass = book.inStock ? 'in' : 'out';
-            const statusText = book.inStock ? 'Available' : 'Checked Out';
-            
             card.innerHTML = `
                 <div class="book-info-container">
                     <div>
                         <div class="book-title">${book.title}</div>
-                        <div class="book-author">${book.author}</div>
+                        <div class="book-author">by ${book.author}</div>
                     </div>
                     <div class="status-container">
-                        <span class="stock-status ${statusClass}">${statusText}</span>
-                        <button class="choose-btn" onclick="checkoutBook('${book.title.replace(/'/g, "\\'")}', ${book.pages})">Choose</button>
+                        <span class="stock-status in">${book.pages} pages</span>
+                        <button class="choose-btn" ${isCheckedOut ? 'disabled' : ''} onclick="checkoutBook('${book.title.replace(/'/g, "\\'")}', ${book.pages})">
+                            ${isCheckedOut ? 'Checked Out' : 'Check Out'}
+                        </button>
                     </div>
                 </div>
             `;
             catalogGrid.appendChild(card);
         });
-
-        pageIndicator.innerText = `Page ${currentPage} of ${Math.ceil(filteredBooks.length / booksPerPage) || 1}`;
-        prevPageBtn.disabled = currentPage === 1;
-        nextPageBtn.disabled = currentPage === Math.ceil(filteredBooks.length / booksPerPage) || filteredBooks.length === 0;
     }
 
-    window.goToPrevPage = function() {
+    function goToPrevPage() {
         if (currentPage > 1) {
             currentPage--;
-            renderCatalog();
+            applyFilterAndRender();
         }
     }
 
-    window.goToNextPage = function() {
-        if (currentPage < Math.ceil(filteredBooks.length / booksPerPage)) {
+    function goToNextPage() {
+        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
+        if (currentPage < totalPagesCount) {
             currentPage++;
-            renderCatalog();
+            applyFilterAndRender();
         }
     }
 
-    window.openAddBookModal = function() {
-        bookModal.classList.remove('hidden');
-    }
-
-    window.closeAddBookModal = function() {
-        bookModal.classList.add('hidden');
-        modalForm.reset();
-    }
-
+    // Modal Box Management
+    function openAddBookModal() { bookModal.classList.remove('hidden'); }
+    function closeAddBookModal() { bookModal.classList.add('hidden'); modalForm.reset(); }
+    
     modalForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const title = document.getElementById('modal-title').value;
-        const author = document.getElementById('modal-author').value;
+        const title = document.getElementById('modal-title').value.trim();
+        const author = document.getElementById('modal-author').value.trim();
         const pages = parseInt(document.getElementById('modal-pages').value);
-
-        const newBook = { title, author, pages, inStock: true };
-        bookDatabase.push(newBook);
-        database.ref('bookCatalog').set(bookDatabase);
-        
-        closeAddBookModal();
+        if (title && author && pages) {
+            const newBook = { title, author, pages, inStock: true };
+            const updatedCatalog = [...bookDatabase, newBook];
+            database.ref('bookCatalog').set(updatedCatalog).then(() => {
+                closeAddBookModal();
+            });
+        }
     });
 
+    // Form Session Logging Logic
+    logForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const bookTitle = logBookSelect.value;
+        const pagesLogged = parseInt(document.getElementById('pages-read').value);
+        if (bookTitle && pagesLogged > 0 && selectedBooks[bookTitle]) {
+            selectedBooks[bookTitle].pagesRead = (selectedBooks[bookTitle].pagesRead || 0) + pagesLogged;
+            const newTotalPages = totalPagesRead + pagesLogged;
+            
+            database.ref('users/' + currentUserName).update({
+                selectedBooks: selectedBooks,
+                totalPages: newTotalPages
+            }).then(() => {
+                logForm.reset();
+            });
+        }
+    });
+
+    minuteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const minutesLogged = parseInt(document.getElementById('minutes-read').value);
+        if (minutesLogged > 0) {
+            const newTotalMinutes = totalMinutesRead + minutesLogged;
+            database.ref('users/' + currentUserName).update({
+                totalMinutes: newTotalMinutes
+            }).then(() => {
+                minuteForm.reset();
+            });
+        }
+    });
+
+    // FIX 4: Corrected, completed, and closed out broken function syntax blocks at the end of script
+    window.checkoutBook = function(title, pages) {
+        if (!currentUserName) return;
+        if (!selectedBooks) selectedBooks = {};
+        if (!selectedBooks[title]) {
+            selectedBooks[title] = { pagesRead: 0, totalPages: pages };
+            database.ref('users/' + currentUserName + '/selectedBooks').set(selectedBooks);
+        }
+    };
+
+    window.turnInBook = function(title) {
+        if (!currentUserName || !selectedBooks || !selectedBooks[title]) return;
+        delete selectedBooks[title];
+        database.ref('users/' + currentUserName + '/selectedBooks').set(selectedBooks);
+    };
 </script>
 </body>
 </html>
