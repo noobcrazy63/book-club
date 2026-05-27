@@ -333,12 +333,10 @@
             margin: 25px 0 15px 0;
         }
 
-        /* Container styling for the 3D Model Viewer */
-        model-viewer {
-            width: 100%;
-            height: 250px;
-            margin: 0 auto 15px auto;
-            background-color: transparent;
+        .personal-goal-box img {
+            max-width: 140px;
+            height: auto;
+            margin-bottom: 10px;
         }
 
         .chest-bar-bg {
@@ -566,8 +564,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 </head>
 <body>
 
@@ -620,9 +616,7 @@
         
         <div class="personal-goal-box">
             <h3>🏴‍☠️ Pages Read Goal</h3>
-            
-            <model-viewer src="treasure_chest.gltf" alt="A 3D interactive treasure chest" auto-rotate camera-controls ar></model-viewer>
-            
+            <img src="aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png" alt="Treasure Chest">
             <div class="chest-bar-bg">
                 <div id="chest-bar-fill" class="chest-bar-fill"></div>
                 <div id="chest-bar-text" class="chest-bar-text">0 / 1000 pages read</div>
@@ -729,9 +723,11 @@
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
 
+    // Pagination Configurations
     let currentPage = 1;
     const booksPerPage = 25;
 
+    // Element References
     const authSection = document.getElementById('auth-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const fabButton = document.getElementById('fab-add-book');
@@ -761,6 +757,7 @@
     const pageIndicator = document.getElementById('page-indicator');
     const achievementsGrid = document.getElementById('achievements-grid');
 
+    // On Load Initialization
     window.onload = () => {
         if (currentUserName) {
             loadDashboard();
@@ -781,6 +778,7 @@
         }
     };
 
+    // Firebase Data Synchronization
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
             const data = snapshot.val();
@@ -815,6 +813,7 @@
         });
     }
 
+    // Authentication Actions
     authForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = authName.value.trim();
@@ -843,6 +842,7 @@
         location.reload();
     }
 
+    // Saving Data Helper
     function saveUserData() {
         if (currentUserName) {
             database.ref('users/' + currentUserName).update({
@@ -853,6 +853,7 @@
         }
     }
 
+    // Book Catalog and Searching
     function handleSearchSearch() {
         currentPage = 1;
         applyFilterAndRender();
@@ -860,16 +861,19 @@
 
     function applyFilterAndRender() {
         const query = catalogSearch.value.toLowerCase().trim();
+        
         if (query === "") {
             filteredBooks = [...bookDatabase];
         } else {
             filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
         }
+        
         renderCatalogPage();
     }
 
     function renderCatalogPage() {
         catalogGrid.innerHTML = "";
+        
         const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
         if (currentPage > totalPagesCount) currentPage = totalPagesCount;
 
@@ -882,6 +886,7 @@
         } else {
             pageItems.forEach((book) => {
                 const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
+
                 const card = document.createElement('div');
                 card.classList.add('book-card');
                 card.innerHTML = `
@@ -920,21 +925,23 @@
         }
     }
 
+    // Dashboard Actions (Choosing, Progress, Logging)
     function chooseBook(index) {
         if (!currentUserName) return alert('Please log in first!');
         const book = bookDatabase[index];
         if (!selectedBooks[index]) {
             selectedBooks[index] = { ...book, pagesRead: 0 };
             saveUserData();
+        } else {
+            alert('This book is already on your tracking list!');
         }
     }
 
-    // Fixed the broken function block here:
     function updateDashboardProgressUI() {
         progressContainer.innerHTML = '';
         logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
         
-        const keys = Object.keys(selectedBooks);
+        const keys = Object.keys(selectedBooks || {});
         if (keys.length === 0) {
             trackingBox.classList.add('hidden');
             return;
@@ -952,8 +959,9 @@
                 <div class="progress-header-row">
                     <div class="progress-labels">
                         <span class="progress-book-name">${book.title}</span>
-                        <span class="progress-book-stats">${book.pagesRead} / ${book.pages} pages read</span>
+                        <span class="progress-book-stats">${book.pagesRead} / ${book.pages} pages (${Math.round(percentage)}%)</span>
                     </div>
+                    ${percentage >= 100 ? `<span class="badge-status unlocked-label">🎉 Completed</span>` : ''}
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: ${percentage}%"></div>
@@ -961,39 +969,127 @@
             `;
             progressContainer.appendChild(item);
 
-            const opt = document.createElement('option');
-            opt.value = key;
-            opt.innerText = book.title;
-            logBookSelect.appendChild(opt);
+            if (percentage < 100) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = book.title;
+                logBookSelect.appendChild(option);
+            }
         });
     }
 
-    // Stubs to make sure execution works if triggered by live listeners
+    // Form Event Listeners for Session Updates
+    logForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const bookKey = logBookSelect.value;
+        const pages = parseInt(document.getElementById('pages-read').value, 10);
+        
+        if (bookKey && pages > 0 && selectedBooks[bookKey]) {
+            const book = selectedBooks[bookKey];
+            const allowedPages = Math.min(pages, book.pages - book.pagesRead);
+            
+            selectedBooks[bookKey].pagesRead += allowedPages;
+            totalPagesRead += allowedPages;
+            
+            saveUserData();
+            logForm.reset();
+        }
+    });
+
+    minuteForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const minutes = parseInt(document.getElementById('minutes-read').value, 10);
+        if (minutes > 0) {
+            totalMinutesRead += minutes;
+            saveUserData();
+            minuteForm.reset();
+        }
+    });
+
+    // Personal 1000 Page Goal
     function updatePersonalGoalUI() {
         const goal = 1000;
         const percentage = Math.min((totalPagesRead / goal) * 100, 100);
-        chestBarFill.style.width = `${percentage}%`;
+        chestBarFill.style.width = percentage + '%';
         chestBarText.innerText = `${totalPagesRead} / ${goal} pages read`;
     }
 
+    // Gamified Beach Badges Layout
+    function renderAchievements() {
+        achievementsGrid.innerHTML = '';
+        const badges = [
+            { title: "First Splash", desc: "Log your first page", check: totalPagesRead > 0 },
+            { title: "Castle Builder", desc: "Read 250 pages total", check: totalPagesRead >= 250 },
+            { title: "Deep Diver", desc: "Read 500 pages total", check: totalPagesRead >= 500 },
+            { title: "Treasure Master", desc: "Unlock the 1000 page chest", check: totalPagesRead >= 1000 },
+            { title: "Time Investor", desc: "Track 100 minutes of reading", check: totalMinutesRead >= 100 }
+        ];
+
+        // Self-contained custom SVG background vectors matching your grayscale setup
+        const inlineSVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='75' height='75'><circle cx='12' cy='12' r='10' fill='%23BFE8FF' stroke='black' stroke-width='1.5'/><path d='M12 7v10M7 12h10' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>";
+
+        badges.forEach(badge => {
+            const card = document.createElement('div');
+            card.className = `badge-card ${badge.check ? 'unlocked' : 'locked'}`;
+            card.innerHTML = `
+                <img class="badge-image" src="${inlineSVG}" alt="Badge Icon">
+                <div class="badge-title">${badge.title}</div>
+                <div class="badge-desc">${badge.desc}</div>
+                <span class="badge-status ${badge.check ? 'unlocked-label' : 'locked-label'}">
+                    ${badge.check ? 'Unlocked' : 'Locked'}
+                </span>
+            `;
+            achievementsGrid.appendChild(card);
+        });
+    }
+
+    // Interactive Real-Time Club Leaderboard 
     function renderLeaderboard(usersData) {
-        if(!usersData) return;
         leaderboardList.innerHTML = '';
-        Object.keys(usersData).forEach(user => {
+        if (!usersData) return;
+
+        const sortedUsers = Object.keys(usersData).map(key => ({
+            name: key,
+            totalPages: usersData[key].totalPages || 0,
+            totalMinutes: usersData[key].totalMinutes || 0
+        })).sort((a, b) => b.totalPages - a.totalPages);
+
+        sortedUsers.forEach((user, index) => {
             const li = document.createElement('li');
             li.className = 'leaderboard-item';
-            li.innerHTML = `<span>${user}</span> <span>${usersData[user].totalPages || 0} pages</span>`;
+            if (index === 0) li.classList.add('top-reader');
+            
+            li.innerHTML = `
+                <span>${index + 1}. ${user.name} ${index === 0 ? '👑' : ''}</span>
+                <span>${user.totalPages} pages (${user.totalMinutes} mins)</span>
+            `;
             leaderboardList.appendChild(li);
         });
     }
 
-    function renderAchievements() {
-        // Simple placeholder to prevent missing reference crashes
-        achievementsGrid.innerHTML = '<div style="color:var(--muted-text)">Keep reading to earn badges!</div>';
+    // Modal Control Windows
+    function openAddBookModal() {
+        bookModal.classList.remove('hidden');
     }
 
-    function openAddBookModal() { bookModal.classList.remove('hidden'); }
-    function closeAddBookModal() { bookModal.classList.add('hidden'); }
+    function closeAddBookModal() {
+        bookModal.classList.add('hidden');
+        modalForm.reset();
+    }
+
+    modalForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('modal-title').value.trim();
+        const author = document.getElementById('modal-author').value.trim();
+        const pages = parseInt(document.getElementById('modal-pages').value, 10);
+
+        if (title && author && pages > 0) {
+            const newBook = { title, author, pages, inStock: true };
+            bookDatabase.push(newBook);
+            database.ref('bookCatalog').set(bookDatabase);
+            closeAddBookModal();
+        }
+    });
 </script>
 </body>
 </html>
