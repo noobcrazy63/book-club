@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Seelhoefer Summer Book-Club</title>
+    
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+
     <style>
         :root {
             --primary: #BFE8FF;     
@@ -133,32 +136,31 @@
             margin: 0;
         }
 
-        /* Top Right Mini 3D Avatar Badge */
+        /* Top Right Live Real-Time 3D Avatar Badge Frame */
         .avatar-badge-clickable {
-            width: 58px;
-            height: 58px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             border: 3px solid #111;
-            background: linear-gradient(135deg, #a5f3fc 0%, #0284c7 100%);
+            background: radial-gradient(circle, #38bdf8 0%, #0369a1 100%);
             cursor: pointer;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 3px 10px rgba(2, 132, 199, 0.3);
+            box-shadow: 0 4px 12px rgba(3, 105, 161, 0.4);
         }
 
         .avatar-badge-clickable:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+            transform: scale(1.1);
+            box-shadow: 0 0 18px rgba(0, 210, 255, 0.7);
             border-color: #00d2ff;
         }
 
-        .avatar-badge-clickable img {
-            width: 92%;
-            height: 92%;
-            object-fit: contain;
+        .avatar-badge-clickable model-viewer {
+            width: 110%;
+            height: 110%;
         }
 
         /* Twin Input Columns */
@@ -600,7 +602,7 @@
             color: #333333;
         }
 
-        /* --- SLEEK 3D GAMING STYLES FOR AVATAR CUSTOMIZER --- */
+        /* --- SLEEK 3D INTERACTIVE GAMING STYLES --- */
         .game-modal-content {
             background: var(--game-bg);
             border: 2px solid var(--game-border);
@@ -626,13 +628,14 @@
             text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
         }
 
+        /* 3D Model Canvas Viewport Container */
         .avatar-preview-box {
-            width: 170px;
-            height: 170px;
+            width: 190px;
+            height: 190px;
             margin: 0 auto 20px auto;
             border-radius: 50%;
             border: 4px solid var(--game-accent-blue);
-            background: radial-gradient(circle, rgba(0, 210, 255, 0.25) 0%, rgba(13, 10, 26, 0.6) 100%);
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.25) 0%, rgba(13, 10, 26, 0.7) 100%);
             overflow: hidden;
             position: relative;
             display: flex;
@@ -642,11 +645,10 @@
             transition: border-color 0.3s ease;
         }
 
-        .avatar-preview-box img {
-            width: 85%;
-            height: 85%;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+        .avatar-preview-box model-viewer {
+            width: 100%;
+            height: 100%;
+            background: transparent;
         }
 
         .preset-grid {
@@ -687,7 +689,6 @@
             box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
         }
 
-        /* Specific active style highlights */
         .style-btn.active-girl {
             border-color: var(--game-accent-pink);
             background: rgba(255, 0, 127, 0.15);
@@ -721,23 +722,6 @@
             color: #fff;
             border-color: rgba(255,255,255,0.25);
         }
-
-        /* Spinner CSS */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            border-left-color: var(--game-accent-blue);
-            animation: spin 1s linear infinite;
-            position: absolute;
-            z-index: 5;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -764,8 +748,18 @@
             <h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
             <div class="nav-right-container">
                 <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
-                <div id="avatar-badge" class="avatar-badge-clickable" onclick="openAvatarModal()" title="Customize Avatar">
-                    <img id="nav-avatar-img" src="https://avatar.iran.liara.run/public/boy?username=Boy1" alt="Avatar Badge">
+                
+                <div id="avatar-badge" class="avatar-badge-clickable" onclick="openAvatarModal()" title="Customize Live 3D Avatar">
+                    <model-viewer id="nav-avatar-3d" 
+                                  src="https://models.readyplayer.me/63cfbc97852b7c4b1ed4d79a.glb" 
+                                  auto-rotate 
+                                  rotation-per-second="30deg"
+                                  disable-zoom 
+                                  disable-pan
+                                  camera-orbit="0deg 75deg 0.65m"
+                                  camera-target="0m 1.45m 0m"
+                                  interaction-prompt="none">
+                    </model-viewer>
                 </div>
             </div>
         </div>
@@ -780,7 +774,7 @@
                 <h3>⏱️ Update Pages Read</h3>
                 <form id="log-form">
                     <select id="log-book-select" required>
-                        <option value="" disabled selected>Choose book to update...</option>
+                        <option value="" disabled open selected>Choose book to update...</option>
                     </select>
                     <input type="number" id="pages-read" placeholder="Pages read this session?" min="1" required>
                     <button type="submit">Log Pages</button>
@@ -808,8 +802,7 @@
 
         <div class="achievements-box">
             <h3>🏅 Your Beach Badges</h3>
-            <div class="achievements-grid" id="achievements-grid">
-                </div>
+            <div class="achievements-grid" id="achievements-grid"></div>
         </div>
 
         <div class="leaderboard-box">
@@ -824,7 +817,7 @@
         <h3>📚 Available Library Books</h3>
         
         <div class="search-container">
-            <input type="text" id="catalog-search" placeholder="🔍 Search library by title... (try typing 'blet')" oninput="handleSearchSearch()">
+            <input type="text" id="catalog-search" placeholder="🔍 Search library by title..." oninput="handleSearchSearch()">
         </div>
 
         <div class="book-grid" id="catalog-grid"></div>
@@ -857,26 +850,36 @@
 
 <div id="avatar-modal" class="modal-overlay hidden">
     <div class="game-modal-content">
-        <h3>✨ Customize 3D Look ✨</h3>
+        <h3>✨ Customize 3D Identity ✨</h3>
         
         <div id="avatar-frame" class="avatar-preview-box">
-            <div id="avatar-loading-spinner" class="spinner hidden"></div>
-            <img id="modal-avatar-preview-img" src="https://avatar.iran.liara.run/public/boy?username=Boy1" alt="3D Avatar Preview" />
+            <model-viewer id="modal-avatar-3d" 
+                          src="https://models.readyplayer.me/63cfbc97852b7c4b1ed4d79a.glb" 
+                          camera-controls 
+                          auto-rotate 
+                          rotation-per-second="15deg"
+                          disable-pan
+                          camera-orbit="0deg 75deg 0.75m"
+                          camera-target="0m 1.45m 0m"
+                          shadow-intensity="1.5"
+                          environment-image="neutral"
+                          interaction-prompt="none">
+            </model-viewer>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left;">
-            <label style="font-weight: bold; display: block; margin-bottom: 10px; font-size: 14px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">Select Character Base:</label>
+            <label style="font-weight: bold; display: block; margin-bottom: 10px; font-size: 13px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">Choose 3D Character Mesh Asset:</label>
             <div class="preset-grid">
-                <button type="button" id="style-b1" class="style-btn active" onclick="selectStylePreset('boy?username=Boy1', 'style-b1', false)">👦 Boy Style 1</button>
-                <button type="button" id="style-b2" class="style-btn" onclick="selectStylePreset('boy?username=Boy2', 'style-b2', false)">🧑 Boy Style 2</button>
-                <button type="button" id="style-g1" class="style-btn" onclick="selectStylePreset('girl?username=Girl1', 'style-g1', true)">👧 Girl Style 1</button>
-                <button type="button" id="style-g2" class="style-btn" onclick="selectStylePreset('girl?username=Girl2', 'style-g2', true)">👩 Girl Style 2</button>
+                <button type="button" id="style-b1" class="style-btn active" onclick="select3DModel('https://models.readyplayer.me/63cfbc97852b7c4b1ed4d79a.glb', 'style-b1', false)">🌌 Cyber Warrior</button>
+                <button type="button" id="style-b2" class="style-btn" onclick="select3DModel('https://models.readyplayer.me/63cfbd075a4dc2cbf42588c8.glb', 'style-b2', false)">🚀 Star Pilot</button>
+                <button type="button" id="style-g1" class="style-btn" onclick="select3DModel('https://models.readyplayer.me/63cfbd285a4dc2cbf425890c.glb', 'style-g1', true)">☄️ Neon Ranger</button>
+                <button type="button" id="style-g2" class="style-btn" onclick="select3DModel('https://models.readyplayer.me/63cfbd46852b7c4b1ed4d9fa.glb', 'style-g2', true)">✨ Solar Sage</button>
             </div>
         </div>
 
         <div class="modal-buttons">
             <button type="button" class="style-btn game-cancel-btn" onclick="closeAvatarModal()">Close</button>
-            <button type="button" class="style-btn game-save-btn" onclick="saveSelectedAvatar()">Save Selection</button>
+            <button type="button" class="style-btn game-save-btn" onclick="saveSelected3DAvatar()">Save Changes</button>
         </div>
     </div>
 </div>
@@ -932,9 +935,8 @@
     let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
-    let temporarySeedChoice = "boy?username=Boy1";
+    let tempModelSelection = "https://models.readyplayer.me/63cfbc97852b7c4b1ed4d79a.glb";
 
-    // Pagination Configurations
     let currentPage = 1;
     const booksPerPage = 25;
 
@@ -977,7 +979,6 @@
                 bookDatabase = [...defaultBooks];
                 database.ref('bookCatalog').set(defaultBooks);
             }
-            
             bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
             applyFilterAndRender();
             if (currentUserName) updateDashboardProgressUI();
@@ -997,8 +998,9 @@
                 totalMinutesDisplay.innerText = totalMinutesRead;
 
                 if (userSnapshot.avatarUrl) {
-                    document.getElementById('nav-avatar-img').src = userSnapshot.avatarUrl;
-                    document.getElementById('modal-avatar-preview-img').src = userSnapshot.avatarUrl;
+                    document.getElementById('nav-avatar-3d').setAttribute('src', userSnapshot.avatarUrl);
+                    document.getElementById('modal-avatar-3d').setAttribute('src', userSnapshot.avatarUrl);
+                    tempModelSelection = userSnapshot.avatarUrl;
                 }
 
                 updateDashboardProgressUI();
@@ -1019,19 +1021,16 @@
 
     function applyFilterAndRender() {
         const query = catalogSearch.value.toLowerCase().trim();
-        
         if (query === "") {
             filteredBooks = [...bookDatabase];
         } else {
             filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
         }
-        
         renderCatalogPage();
     }
 
     function renderCatalogPage() {
         catalogGrid.innerHTML = "";
-        
         const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
         if (currentPage > totalPagesCount) currentPage = totalPagesCount;
 
@@ -1040,11 +1039,10 @@
         const pageItems = filteredBooks.slice(startIndex, endIndex);
 
         if (pageItems.length === 0) {
-            catalogGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--muted-text); padding: 30px;">No books match your search criteria.</div>`;
+            catalogGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--muted-text); padding: 30px;">No matches found.</div>`;
         } else {
             pageItems.forEach((book) => {
                 const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
-
                 const card = document.createElement('div');
                 card.classList.add('book-card');
                 card.innerHTML = `
@@ -1068,50 +1066,26 @@
         nextPageBtn.disabled = currentPage === totalPagesCount;
     }
 
-    function goToPrevPage() {
-        if (currentPage > 1) {
-            currentPage--;
-            renderCatalogPage();
-        }
-    }
-
-    function goToNextPage() {
-        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
-        if (currentPage < totalPagesCount) {
-            currentPage++;
-            renderCatalogPage();
-        }
-    }
+    function goToPrevPage() { if (currentPage > 1) { currentPage--; renderCatalogPage(); } }
+    function goToNextPage() { const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1; if (currentPage < totalPagesCount) { currentPage++; renderCatalogPage(); } }
 
     function renderLeaderboard(usersData) {
         leaderboardList.innerHTML = "";
         let profiles = [];
-
         if (usersData) {
             Object.keys(usersData).forEach(name => {
-                profiles.push({
-                    name: name,
-                    pages: usersData[name].totalPages || 0
-                });
+                profiles.push({ name: name, pages: usersData[name].totalPages || 0 });
             });
         }
-
         if (currentUserName && !profiles.some(p => p.name === currentUserName)) {
             profiles.push({ name: currentUserName, pages: totalPagesRead });
         }
-
         profiles.sort((a, b) => b.pages - a.pages);
-
         profiles.forEach((profile, index) => {
             const li = document.createElement('li');
             li.classList.add('leaderboard-item');
-            if (index === 0 && profile.pages > 0) {
-                li.classList.add('top-reader');
-            }
-            li.innerHTML = `
-                <span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 && profile.pages > 0 ? '👑' : ''}</span>
-                <span>${profile.pages} pages</span>
-            `;
+            if (index === 0 && profile.pages > 0) li.classList.add('top-reader');
+            li.innerHTML = `<span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 && profile.pages > 0 ? '👑' : ''}</span><span>${profile.pages} pages</span>`;
             leaderboardList.appendChild(li);
         });
     }
@@ -1125,7 +1099,6 @@
 
     function renderAchievements() {
         achievementsGrid.innerHTML = "";
-        
         const badgesConfig = [
             { id: "comber", img: "Beach_Comber.png", title: "Beach Comber", desc: "Log your first page read", unlocked: totalPagesRead >= 1 },
             { id: "worm", img: "Book_Worm.png", title: "Book Worm", desc: "Start exploring stories", unlocked: totalPagesRead >= 50 },
@@ -1146,9 +1119,7 @@
                 <img src="${badge.img}" class="badge-image" alt="${badge.title}">
                 <div class="badge-title">${badge.title}</div>
                 <div class="badge-desc">${badge.desc}</div>
-                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
-                    ${badge.unlocked ? 'Earned' : 'Locked'}
-                </div>
+                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">${badge.unlocked ? 'Earned' : 'Locked'}</div>
             `;
             achievementsGrid.appendChild(el);
         });
@@ -1160,7 +1131,6 @@
         if (inputName !== "") {
             currentUserName = inputName;
             localStorage.setItem('autoClubUserName', currentUserName);
-
             database.ref('users/' + currentUserName).once('value', snapshot => {
                 const val = snapshot.val();
                 if (val) {
@@ -1168,9 +1138,7 @@
                     totalPagesRead = val.totalPages || 0;
                     totalMinutesRead = val.totalMinutes || 0;
                 } else {
-                    selectedBooks = {};
-                    totalPagesRead = 0;
-                    totalMinutesRead = 0;
+                    selectedBooks = {}; totalPagesRead = 0; totalMinutesRead = 0;
                     saveProfileToCloud();
                 }
                 loadDashboard();
@@ -1185,36 +1153,22 @@
         userDisplayName.innerText = currentUserName;
         totalPagesDisplay.innerText = totalPagesRead;
         totalMinutesDisplay.innerText = totalMinutesRead;
-
         applyFilterAndRender();
         updateDashboardProgressUI();
         updatePersonalGoalUI();
         renderAchievements();
     }
 
-    function openAddBookModal() {
-        bookModal.classList.remove('hidden');
-    }
-
-    function closeAddBookModal() {
-        bookModal.classList.add('hidden');
-        modalForm.reset();
-    }
+    function openAddBookModal() { bookModal.classList.remove('hidden'); }
+    function closeAddBookModal() { bookModal.classList.add('hidden'); modalForm.reset(); }
 
     modalForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const title = document.getElementById('modal-title').value.trim();
         const author = document.getElementById('modal-author').value.trim();
         const pages = parseInt(document.getElementById('modal-pages').value);
-
         if (title && author && !isNaN(pages)) {
-            bookDatabase.push({
-                title: title,
-                author: author,
-                pages: pages,
-                inStock: true
-            });
-            
+            bookDatabase.push({ title: title, author: author, pages: pages, inStock: true });
             bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
             saveCatalogToCloud();
             closeAddBookModal();
@@ -1226,7 +1180,6 @@
         if (!selectedBooks[book.title]) {
             selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
             book.inStock = false; 
-            
             saveProfileToCloud();
             saveCatalogToCloud();
         }
@@ -1235,19 +1188,14 @@
     function turnInBook(bookTitle) {
         if (selectedBooks[bookTitle]) {
             const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
-            if (bookInCatalog) {
-                bookInCatalog.inStock = true;
-            }
-
+            if (bookInCatalog) bookInCatalog.inStock = true;
             delete selectedBooks[bookTitle]; 
-
             saveProfileToCloud();
             saveCatalogToCloud();
-
             const entry = document.createElement('div');
             entry.classList.add('log-entry');
             entry.style.borderLeftColor = "#e63946";
-            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
+            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in!</span>`;
             logHistory.prepend(entry);
         }
     }
@@ -1255,20 +1203,14 @@
     function updateDashboardProgressUI() {
         progressContainer.innerHTML = "";
         logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
-        
         const keys = Object.keys(selectedBooks);
-        if (keys.length === 0) {
-            trackingBox.classList.add('hidden');
-            return;
-        }
+        if (keys.length === 0) { trackingBox.classList.add('hidden'); return; }
         
         trackingBox.classList.remove('hidden');
         keys.forEach(title => {
             const data = selectedBooks[title];
             const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
-            
             const safeTitleString = title.replace(/'/g, "\\'");
-
             const progItem = document.createElement('div');
             progItem.classList.add('progress-item');
             progItem.innerHTML = `
@@ -1279,15 +1221,12 @@
                     </div>
                     <button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In Book</button>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: ${percentage}%"></div>
-                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percentage}%"></div></div>
             `;
             progressContainer.appendChild(progItem);
 
             const opt = document.createElement('option');
-            opt.value = title;
-            opt.innerText = title;
+            opt.value = title; opt.innerText = title;
             logBookSelect.appendChild(opt);
         });
     }
@@ -1296,13 +1235,11 @@
         e.preventDefault();
         const selectedTitle = logBookSelect.value;
         const pagesEntered = parseInt(document.getElementById('pages-read').value);
-        
         if (!selectedTitle || isNaN(pagesEntered)) return;
 
         selectedBooks[selectedTitle].read += pagesEntered;
         totalPagesRead += pagesEntered;
         totalPagesDisplay.innerText = totalPagesRead;
-
         saveProfileToCloud();
         updatePersonalGoalUI();
         renderAchievements();
@@ -1311,7 +1248,6 @@
         entry.classList.add('log-entry');
         entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
         logHistory.prepend(entry);
-
         document.getElementById('pages-read').value = '';
     });
 
@@ -1319,10 +1255,8 @@
         e.preventDefault();
         const mins = parseInt(document.getElementById('minutes-read').value);
         if (isNaN(mins)) return;
-        
         totalMinutesRead += mins;
         totalMinutesDisplay.innerText = totalMinutesRead;
-        
         saveProfileToCloud();
         renderAchievements();
 
@@ -1330,49 +1264,31 @@
         entry.classList.add('log-entry');
         entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
         logHistory.prepend(entry);
-
         document.getElementById('minutes-read').value = '';
     });
 
     function saveProfileToCloud() {
         if (!currentUserName) return;
-        
-        const currentImgSrc = document.getElementById('nav-avatar-img').src;
-
         database.ref('users/' + currentUserName).set({
             selectedBooks: selectedBooks,
             totalPages: totalPagesRead,
             totalMinutes: totalMinutesRead,
-            avatarUrl: currentImgSrc
+            avatarUrl: tempModelSelection
         });
     }
 
-    function saveCatalogToCloud() {
-        database.ref('bookCatalog').set(bookDatabase);
-    }
+    function saveCatalogToCloud() { database.ref('bookCatalog').set(bookDatabase); }
+    function clearProfile() { localStorage.removeItem('autoClubUserName'); location.reload(); }
 
-    function clearProfile() {
-        localStorage.removeItem('autoClubUserName');
-        location.reload();
-    }
+    /* --- REAL-TIME 3D MODEL VIEWPORT SELECTION LOGIC --- */
+    function openAvatarModal() { avatarModal.classList.remove('hidden'); }
+    function closeAvatarModal() { avatarModal.classList.add('hidden'); }
 
+    function select3DModel(modelUrl, buttonId, isGirlStyle) {
+        tempModelSelection = modelUrl;
 
-    /* --- ADVANCED 3D GAME INTERFACE & SELECTION LOGIC --- */
-    function openAvatarModal() {
-        avatarModal.classList.remove('hidden');
-    }
-
-    function closeAvatarModal() {
-        avatarModal.classList.add('hidden');
-    }
-
-    function selectStylePreset(apiPath, buttonId, isGirlStyle) {
-        temporarySeedChoice = apiPath;
-
-        // Reset active styling classes across variants
         document.querySelectorAll('.style-btn').forEach(btn => {
-            btn.classList.remove('active');
-            btn.classList.remove('active-girl');
+            btn.classList.remove('active', 'active-girl');
         });
         
         const selectedBtn = document.getElementById(buttonId);
@@ -1386,32 +1302,14 @@
             document.getElementById('avatar-frame').style.boxShadow = "0 0 25px rgba(0, 210, 255, 0.4), inset 0 0 15px rgba(0,0,0,0.6)";
         }
 
-        const spinner = document.getElementById('avatar-loading-spinner');
-        const previewImg = document.getElementById('modal-avatar-preview-img');
-
-        spinner.classList.remove('hidden');
-        previewImg.style.opacity = "0.2";
-
-        const targetUrl = `https://avatar.iran.liara.run/public/${apiPath}`;
-
-        setTimeout(() => {
-            previewImg.src = targetUrl;
-            spinner.classList.add('hidden');
-            previewImg.style.opacity = "1";
-        }, 250);
+        // Live update the 3D element rendering engine source link
+        const previewModelViewport = document.getElementById('modal-avatar-3d');
+        previewModelViewport.setAttribute('src', modelUrl);
     }
 
-    function saveSelectedAvatar() {
-        const selectedUrl = `https://avatar.iran.liara.run/public/${temporarySeedChoice}`;
-        
-        document.getElementById('nav-avatar-img').src = selectedUrl;
-        document.getElementById('modal-avatar-preview-img').src = selectedUrl;
-
-        if (currentUserName) {
-            database.ref('users/' + currentUserName).update({
-                avatarUrl: selectedUrl
-            });
-        }
+    function saveSelected3DAvatar() {
+        document.getElementById('nav-avatar-3d').setAttribute('src', tempModelSelection);
+        saveProfileToCloud();
         closeAvatarModal();
     }
 
