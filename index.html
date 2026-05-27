@@ -6,15 +6,16 @@
     <title>The Seelhoefer Summer Book-Club</title>
     <style>
         :root {
-            --primary: #BFE8FF; 
-            --secondary: #000000; 
-            --bg: #f5fafd;
+            --primary: #BFE8FF;     /* The exact soft summer cyan from your new beach banner */
+            --secondary: #000000;   /* Solid black */
+            --bg: #f5fafd;          
             --white: #ffffff;
             --muted-text: #555555;
-            --instock: #2a9d8f;
+            --instock: #2a9d8f;     
             --outstock: #e63946;
-            --gold-yellow: #FFD700; 
+            --gold-yellow: #FFD700; /* Bright treasure yellow */    
         }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
@@ -24,21 +25,24 @@
             display: flex;
             justify-content: center;
         }
+
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 850px; 
             background: var(--white);
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             position: relative;
         }
+
         .brand-header {
             text-align: center;
             margin-bottom: 25px;
             border-bottom: 3px solid var(--primary);
             padding-bottom: 15px;
         }
+
         .brand-header img {
             max-width: 100%;
             height: auto;
@@ -46,9 +50,16 @@
             object-fit: contain;
             border-radius: 6px;
         }
-        h2, h3, h4 { color: var(--secondary); font-weight: 700; }
-        .hidden { display: none !important; }
-        
+
+        h2, h3, h4 {
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         /* Forms */
         input, select {
             width: 100%;
@@ -63,10 +74,12 @@
             outline: none;
             transition: all 0.2s;
         }
+
         input:focus, select:focus {
             border-color: var(--secondary);
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
         }
+
         button {
             width: 100%;
             padding: 12px;
@@ -80,8 +93,12 @@
             font-size: 16px;
             transition: all 0.2s ease;
         }
-        button:hover { background-color: var(--secondary); color: var(--primary); }
-        
+
+        button:hover {
+            background-color: var(--secondary);
+            color: var(--primary);
+        }
+
         /* Dashboard Navbar */
         .nav-bar {
             display: flex;
@@ -91,6 +108,7 @@
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
+
         .logout-btn {
             width: auto;
             padding: 6px 15px;
@@ -98,13 +116,26 @@
             color: var(--white);
             border: 1px solid var(--secondary);
         }
-        
-        /* Layout */
-        .log-row { display: flex; gap: 15px; }
-        .log-col { flex: 1; }
-        .search-container { margin-top: 10px; margin-bottom: 15px; }
-        .search-container input { padding: 10px 15px; font-size: 15px; }
-        
+
+        /* Twin Input Columns */
+        .log-row {
+            display: flex;
+            gap: 15px;
+        }
+        .log-col {
+            flex: 1;
+        }
+
+        /* Search Section */
+        .search-container {
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .search-container input {
+            padding: 10px 15px;
+            font-size: 15px;
+        }
+
         /* Book Grid Layout */
         .book-grid {
             display: grid;
@@ -113,6 +144,7 @@
             margin-top: 15px;
             min-height: 250px;
         }
+
         .book-card {
             border: 2px solid #eeeeee;
             border-radius: 8px;
@@ -123,80 +155,424 @@
             justify-content: space-between;
             min-height: 100px;
         }
-        .book-info-container { display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; gap: 12px; }
-        .book-title { font-size: 16px; font-weight: bold; line-height: 1.3; }
-        .book-author { font-size: 13px; color: var(--muted-text); font-style: italic; margin-top: 2px; }
-        .status-container { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
-        .stock-status { font-size: 12px; font-weight: bold; padding: 3px 6px; border-radius: 4px; }
+
+        .book-info-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+            gap: 12px;
+        }
+
+        .book-title {
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+
+        .book-author {
+            font-size: 13px;
+            color: var(--muted-text);
+            font-style: italic;
+            margin-top: 2px;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+
+        .stock-status {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+
         .stock-status.in { background-color: #e2f4f1; color: var(--instock); }
         .stock-status.out { background-color: #ffeef0; color: var(--outstock); }
-        .choose-btn { width: auto; padding: 4px 12px; margin: 0; font-size: 13px; }
+
+        .choose-btn {
+            width: auto;
+            padding: 4px 12px;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        /* Pagination Layout */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .page-arrow-btn {
+            width: 45px;
+            height: 45px;
+            padding: 0;
+            margin: 0;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
         
+        .page-arrow-btn:disabled {
+            background-color: #eeeeee;
+            border-color: #cccccc;
+            color: #bbbbbb;
+            cursor: not-allowed;
+        }
+
+        .page-indicator-text {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--muted-text);
+        }
+
         /* Selected Progress Section */
-        .selected-box { background-color: #f9f9f9; border: 2px dashed var(--primary); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
-        .progress-item { margin: 15px 0; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e0; }
-        .progress-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .progress-labels { display: flex; flex-direction: column; gap: 2px; }
-        .progress-book-name { font-weight: bold; font-size: 15px; }
-        .progress-book-stats { font-size: 13px; color: var(--muted-text); }
-        .turn-in-btn { background-color: #e63946; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 4px; width: auto; margin: 0; cursor: pointer; }
-        .turn-in-btn:hover { background-color: #b8222e; color: white; }
-        .progress-bar-bg { background-color: #e0e0e0; border-radius: 10px; overflow: hidden; height: 12px; width: 100%; }
-        .progress-bar-fill { background-color: var(--secondary); height: 100%; width: 0%; transition: width 0.4s ease; }
-        hr { border: 0; height: 2px; background: var(--primary); margin: 30px 0; }
-        .log-entry { background: #f0f8ff; padding: 12px; margin: 8px 0; border-left: 5px solid var(--primary); border-radius: 0 6px 6px 0; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Goal Layout */
-        .personal-goal-box { text-align: center; background: #fdfdfd; border: 2px dashed #b1d8ef; border-radius: 8px; padding: 20px; margin: 25px 0 15px 0; }
-        .chest-bar-bg { background-color: #e0e0e0; border: 2px solid var(--secondary); border-radius: 20px; overflow: hidden; height: 28px; width: 100%; max-width: 500px; margin: 0 auto; position: relative; display: flex; align-items: center; justify-content: center; }
-        .chest-bar-fill { background-color: var(--gold-yellow); position: absolute; left: 0; top: 0; height: 100%; width: 0%; transition: width 0.5s ease; z-index: 1; }
-        .chest-bar-text { position: relative; z-index: 2; font-weight: bold; font-size: 14px; color: var(--secondary); }
-        
-        /* Achievements & Leaderboard */
-        .achievements-box { background: #fcfdfe; border: 2px dashed #a4d2ed; border-radius: 10px; padding: 20px; margin: 25px 0; }
-        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 15px; margin-top: 15px; }
-        .badge-card { background: #ffffff; border: 1px solid #e2edf5; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-        .badge-card.locked { opacity: 0.5; background: #f7f9fa; border-color: #e6ebed; filter: grayscale(100%); }
-        .badge-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
-        .badge-desc { font-size: 11px; color: var(--muted-text); line-height: 1.2; margin-bottom: 8px; }
-        .badge-status { font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: auto; }
-        .unlocked-label { background: #e2f4f1; color: var(--instock); }
-        .locked-label { background: #eeeeee; color: #888888; }
-        
-        /* Leaderboard Clean Layout */
-        .leaderboard-box { background: #ffffff; border: 2px solid var(--secondary); border-radius: 8px; padding: 15px; margin: 15px 0 20px 0; }
-        .leaderboard-list { list-style: none; padding: 0; margin: 10px 0 0 0; }
-        .leaderboard-item { display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 5px; background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 4px; font-weight: 500; }
-        .leaderboard-item.top-reader { background: #e2f4f1; border-color: var(--instock); font-weight: bold; }
-        .leaderboard-item-meta { display: flex; align-items: center; gap: 10px; }
-        
-        /* Pagination & Modal */
-        .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 25px; }
-        .page-arrow-btn { width: 45px; height: 45px; padding: 0; margin: 0; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; line-height: 1; }
-        .page-arrow-btn:disabled { background-color: #eeeeee; border-color: #cccccc; color: #bbbbbb; cursor: not-allowed; }
-        .page-indicator-text { font-size: 15px; font-weight: bold; color: var(--muted-text); }
-        .fab-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: var(--primary); border: 2px solid var(--secondary); border-radius: 50%; color: var(--secondary); font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); z-index: 1000; transition: transform 0.2s, background-color 0.2s; }
-        .fab-btn:hover { transform: scale(1.1); background-color: var(--white); }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-content { background: var(--white); padding: 25px; border-radius: 10px; width: 90%; max-width: 400px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); position: relative; }
-        .modal-content h3 { margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 8px; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .cancel-btn { background-color: #eeeeee; border: 2px solid #cccccc; color: #333333; }
-        .cancel-btn:hover { background-color: #dddddd; color: #000000; }
+        .selected-box {
+            background-color: #f9f9f9;
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-item {
+            margin: 15px 0;
+            background: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .progress-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .progress-book-name {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .progress-book-stats {
+            font-size: 13px;
+            color: var(--muted-text);
+        }
+
+        .turn-in-btn {
+            background-color: #e63946;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .turn-in-btn:hover {
+            background-color: #b8222e;
+            color: white;
+        }
+
+        .progress-bar-bg {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 12px;
+            width: 100%;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--secondary); 
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        hr {
+            border: 0; height: 2px; background: var(--primary); margin: 30px 0;
+        }
+
+        .log-entry {
+            background: #f0f8ff;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 5px solid var(--primary);
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Individual Pages Read Goal Layout */
+        .personal-goal-box {
+            text-align: center;
+            background: #fdfdfd;
+            border: 2px dashed #b1d8ef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0 15px 0;
+        }
+
+        .personal-goal-box img {
+            max-width: 140px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .chest-bar-bg {
+            background-color: #e0e0e0;
+            border: 2px solid var(--secondary);
+            border-radius: 20px;
+            overflow: hidden;
+            height: 28px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chest-bar-fill {
+            background-color: var(--gold-yellow);
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 1;
+        }
+
+        .chest-bar-text {
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        /* Achievements Layout */
+        .achievements-box {
+            background: #fcfdfe;
+            border: 2px dashed #a4d2ed;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .badge-card {
+            background: #ffffff;
+            border: 1px solid #e2edf5;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge-image {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            transition: filter 0.3s, opacity 0.3s;
+        }
+
+        /* Locked state styling using CSS grayscale filter */
+        .badge-card.locked {
+            background: #f7f9fa;
+            border-color: #e6ebed;
+        }
+
+        .badge-card.locked .badge-image {
+            filter: grayscale(100%);
+            opacity: 0.35;
+        }
+
+        .badge-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .badge-desc {
+            font-size: 11px;
+            color: var(--muted-text);
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .badge-status {
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: auto;
+        }
+
+        .badge-status.unlocked-label {
+            background: #e2f4f1;
+            color: var(--instock);
+        }
+
+        .badge-status.locked-label {
+            background: #eeeeee;
+            color: #888888;
+        }
+
+        /* Leaderboard Styles */
+        .leaderboard-box {
+            background: #ffffff;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0 20px 0;
+        }
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            background: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+        .leaderboard-item.top-reader {
+            background: #f0f8ff;
+            border-color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Floating Action Button (FAB) */
+        .fab-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            border: 2px solid var(--secondary);
+            border-radius: 50%;
+            color: var(--secondary);
+            font-size: 32px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--white);
+        }
+
+        /* Modal Popup Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 8px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .cancel-btn {
+            background-color: #eeeeee;
+            border: 2px solid #cccccc;
+            color: #333333;
+        }
+
+        .cancel-btn:hover {
+            background-color: #dddddd;
+            color: #000000;
+        }
     </style>
-    
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
+    
     <div class="brand-header">
-        <h1>The Seelhoefer Summer Book-Club</h1>
+        <img src="ChatGPT Image May 23, 2026, 11_32_08 AM.png" alt="Seelhoefer Summer Book-Club Banner">
     </div>
-
-    <div id="status-banner" style="padding:10px; border-radius:6px; margin-bottom:15px; font-weight:bold; text-align:center; display:none;"></div>
-
+    
     <div id="auth-section">
         <h2>Welcome! Please Set Up Your Profile</h2>
         <form id="auth-form">
@@ -221,25 +597,26 @@
                 <h3>⏱️ Update Pages Read</h3>
                 <form id="log-form">
                     <select id="log-book-select" required>
-                        <option value="" disabled selected>Choose book...</option>
+                        <option value="" disabled selected>Choose book to update...</option>
                     </select>
-                    <input type="number" id="pages-read" placeholder="Pages Read" min="1" required>
+                    <input type="number" id="pages-read" placeholder="Pages read this session?" min="1" required>
                     <button type="submit">Log Pages</button>
                 </form>
             </div>
             <div class="log-col">
-                <h3>⏳ Log Reading Time</h3>
+                <h3>⏳ Session Clock</h3>
                 <form id="minute-form">
-                    <input type="number" id="minutes-read" placeholder="Minutes Read" min="1" required>
+                    <input type="number" id="minutes-read" placeholder="How many minutes?" min="1" required>
                     <button type="submit">Log Minutes</button>
                 </form>
             </div>
         </div>
 
         <h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span id="total-minutes">0</span> minutes spent</h4>
-
+        
         <div class="personal-goal-box">
-            <h3>📖 Pages Read Goal</h3>
+            <h3>🏴‍☠️ Pages Read Goal</h3>
+            <img src="aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png" alt="Treasure Chest">
             <div class="chest-bar-bg">
                 <div id="chest-bar-fill" class="chest-bar-fill"></div>
                 <div id="chest-bar-text" class="chest-bar-text">0 / 1000 pages read</div>
@@ -248,7 +625,8 @@
 
         <div class="achievements-box">
             <h3>🏅 Your Beach Badges</h3>
-            <div class="achievements-grid" id="achievements-grid"></div>
+            <div class="achievements-grid" id="achievements-grid">
+                </div>
         </div>
 
         <div class="leaderboard-box">
@@ -257,20 +635,24 @@
         </div>
 
         <div id="log-history"></div>
+
         <hr>
 
         <h3>📚 Available Library Books</h3>
-        <div class="search-container">
-            <input type="text" id="catalog-search" placeholder="Search books..." onkeyup="handleSearchSearch()">
-        </div>
-        <div id="catalog-grid" class="book-grid"></div>
         
+        <div class="search-container">
+            <input type="text" id="catalog-search" placeholder="🔍 Search library by title... (try typing 'blet')" oninput="handleSearchSearch()">
+        </div>
+
+        <div class="book-grid" id="catalog-grid"></div>
+
         <div class="pagination-controls">
             <button id="prev-page-btn" class="page-arrow-btn" onclick="goToPrevPage()">←</button>
             <span id="page-indicator" class="page-indicator-text">Page 1 of 1</span>
             <button id="next-page-btn" class="page-arrow-btn" onclick="goToNextPage()">→</button>
         </div>
     </div>
+
 </div>
 
 <button id="fab-add-book" class="fab-btn hidden" onclick="openAddBookModal()">+</button>
@@ -291,41 +673,67 @@
 </div>
 
 <script>
-    // === INSERT YOUR FIREBASE CONFIG HERE ===
     const firebaseConfig = {
         apiKey: "AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs",
         authDomain: "book-club-54785.firebaseapp.com",
         databaseURL: "https://book-club-54785-default-rtdb.firebaseio.com",
+        projectId: "book-club-54785",
+        storageBucket: "book-club-54785.firebasestorage.app",
+        messagingSenderId: "476568040133",
+        appId: "1:476568040133:web:7155e40ba26924451c36ac",
+        measurementId: "G-115G2ZPTNB"
     };
-    
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+
+    firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Default Catalog
     const defaultBooks = [
+        { title: "I.R.L.", author: "Chris Valdez", pages: 256, inStock: true },
         { title: "Donut Go Breaking My Heart", author: "Suzanne Nelson", pages: 272, inStock: true },
         { title: "The Misfits", author: "James Patterson", pages: 290, inStock: true },
-        { title: "The Bletchley Riddle", author: "Ruta Sepetys & Kristy Cambron", pages: 368, inStock: true }
+        { title: "The Bletchley Riddle", author: "Ruta Sepetys & Kristy Cambron", pages: 368, inStock: true },
+        { title: "Middle School Get Me Out Of Here", author: "James Patterson", pages: 304, inStock: true },
+        { title: "All's Faire in Middle School", author: "Victoria Jamieson", pages: 240, inStock: true },
+        { title: "What is Juneteenth?", author: "Kirsti Jewel", pages: 112, inStock: true },
+        { title: "Everything for a Dog", author: "Ann M. Martin", pages: 240, inStock: true },
+        { title: "A Batch Made In Heaven", author: "Suzanne Nelson", pages: 250, inStock: true },
+        { title: "Growing Home", author: "Susan L. Lipson", pages: 208, inStock: true },
+        { title: "Olivetti", author: "Allie Millington", pages: 256, inStock: true },
+        { title: "Return to Sender", author: "Julia Alvarez", pages: 336, inStock: true },
+        { title: "The Playbook", author: "Kwame Alexander", pages: 176, inStock: true },
+        { title: "Out of My Mind", author: "Sharon M. Draper", pages: 320, inStock: true },
+        { title: "Where the Red Fern Grows", author: "Wilson Rawls", pages: 256, inStock: true },
+        { title: "Where is the Bermuda Triangle?", author: "Megan Stine", pages: 112, inStock: true },
+        { title: "I Survived Graphic Novel: The Great Molasses Flood, 1919", author: "Lauren Tarshis", pages: 160, inStock: true },
+        { title: "Where is the Eiffel Tower?", author: "Dina Anastasio", pages: 112, inStock: true },
+        { title: "Percy Jackson I", author: "Rick Riordan", pages: 384, inStock: true },
+        { title: "Percy Jackson II", author: "Rick Riordan", pages: 288, inStock: true },
+        { title: "Percy Jackson III", author: "Rick Riordan", pages: 320, inStock: true },
+        { title: "Me Frida", author: "Amy Novesky", pages: 40, inStock: true },
+        { title: "My Jasper June", author: "Laurel Snyder", pages: 304, inStock: true },
+        { title: "Are you there God? It's Me Margaret", author: "Judy Blume", pages: 192, inStock: true },
+        { title: "Zeus", author: "George O'Connor", pages: 80, inStock: true },
+        { title: "Deep Water", author: "Watt Key", pages: 272, inStock: true },
+        { title: "Anne Frank", author: "Anne Frank", pages: 352, inStock: true }
     ];
 
     let bookDatabase = [];
     let filteredBooks = [];
     let currentUserName = localStorage.getItem('autoClubUserName') || "";
-    let selectedBooks = {};
+    let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
-    
+
+    // Pagination Configurations
     let currentPage = 1;
     const booksPerPage = 25;
 
-    // DOM Elements
     const authSection = document.getElementById('auth-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const fabButton = document.getElementById('fab-add-book');
     const bookModal = document.getElementById('book-modal');
     const modalForm = document.getElementById('modal-book-form');
+    
     const authForm = document.getElementById('auth-form');
     const authName = document.getElementById('auth-name');
     const userDisplayName = document.getElementById('user-display-name');
@@ -337,27 +745,31 @@
     const minuteForm = document.getElementById('minute-form');
     const totalPagesDisplay = document.getElementById('total-pages');
     const totalMinutesDisplay = document.getElementById('total-minutes');
+    const logHistory = document.getElementById('log-history');
     const leaderboardList = document.getElementById('leaderboard-list');
-    const statusBanner = document.getElementById('status-banner');
+    
     const chestBarFill = document.getElementById('chest-bar-fill');
     const chestBarText = document.getElementById('chest-bar-text');
+    const catalogSearch = document.getElementById('catalog-search');
+
+    const prevPageBtn = document.getElementById('prev-page-btn');
+    const nextPageBtn = document.getElementById('next-page-btn');
+    const pageIndicator = document.getElementById('page-indicator');
     const achievementsGrid = document.getElementById('achievements-grid');
-
-    initLiveSync();
-
-    function renderWebStatus(message, type = "info") {
-        statusBanner.innerText = message;
-        statusBanner.style.display = "block";
-        statusBanner.style.backgroundColor = type === "error" ? "#ffeef0" : (type === "success" ? "#e2f4f1" : "#BFE8FF");
-        statusBanner.style.color = type === "error" ? "#e63946" : (type === "success" ? "#2a9d8f" : "#000000");
-        setTimeout(() => { statusBanner.style.display = "none"; }, 6000);
-    }
 
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
             const data = snapshot.val();
-            bookDatabase = data ? (Array.isArray(data) ? data : Object.values(data)) : [...defaultBooks];
+            if (data) {
+                bookDatabase = data;
+            } else {
+                bookDatabase = [...defaultBooks];
+                database.ref('bookCatalog').set(defaultBooks);
+            }
+            
+            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
             applyFilterAndRender();
+            if (currentUserName) updateDashboardProgressUI();
         });
 
         database.ref('users').on('value', snapshot => {
@@ -372,80 +784,287 @@
                 
                 totalPagesDisplay.innerText = totalPagesRead;
                 totalMinutesDisplay.innerText = totalMinutesRead;
-                
                 updateDashboardProgressUI();
                 updatePersonalGoalUI();
                 renderAchievements();
             }
         });
 
-        if (currentUserName) loadDashboard();
+        if (currentUserName) {
+            loadDashboard();
+        }
     }
 
-    // --- LEADERBOARD: CLEANED UP TO REMOVE BOOK ICONS ---
+    function handleSearchSearch() {
+        currentPage = 1;
+        applyFilterAndRender();
+    }
+
+    function applyFilterAndRender() {
+        const query = catalogSearch.value.toLowerCase().trim();
+        
+        if (query === "") {
+            filteredBooks = [...bookDatabase];
+        } else {
+            filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
+        }
+        
+        renderCatalogPage();
+    }
+
+    function renderCatalogPage() {
+        catalogGrid.innerHTML = "";
+        
+        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
+        if (currentPage > totalPagesCount) currentPage = totalPagesCount;
+
+        const startIndex = (currentPage - 1) * booksPerPage;
+        const endIndex = startIndex + booksPerPage;
+        const pageItems = filteredBooks.slice(startIndex, endIndex);
+
+        if (pageItems.length === 0) {
+            catalogGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--muted-text); padding: 30px;">No books match your search criteria.</div>`;
+        } else {
+            pageItems.forEach((book) => {
+                const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
+
+                const card = document.createElement('div');
+                card.classList.add('book-card');
+                card.innerHTML = `
+                    <div class="book-info-container">
+                        <div>
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-author">by ${book.author}</div>
+                        </div>
+                        <div class="status-container">
+                            <span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'In Stock' : 'Out of Stock'}</span>
+                            ${book.inStock ? `<button class="choose-btn" onclick="chooseBook(${originalIndex})">Choose</button>` : ''}
+                        </div>
+                    </div>
+                `;
+                catalogGrid.appendChild(card);
+            });
+        }
+
+        pageIndicator.innerText = `${currentPage} out of ${totalPagesCount} pages`;
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPagesCount;
+    }
+
+    function goToPrevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderCatalogPage();
+        }
+    }
+
+    function goToNextPage() {
+        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
+        if (currentPage < totalPagesCount) {
+            currentPage++;
+            renderCatalogPage();
+        }
+    }
+
     function renderLeaderboard(usersData) {
         leaderboardList.innerHTML = "";
         let profiles = [];
-        
+
         if (usersData) {
             Object.keys(usersData).forEach(name => {
-                profiles.push({ name: name, pages: usersData[name].totalPages || 0 });
+                profiles.push({
+                    name: name,
+                    pages: usersData[name].totalPages || 0
+                });
             });
         }
-        
+
         if (currentUserName && !profiles.some(p => p.name === currentUserName)) {
             profiles.push({ name: currentUserName, pages: totalPagesRead });
         }
-        
+
         profiles.sort((a, b) => b.pages - a.pages);
+
+        profiles.forEach((profile, index) => {
+            const li = document.createElement('li');
+            li.classList.add('leaderboard-item');
+            if (index === 0 && profile.pages > 0) {
+                li.classList.add('top-reader');
+            }
+            li.innerHTML = `
+                <span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 && profile.pages > 0 ? '👑' : ''}</span>
+                <span>${profile.pages} pages</span>
+            `;
+            leaderboardList.appendChild(li);
+        });
+    }
+
+    function updatePersonalGoalUI() {
+        const goalTarget = 1000;
+        chestBarText.innerText = `${totalPagesRead} / ${goalTarget} pages read`;
+        const fillPercentage = Math.min((totalPagesRead / goalTarget) * 100, 100);
+        chestBarFill.style.width = `${fillPercentage}%`;
+    }
+
+    /* Evaluates club metrics and maps them to your uploaded custom asset images */
+    function renderAchievements() {
+        achievementsGrid.innerHTML = "";
         
-        if (profiles.length === 0) {
-            leaderboardList.innerHTML = "<li>No active club readers found yet!</li>";
-        } else {
-            profiles.forEach((profile, index) => {
-                const li = document.createElement('li');
-                li.className = `leaderboard-item ${index === 0 ? 'top-reader' : ''}`;
-                // Removed the <img src> and the 📖 elements completely.
-                li.innerHTML = `
-                    <div class="leaderboard-item-meta">
-                        <span>#${index + 1}</span>
-                        <span>${profile.name}</span>
-                    </div>
-                    <span>${profile.pages} pages</span>
-                `;
-                leaderboardList.appendChild(li);
+        const badgesConfig = [
+            { id: "comber", img: "Beach_Comber.png", title: "Beach Comber", desc: "Log your first page read", unlocked: totalPagesRead >= 1 },
+            { id: "worm", img: "Book_Worm.png", title: "Book Worm", desc: "Start exploring stories", unlocked: totalPagesRead >= 50 },
+            { id: "speed", img: "Speed_Demon.png", title: "Speed Demon", desc: "Log 150+ total club pages", unlocked: totalPagesRead >= 150 },
+            { id: "snorkel", img: "Snorkeler.png", title: "Snorkeler", desc: "Reach 250 total pages read", unlocked: totalPagesRead >= 250 },
+            { id: "diver", img: "Deep_Sea_Diver.png", title: "Deep Sea Diver", desc: "Reach 500 total pages read", unlocked: totalPagesRead >= 500 },
+            { id: "legend", img: "Library_Legend.png", title: "Library Legend", desc: "Reach 750 total pages read", unlocked: totalPagesRead >= 750 },
+            { id: "hunter", img: "aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png", title: "Treasure Hunter", desc: "Hit the 1,000 pages milestone", unlocked: totalPagesRead >= 1000 },
+            { id: "warmup", img: "Warm_Up.png", title: "Warm Up", desc: "Log 60 minutes of reading time", unlocked: totalMinutesRead >= 60 },
+            { id: "marathon", img: "Marathoner.png", title: "Marathoner", desc: "Log 300 minutes of reading time", unlocked: totalMinutesRead >= 300 },
+            { id: "streak", img: "Daily_Streak.png", title: "Daily Streak", desc: "Log 500+ minutes or keep reading", unlocked: totalMinutesRead >= 500 }
+        ];
+
+        badgesConfig.forEach(badge => {
+            const el = document.createElement('div');
+            el.className = `badge-card ${badge.unlocked ? 'unlocked' : 'locked'}`;
+            el.innerHTML = `
+                <img src="${badge.img}" class="badge-image" alt="${badge.title}">
+                <div class="badge-title">${badge.title}</div>
+                <div class="badge-desc">${badge.desc}</div>
+                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
+                    ${badge.unlocked ? 'Earned' : 'Locked'}
+                </div>
+            `;
+            achievementsGrid.appendChild(el);
+        });
+    }
+
+    authForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, ""); 
+        if (inputName !== "") {
+            currentUserName = inputName;
+            localStorage.setItem('autoClubUserName', currentUserName);
+
+            database.ref('users/' + currentUserName).once('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    selectedBooks = val.selectedBooks || {};
+                    totalPagesRead = val.totalPages || 0;
+                    totalMinutesRead = val.totalMinutes || 0;
+                } else {
+                    selectedBooks = {};
+                    totalPagesRead = 0;
+                    totalMinutesRead = 0;
+                    saveProfileToCloud();
+                }
+                loadDashboard();
             });
+        }
+    });
+
+    function loadDashboard() {
+        authSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        fabButton.classList.remove('hidden'); 
+        userDisplayName.innerText = currentUserName;
+        totalPagesDisplay.innerText = totalPagesRead;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+
+        applyFilterAndRender();
+        updateDashboardProgressUI();
+        updatePersonalGoalUI();
+        renderAchievements();
+    }
+
+    function openAddBookModal() {
+        bookModal.classList.remove('hidden');
+    }
+
+    function closeAddBookModal() {
+        bookModal.classList.add('hidden');
+        modalForm.reset();
+    }
+
+    modalForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const title = document.getElementById('modal-title').value.trim();
+        const author = document.getElementById('modal-author').value.trim();
+        const pages = parseInt(document.getElementById('modal-pages').value);
+
+        if (title && author && !isNaN(pages)) {
+            bookDatabase.push({
+                title: title,
+                author: author,
+                pages: pages,
+                inStock: true
+            });
+            
+            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
+            saveCatalogToCloud();
+            closeAddBookModal();
+        }
+    });
+
+    function chooseBook(index) {
+        const book = bookDatabase[index];
+        if (!selectedBooks[book.title]) {
+            selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
+            book.inStock = false; 
+            
+            saveProfileToCloud();
+            saveCatalogToCloud();
         }
     }
 
-    // --- PROGRESS BAR: PROPERLY CALCULATING AND RENDERING UI ---
+    /* FIX: Looks up the book target directly by its string Title key inside selectedBooks */
+    function turnInBook(bookTitle) {
+        if (selectedBooks[bookTitle]) {
+            // Find the original object location in the master catalog array to restock it
+            const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
+            if (bookInCatalog) {
+                bookInCatalog.inStock = true;
+            }
+
+            delete selectedBooks[bookTitle]; 
+
+            saveProfileToCloud();
+            saveCatalogToCloud();
+
+            const entry = document.createElement('div');
+            entry.classList.add('log-entry');
+            entry.style.borderLeftColor = "#e63946";
+            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
+            logHistory.prepend(entry);
+        }
+    }
+
     function updateDashboardProgressUI() {
         progressContainer.innerHTML = "";
         logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
         
-        const activeTitles = Object.keys(selectedBooks);
-        if (activeTitles.length === 0) {
+        const keys = Object.keys(selectedBooks);
+        if (keys.length === 0) {
             trackingBox.classList.add('hidden');
             return;
         }
         
         trackingBox.classList.remove('hidden');
-        
-        activeTitles.forEach(title => {
+        keys.forEach(title => {
             const data = selectedBooks[title];
-            const safeTitleString = title.replace(/'/g, "\\'");
-            // Calculate percentage dynamically
-            const percentage = Math.min(Math.round((data.currentPages / data.totalPages) * 100), 100);
+            const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
             
+            // Escapes single quotes in book titles safely for the inline JavaScript call
+            const safeTitleString = title.replace(/'/g, "\\'");
+
             const progItem = document.createElement('div');
-            progItem.className = 'progress-item';
+            progItem.classList.add('progress-item');
             progItem.innerHTML = `
                 <div class="progress-header-row">
                     <div class="progress-labels">
                         <span class="progress-book-name">${title}</span>
-                        <span class="progress-book-stats">${data.currentPages} / ${data.totalPages} pages completed (${percentage}%)</span>
+                        <span class="progress-book-stats">${data.read} / ${data.total} pages completed (${percentage}%)</span>
                     </div>
-                    <button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In</button>
+                    <button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In Book</button>
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: ${percentage}%"></div>
@@ -460,133 +1079,47 @@
         });
     }
 
-    // --- LOGIC HANDLERS ---
-    authForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, "");
-        if (inputName !== "") {
-            currentUserName = inputName;
-            localStorage.setItem('autoClubUserName', currentUserName);
-            database.ref('users/' + currentUserName).once('value', snapshot => {
-                const val = snapshot.val();
-                if (val) {
-                    selectedBooks = val.selectedBooks || {};
-                    totalPagesRead = val.totalPages || 0;
-                    totalMinutesRead = val.totalMinutes || 0;
-                } else {
-                    selectedBooks = {}; totalPagesRead = 0; totalMinutesRead = 0;
-                    saveProfileToCloud();
-                }
-                loadDashboard();
-            });
-        }
-    });
-
-    function loadDashboard() {
-        authSection.classList.add('hidden');
-        dashboardSection.classList.remove('hidden');
-        fabButton.classList.remove('hidden');
-        userDisplayName.innerText = currentUserName;
-        updatePersonalGoalUI();
-        renderAchievements();
-        updateDashboardProgressUI();
-    }
-
-    function clearProfile() {
-        localStorage.removeItem('autoClubUserName');
-        currentUserName = "";
-        authSection.classList.remove('hidden');
-        dashboardSection.classList.add('hidden');
-        fabButton.classList.add('hidden');
-        authName.value = "";
-    }
-
     logForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const selectedTitle = logBookSelect.value;
-        const count = parseInt(document.getElementById('pages-read').value);
+        const pagesEntered = parseInt(document.getElementById('pages-read').value);
         
-        if (selectedTitle && !isNaN(count) && count > 0 && selectedBooks[selectedTitle]) {
-            let bookData = selectedBooks[selectedTitle];
-            let newPages = bookData.currentPages + count;
-            
-            if (newPages > bookData.totalPages) { newPages = bookData.totalPages; }
-            
-            const actuallyRead = newPages - bookData.currentPages;
-            bookData.currentPages = newPages;
-            totalPagesRead += actuallyRead;
-            
-            saveProfileToCloud();
-            document.getElementById('pages-read').value = '';
-            
-            // Re-render UI to physically move the progress bar
-            updateDashboardProgressUI(); 
-            updatePersonalGoalUI();
-            renderWebStatus(`Awesome! Logged ${actuallyRead} pages for ${selectedTitle}.`, "success");
-        }
+        if (!selectedTitle || isNaN(pagesEntered)) return;
+
+        selectedBooks[selectedTitle].read += pagesEntered;
+        totalPagesRead += pagesEntered;
+        totalPagesDisplay.innerText = totalPagesRead;
+
+        saveProfileToCloud();
+        updatePersonalGoalUI();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('pages-read').value = '';
     });
 
     minuteForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const mins = parseInt(document.getElementById('minutes-read').value);
-        if (!isNaN(mins) && mins > 0) {
-            totalMinutesRead += mins;
-            saveProfileToCloud();
-            document.getElementById('minutes-read').value = '';
-            renderWebStatus(`Clocked ${mins} minutes of reading!`, "success");
-        }
-    });
-
-    function chooseBook(index) {
-        const book = bookDatabase[index];
-        if (book && book.inStock) {
-            book.inStock = false;
-            selectedBooks[book.title] = { currentPages: 0, totalPages: book.pages };
-            saveProfileToCloud();
-            saveCatalogToCloud();
-            renderWebStatus(`Checked out "${book.title}"!`, "success");
-        }
-    }
-
-    function turnInBook(bookTitle) {
-        if (selectedBooks[bookTitle]) {
-            const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
-            if (bookInCatalog) bookInCatalog.inStock = true;
-            delete selectedBooks[bookTitle];
-            saveProfileToCloud();
-            saveCatalogToCloud();
-            renderWebStatus(`Returned "${bookTitle}" to the library.`, "info");
-        }
-    }
-
-    function updatePersonalGoalUI() {
-        const goalTarget = 1000;
-        chestBarText.innerText = `${totalPagesRead} / ${goalTarget} pages read`;
-        const fillPercentage = Math.min((totalPagesRead / goalTarget) * 100, 100);
-        chestBarFill.style.width = `${fillPercentage}%`;
-    }
-
-    function renderAchievements() {
-        achievementsGrid.innerHTML = "";
-        const badgesConfig = [
-            { id: "comber", title: "Beach Comber", desc: "Log your first page read", unlocked: totalPagesRead >= 1 },
-            { id: "worm", title: "Book Worm", desc: "Start exploring stories", unlocked: totalPagesRead >= 50 },
-            { id: "speed", title: "Speed Demon", desc: "Log 150+ total club pages", unlocked: totalPagesRead >= 150 }
-        ];
+        if (isNaN(mins)) return;
         
-        badgesConfig.forEach(badge => {
-            const el = document.createElement('div');
-            el.className = `badge-card ${badge.unlocked ? '' : 'locked'}`;
-            el.innerHTML = `
-                <div class="badge-title">${badge.title}</div>
-                <div class="badge-desc">${badge.desc}</div>
-                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
-                    ${badge.unlocked ? 'Earned' : 'Locked'}
-                </div>
-            `;
-            achievementsGrid.appendChild(el);
-        });
-    }
+        totalMinutesRead += mins;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+        
+        saveProfileToCloud();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('minutes-read').value = '';
+    });
 
     function saveProfileToCloud() {
         if (!currentUserName) return;
@@ -601,73 +1134,14 @@
         database.ref('bookCatalog').set(bookDatabase);
     }
 
-    // --- CATALOG MODAL & SEARCH UI LOGIC ---
-    function handleSearchSearch() { currentPage = 1; applyFilterAndRender(); }
-    
-    function applyFilterAndRender() {
-        const query = document.getElementById('catalog-search').value.toLowerCase().trim();
-        filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
-        renderCatalogPage();
+    function clearProfile() {
+        localStorage.removeItem('autoClubUserName');
+        location.reload();
     }
 
-    function renderCatalogPage() {
-        catalogGrid.innerHTML = "";
-        const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
-        if (currentPage > totalPagesCount) currentPage = totalPagesCount;
-        
-        const startIndex = (currentPage - 1) * booksPerPage;
-        const endIndex = startIndex + booksPerPage;
-        const pageItems = filteredBooks.slice(startIndex, endIndex);
-        
-        document.getElementById('page-indicator').innerText = `Page ${currentPage} of ${totalPagesCount}`;
-        document.getElementById('prev-page-btn').disabled = currentPage === 1;
-        document.getElementById('next-page-btn').disabled = currentPage === totalPagesCount;
-
-        if (pageItems.length === 0) {
-            catalogGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center;">No books match your search.</div>`;
-        } else {
-            pageItems.forEach((book) => {
-                const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
-                const card = document.createElement('div');
-                card.className = 'book-card';
-                card.innerHTML = `
-                    <div class="book-info-container">
-                        <div>
-                            <div class="book-title">${book.title}</div>
-                            <div class="book-author">by ${book.author}</div>
-                        </div>
-                        <div class="status-container">
-                            <span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'Available' : 'Checked Out'}</span>
-                            <button class="choose-btn" ${!book.inStock ? 'disabled style="background-color: #ccc; border-color: #bbb;"' : `onclick="chooseBook(${originalIndex})"`}>
-                                ${book.inStock ? 'Choose' : 'Checked Out'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-                catalogGrid.appendChild(card);
-            });
-        }
-    }
-
-    function goToPrevPage() { if (currentPage > 1) { currentPage--; renderCatalogPage(); } }
-    function goToNextPage() { const maxPages = Math.ceil(filteredBooks.length / booksPerPage); if (currentPage < maxPages) { currentPage++; renderCatalogPage(); } }
-
-    function openAddBookModal() { bookModal.classList.remove('hidden'); }
-    function closeAddBookModal() { bookModal.classList.add('hidden'); modalForm.reset(); }
-
-    modalForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const title = document.getElementById('modal-title').value.trim();
-        const author = document.getElementById('modal-author').value.trim();
-        const pages = parseInt(document.getElementById('modal-pages').value);
-        if (title && author && !isNaN(pages)) {
-            bookDatabase.push({ title: title, author: author, pages: pages, inStock: true });
-            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
-            saveCatalogToCloud();
-            closeAddBookModal();
-            renderWebStatus("Book added!", "success");
-        }
-    });
+    initLiveSync();
 </script>
 </body>
 </html>
+
+
