@@ -560,93 +560,12 @@
             background-color: #dddddd;
             color: #000000;
         }
-
-        /* Top-Right Floating Avatar Widget Styles */
-        .avatar-widget {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1500;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .avatar-frame {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid var(--secondary);
-            background-color: var(--primary);
-            cursor: pointer;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            transition: transform 0.2s;
-        }
-
-        .avatar-frame:hover {
-            transform: scale(1.05);
-        }
-
-        .avatar-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .avatar-dropdown {
-            background: var(--white);
-            border: 2px solid var(--secondary);
-            border-radius: 8px;
-            padding: 15px;
-            width: 260px;
-            margin-top: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .avatar-dropdown h4 {
-            margin: 0 0 10px 0;
-            font-size: 15px;
-        }
-
-        .avatar-dropdown input {
-            padding: 8px;
-            font-size: 14px;
-            margin: 5px 0;
-        }
-
-        .avatar-dropdown button {
-            padding: 8px;
-            font-size: 14px;
-            margin: 5px 0 0 0;
-        }
-
-        .avatar-status-text {
-            font-size: 12px;
-            color: var(--muted-text);
-            margin-top: 6px;
-            text-align: center;
-        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
-
-<div id="avatar-widget" class="avatar-widget hidden">
-    <div class="avatar-frame" onclick="toggleAvatarDropdown()">
-        <img id="avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Reader" alt="User Avatar">
-    </div>
-    <div id="avatar-dropdown" class="avatar-dropdown hidden">
-        <h4>✨ Tripo 3D Avatar Creator</h4>
-        <input type="text" id="avatar-prompt" placeholder="e.g., A futuristic summer cat wearing sunglasses">
-        <button id="generate-avatar-btn" onclick="generateTripoAvatar()">Generate Avatar</button>
-        <div id="avatar-status" class="avatar-status-text">Ready to design!</div>
-    </div>
-</div>
 
 <div class="container">
     
@@ -706,7 +625,8 @@
 
         <div class="achievements-box">
             <h3>🏅 Your Beach Badges</h3>
-            <div class="achievements-grid" id="achievements-grid"></div>
+            <div class="achievements-grid" id="achievements-grid">
+                </div>
         </div>
 
         <div class="leaderboard-box">
@@ -804,6 +724,7 @@
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
 
+    // Pagination Configurations
     let currentPage = 1;
     const booksPerPage = 25;
 
@@ -824,6 +745,8 @@
     const minuteForm = document.getElementById('minute-form');
     const totalPagesDisplay = document.getElementById('total-pages');
     const totalMinutesDisplay = document.getElementById('total-minutes');
+    const logHistory = document.getElementById('log-history');
+    const leaderboardList = document.getElementById('leaderboard-list');
     
     const chestBarFill = document.getElementById('chest-bar-fill');
     const chestBarText = document.getElementById('chest-bar-text');
@@ -833,7 +756,6 @@
     const nextPageBtn = document.getElementById('next-page-btn');
     const pageIndicator = document.getElementById('page-indicator');
     const achievementsGrid = document.getElementById('achievements-grid');
-    const leaderboardList = document.getElementById('leaderboard-list');
 
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
@@ -865,49 +787,12 @@
                 updateDashboardProgressUI();
                 updatePersonalGoalUI();
                 renderAchievements();
-
-                if (userSnapshot.avatar) {
-                    document.getElementById('avatar-preview').src = userSnapshot.avatar;
-                }
             }
         });
 
         if (currentUserName) {
             loadDashboard();
         }
-    }
-
-    function loadDashboard() {
-        authSection.classList.add('hidden');
-        dashboardSection.classList.remove('hidden');
-        fabButton.classList.remove('hidden');
-        document.getElementById('avatar-widget').classList.remove('hidden');
-        userDisplayName.innerText = currentUserName;
-    }
-
-    authForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = authName.value.trim();
-        if (name) {
-            currentUserName = name;
-            localStorage.setItem('autoClubUserName', name);
-            database.ref('users/' + name).once('value', snapshot => {
-                if (!snapshot.exists()) {
-                    database.ref('users/' + name).set({
-                        totalPages: 0,
-                        totalMinutes: 0,
-                        selectedBooks: {},
-                        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=" + name
-                    });
-                }
-                loadDashboard();
-            });
-        }
-    });
-
-    function clearProfile() {
-        localStorage.removeItem('autoClubUserName');
-        window.location.reload();
     }
 
     function handleSearchSearch() {
@@ -917,16 +802,19 @@
 
     function applyFilterAndRender() {
         const query = catalogSearch.value.toLowerCase().trim();
+        
         if (query === "") {
             filteredBooks = [...bookDatabase];
         } else {
             filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
         }
+        
         renderCatalogPage();
     }
 
     function renderCatalogPage() {
         catalogGrid.innerHTML = "";
+        
         const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
         if (currentPage > totalPagesCount) currentPage = totalPagesCount;
 
@@ -939,6 +827,7 @@
         } else {
             pageItems.forEach((book) => {
                 const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
+
                 const card = document.createElement('div');
                 card.classList.add('book-card');
                 card.innerHTML = `
@@ -977,128 +866,6 @@
         }
     }
 
-    function chooseBook(index) {
-        if (!currentUserName) return;
-        const book = bookDatabase[index];
-        if (!selectedBooks[book.title]) {
-            selectedBooks[book.title] = {
-                title: book.title,
-                author: book.author,
-                totalPages: book.pages,
-                currentPages: 0
-            };
-            database.ref('users/' + currentUserName + '/selectedBooks').set(selectedBooks);
-        }
-    }
-
-    function updateDashboardProgressUI() {
-        progressContainer.innerHTML = "";
-        const bookKeys = Object.keys(selectedBooks);
-        
-        if (bookKeys.length > 0) {
-            trackingBox.classList.remove('hidden');
-            logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
-            
-            bookKeys.forEach(key => {
-                const b = selectedBooks[key];
-                const pct = Math.min(Math.round((b.currentPages / b.totalPages) * 100), 100);
-                
-                const opt = document.createElement('option');
-                opt.value = b.title;
-                opt.innerText = b.title;
-                logBookSelect.appendChild(opt);
-                
-                const item = document.createElement('div');
-                item.classList.add('progress-item');
-                item.innerHTML = `
-                    <div class="progress-header-row">
-                        <div class="progress-labels">
-                            <span class="progress-book-name">${b.title}</span>
-                            <span class="progress-book-stats">${b.currentPages} / ${b.totalPages} pages (${pct}%)</span>
-                        </div>
-                        ${b.currentPages >= b.totalPages ? `<span class="stock-status in">🎉 Finished!</span>` : ''}
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width: ${pct}%"></div>
-                    </div>
-                `;
-                progressContainer.appendChild(item);
-            });
-        } else {
-            trackingBox.classList.add('hidden');
-        }
-    }
-
-    logForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const selectedTitle = logBookSelect.value;
-        const pagesInput = parseInt(document.getElementById('pages-read').value);
-        
-        if (selectedTitle && pagesInput > 0 && selectedBooks[selectedTitle]) {
-            const book = selectedBooks[selectedTitle];
-            const oldPages = book.currentPages;
-            book.currentPages = Math.min(book.currentPages + pagesInput, book.totalPages);
-            const actualPagesAdded = book.currentPages - oldPages;
-            const newTotalPages = totalPagesRead + actualPagesAdded;
-            
-            database.ref('users/' + currentUserName).update({
-                totalPages: newTotalPages,
-                [`selectedBooks/${selectedTitle}/currentPages`]: book.currentPages
-            });
-            document.getElementById('pages-read').value = "";
-        }
-    });
-
-    minuteForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const minutesInput = parseInt(document.getElementById('minutes-read').value);
-        if (minutesInput > 0) {
-            database.ref('users/' + currentUserName).update({
-                totalMinutes: totalMinutesRead + minutesInput
-            });
-            document.getElementById('minutes-read').value = "";
-        }
-    });
-
-    function updatePersonalGoalUI() {
-        const goalTarget = 1000;
-        chestBarText.innerText = `${totalPagesRead} / ${goalTarget} pages read`;
-        const fillPercentage = Math.min((totalPagesRead / goalTarget) * 100, 100);
-        chestBarFill.style.width = `${fillPercentage}%`;
-    }
-
-    function renderAchievements() {
-        achievementsGrid.innerHTML = "";
-        const badgesConfig = [
-            { id: "comber", img: "Beach_Comber.png", title: "Beach Comber", desc: "Log your first page read", unlocked: totalPagesRead >= 1 },
-            { id: "worm", img: "Book_Worm.png", title: "Book Worm", desc: "Start exploring stories", unlocked: totalPagesRead >= 50 },
-            { id: "speed", img: "Speed_Demon.png", title: "Speed Demon", desc: "Log 150+ total club pages", unlocked: totalPagesRead >= 150 },
-            { id: "snorkel", img: "Snorkeler.png", title: "Snorkeler", desc: "Reach 250 total pages read", unlocked: totalPagesRead >= 250 },
-            { id: "diver", img: "Deep_Sea_Diver.png", title: "Deep Sea Diver", desc: "Reach 500 total pages read", unlocked: totalPagesRead >= 500 },
-            { id: "legend", img: "Library_Legend.png", title: "Library Legend", desc: "Reach 750 total pages read", unlocked: totalPagesRead >= 750 },
-            { id: "hunter", img: "aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png", title: "Treasure Hunter", desc: "Hit the 1,000 pages milestone", unlocked: totalPagesRead >= 1000 },
-            { id: "warmup", img: "Warm_Up.png", title: "Warm Up", desc: "Log 60 minutes of reading time", unlocked: totalMinutesRead >= 60 },
-            { id: "marathon", img: "Marathoner.png", title: "Marathoner", desc: "Log 300 minutes of reading time", unlocked: totalMinutesRead >= 300 },
-            { id: "streak", img: "Daily_Streak.png", title: "Daily Streak", desc: "Log 500+ minutes of reading time", unlocked: totalMinutesRead >= 500 }
-        ];
-
-        badgesConfig.forEach(badge => {
-            const card = document.createElement('div');
-            card.classList.add('badge-card');
-            if (!badge.unlocked) card.classList.add('locked');
-
-            card.innerHTML = `
-                <img src="${badge.img}" alt="${badge.title}" class="badge-image">
-                <div class="badge-title">${badge.title}</div>
-                <div class="badge-desc">${badge.desc}</div>
-                <span class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
-                    ${badge.unlocked ? 'Unlocked' : 'Locked'}
-                </span>
-            `;
-            achievementsGrid.appendChild(card);
-        });
-    }
-
     function renderLeaderboard(usersData) {
         leaderboardList.innerHTML = "";
         let profiles = [];
@@ -1121,7 +888,9 @@
         profiles.forEach((profile, index) => {
             const li = document.createElement('li');
             li.classList.add('leaderboard-item');
-            if (index === 0 && profile.pages > 0) li.classList.add('top-reader');
+            if (index === 0 && profile.pages > 0) {
+                li.classList.add('top-reader');
+            }
             li.innerHTML = `
                 <span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 && profile.pages > 0 ? '👑' : ''}</span>
                 <span>${profile.pages} pages</span>
@@ -1130,123 +899,249 @@
         });
     }
 
-    function openAddBookModal() { bookModal.classList.remove('hidden'); }
-    function closeAddBookModal() { bookModal.classList.add('hidden'); modalForm.reset(); }
-    
-    modalForm.addEventListener('submit', (e) => {
+    function updatePersonalGoalUI() {
+        const goalTarget = 1000;
+        chestBarText.innerText = `${totalPagesRead} / ${goalTarget} pages read`;
+        const fillPercentage = Math.min((totalPagesRead / goalTarget) * 100, 100);
+        chestBarFill.style.width = `${fillPercentage}%`;
+    }
+
+    /* Evaluates club metrics and maps them to your uploaded custom asset images */
+    function renderAchievements() {
+        achievementsGrid.innerHTML = "";
+        
+        const badgesConfig = [
+            { id: "comber", img: "Beach_Comber.png", title: "Beach Comber", desc: "Log your first page read", unlocked: totalPagesRead >= 1 },
+            { id: "worm", img: "Book_Worm.png", title: "Book Worm", desc: "Start exploring stories", unlocked: totalPagesRead >= 50 },
+            { id: "speed", img: "Speed_Demon.png", title: "Speed Demon", desc: "Log 150+ total club pages", unlocked: totalPagesRead >= 150 },
+            { id: "snorkel", img: "Snorkeler.png", title: "Snorkeler", desc: "Reach 250 total pages read", unlocked: totalPagesRead >= 250 },
+            { id: "diver", img: "Deep_Sea_Diver.png", title: "Deep Sea Diver", desc: "Reach 500 total pages read", unlocked: totalPagesRead >= 500 },
+            { id: "legend", img: "Library_Legend.png", title: "Library Legend", desc: "Reach 750 total pages read", unlocked: totalPagesRead >= 750 },
+            { id: "hunter", img: "aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png", title: "Treasure Hunter", desc: "Hit the 1,000 pages milestone", unlocked: totalPagesRead >= 1000 },
+            { id: "warmup", img: "Warm_Up.png", title: "Warm Up", desc: "Log 60 minutes of reading time", unlocked: totalMinutesRead >= 60 },
+            { id: "marathon", img: "Marathoner.png", title: "Marathoner", desc: "Log 300 minutes of reading time", unlocked: totalMinutesRead >= 300 },
+            { id: "streak", img: "Daily_Streak.png", title: "Daily Streak", desc: "Log 500+ minutes or keep reading", unlocked: totalMinutesRead >= 500 }
+        ];
+
+        badgesConfig.forEach(badge => {
+            const el = document.createElement('div');
+            el.className = `badge-card ${badge.unlocked ? 'unlocked' : 'locked'}`;
+            el.innerHTML = `
+                <img src="${badge.img}" class="badge-image" alt="${badge.title}">
+                <div class="badge-title">${badge.title}</div>
+                <div class="badge-desc">${badge.desc}</div>
+                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
+                    ${badge.unlocked ? 'Earned' : 'Locked'}
+                </div>
+            `;
+            achievementsGrid.appendChild(el);
+        });
+    }
+
+    authForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, ""); 
+        if (inputName !== "") {
+            currentUserName = inputName;
+            localStorage.setItem('autoClubUserName', currentUserName);
+
+            database.ref('users/' + currentUserName).once('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    selectedBooks = val.selectedBooks || {};
+                    totalPagesRead = val.totalPages || 0;
+                    totalMinutesRead = val.totalMinutes || 0;
+                } else {
+                    selectedBooks = {};
+                    totalPagesRead = 0;
+                    totalMinutesRead = 0;
+                    saveProfileToCloud();
+                }
+                loadDashboard();
+            });
+        }
+    });
+
+    function loadDashboard() {
+        authSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        fabButton.classList.remove('hidden'); 
+        userDisplayName.innerText = currentUserName;
+        totalPagesDisplay.innerText = totalPagesRead;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+
+        applyFilterAndRender();
+        updateDashboardProgressUI();
+        updatePersonalGoalUI();
+        renderAchievements();
+    }
+
+    function openAddBookModal() {
+        bookModal.classList.remove('hidden');
+    }
+
+    function closeAddBookModal() {
+        bookModal.classList.add('hidden');
+        modalForm.reset();
+    }
+
+    modalForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const title = document.getElementById('modal-title').value.trim();
         const author = document.getElementById('modal-author').value.trim();
         const pages = parseInt(document.getElementById('modal-pages').value);
-        
-        if (title && author && pages > 0) {
-            const updatedCatalog = [...bookDatabase, { title, author, pages, inStock: true }];
-            database.ref('bookCatalog').set(updatedCatalog);
+
+        if (title && author && !isNaN(pages)) {
+            bookDatabase.push({
+                title: title,
+                author: author,
+                pages: pages,
+                inStock: true
+            });
+            
+            bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
+            saveCatalogToCloud();
             closeAddBookModal();
         }
     });
 
-    /* Tripo Avatar Functions */
-    function toggleAvatarDropdown() {
-        document.getElementById('avatar-dropdown').classList.toggle('hidden');
+    function chooseBook(index) {
+        const book = bookDatabase[index];
+        if (!selectedBooks[book.title]) {
+            selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
+            book.inStock = false; 
+            
+            saveProfileToCloud();
+            saveCatalogToCloud();
+        }
     }
 
-    async function generateTripoAvatar() {
-        const promptInput = document.getElementById('avatar-prompt');
-        const promptText = promptInput.value.trim();
-        const statusDiv = document.getElementById('avatar-status');
-        const btn = document.getElementById('generate-avatar-btn');
-        
-        if (!promptText) {
-            statusDiv.innerText = "❌ Please describe an avatar!";
-            return;
-        }
-
-        // ⚠️ INSTRUCTIONS: Insert your secret Tripo API token directly into the quotes below
-        const TRIPO_API_KEY = "tsk_vq2VUeRkIoCALZ13fFGWAvgHH-WJxVPw7btoWx_XajM"; 
-
-        if (TRIPO_API_KEY === "YOUR_TRIPO_API_KEY") {
-            statusDiv.innerText = "❌ Change placeholder to your actual API key.";
-            return;
-        }
-
-        try {
-            btn.disabled = true;
-            statusDiv.innerText = "🚀 Sending request to Tripo...";
-
-            // Step 1: Submit Text-to-3D Model Task
-            const response = await fetch('https://api.tripo3d.ai/v2/task', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${TRIPO_API_KEY}`
-                },
-                body: JSON.stringify({
-                    type: "text_to_model",
-                    prompt: promptText
-                })
-            });
-
-            const result = await response.json();
-            if (result.code !== 0 || !result.data || !result.data.task_id) {
-                throw new Error(result.message || "Could not spin up Tripo model creation pipeline.");
+    /* FIX: Looks up the book target directly by its string Title key inside selectedBooks */
+    function turnInBook(bookTitle) {
+        if (selectedBooks[bookTitle]) {
+            // Find the original object location in the master catalog array to restock it
+            const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
+            if (bookInCatalog) {
+                bookInCatalog.inStock = true;
             }
 
-            const taskId = result.data.task_id;
-            statusDiv.innerText = "⏳ Building avatar asset (polling)...";
+            delete selectedBooks[bookTitle]; 
 
-            // Step 2: Poll task status until complete
-            let checkCount = 0;
-            const maxChecks = 30; // Timeout threshold up to 1 minute
+            saveProfileToCloud();
+            saveCatalogToCloud();
 
-            const tracker = setInterval(async () => {
-                checkCount++;
-                if (checkCount > maxChecks) {
-                    clearInterval(tracker);
-                    statusDiv.innerText = "❌ Generation timed out. Try again.";
-                    btn.disabled = false;
-                    return;
-                }
-
-                const pollResponse = await fetch(`https://api.tripo3d.ai/v2/task/${taskId}`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${TRIPO_API_KEY}` }
-                });
-
-                const pollResult = await pollResponse.json();
-                if (pollResult.code === 0 && pollResult.data) {
-                    const status = pollResult.data.status;
-
-                    if (status === "success") {
-                        clearInterval(tracker);
-                        statusDiv.innerText = "🎉 Render finished!";
-                        btn.disabled = false;
-
-                        // Capture snapshot preview image from generated object outputs
-                        const avatarUrl = pollResult.data.output.rendered_image || "https://api.dicebear.com/7.x/bottts/svg?seed=Finished";
-                        document.getElementById('avatar-preview').src = avatarUrl;
-
-                        // Save the generated image string down to active player profile node
-                        if (currentUserName) {
-                            database.ref('users/' + currentUserName + '/avatar').set(avatarUrl);
-                        }
-                    } else if (status === "failed") {
-                        clearInterval(tracker);
-                        statusDiv.innerText = "❌ Tripo compilation failed.";
-                        btn.disabled = false;
-                    }
-                }
-            }, 2000);
-
-        } catch (err) {
-            console.error(err);
-            statusDiv.innerText = "❌ Connection error: " + err.message;
-            btn.disabled = false;
+            const entry = document.createElement('div');
+            entry.classList.add('log-entry');
+            entry.style.borderLeftColor = "#e63946";
+            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
+            logHistory.prepend(entry);
         }
     }
 
-    // Initialize application runtime
+    function updateDashboardProgressUI() {
+        progressContainer.innerHTML = "";
+        logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
+        
+        const keys = Object.keys(selectedBooks);
+        if (keys.length === 0) {
+            trackingBox.classList.add('hidden');
+            return;
+        }
+        
+        trackingBox.classList.remove('hidden');
+        keys.forEach(title => {
+            const data = selectedBooks[title];
+            const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
+            
+            // Escapes single quotes in book titles safely for the inline JavaScript call
+            const safeTitleString = title.replace(/'/g, "\\'");
+
+            const progItem = document.createElement('div');
+            progItem.classList.add('progress-item');
+            progItem.innerHTML = `
+                <div class="progress-header-row">
+                    <div class="progress-labels">
+                        <span class="progress-book-name">${title}</span>
+                        <span class="progress-book-stats">${data.read} / ${data.total} pages completed (${percentage}%)</span>
+                    </div>
+                    <button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In Book</button>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                </div>
+            `;
+            progressContainer.appendChild(progItem);
+
+            const opt = document.createElement('option');
+            opt.value = title;
+            opt.innerText = title;
+            logBookSelect.appendChild(opt);
+        });
+    }
+
+    logForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const selectedTitle = logBookSelect.value;
+        const pagesEntered = parseInt(document.getElementById('pages-read').value);
+        
+        if (!selectedTitle || isNaN(pagesEntered)) return;
+
+        selectedBooks[selectedTitle].read += pagesEntered;
+        totalPagesRead += pagesEntered;
+        totalPagesDisplay.innerText = totalPagesRead;
+
+        saveProfileToCloud();
+        updatePersonalGoalUI();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('pages-read').value = '';
+    });
+
+    minuteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const mins = parseInt(document.getElementById('minutes-read').value);
+        if (isNaN(mins)) return;
+        
+        totalMinutesRead += mins;
+        totalMinutesDisplay.innerText = totalMinutesRead;
+        
+        saveProfileToCloud();
+        renderAchievements();
+
+        const entry = document.createElement('div');
+        entry.classList.add('log-entry');
+        entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
+        logHistory.prepend(entry);
+
+        document.getElementById('minutes-read').value = '';
+    });
+
+    function saveProfileToCloud() {
+        if (!currentUserName) return;
+        database.ref('users/' + currentUserName).set({
+            selectedBooks: selectedBooks,
+            totalPages: totalPagesRead,
+            totalMinutes: totalMinutesRead
+        });
+    }
+
+    function saveCatalogToCloud() {
+        database.ref('bookCatalog').set(bookDatabase);
+    }
+
+    function clearProfile() {
+        localStorage.removeItem('autoClubUserName');
+        location.reload();
+    }
+
     initLiveSync();
 </script>
 </body>
 </html>
+
+
