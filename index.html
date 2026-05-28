@@ -51,6 +51,52 @@ color: #666;
 }
 
     <style>
+        /* =========================
+Avatar Creator Button
+========================= */
+
+.avatar-btn {
+position: absolute;
+top: 20px;
+right: 20px;
+padding: 10px 16px;
+background: #000;
+color: #fff;
+border: 2px solid #000;
+border-radius: 8px;
+font-weight: bold;
+cursor: pointer;
+z-index: 5000;
+width: auto;
+}
+
+.avatar-btn:hover {
+background: #8fd3ff;
+color: #000;
+}
+
+/* =========================
+Avatar Modal
+========================= */
+
+.avatar-preview {
+width: 160px;
+height: 160px;
+border-radius: 50%;
+object-fit: cover;
+display: block;
+margin: 15px auto;
+border: 4px solid #8fd3ff;
+background: #f2f2f2;
+}
+
+.avatar-loading {
+text-align: center;
+margin-top: 10px;
+font-size: 14px;
+color: #666;
+}
+
         :root {
             --primary: #BFE8FF;     /* The exact soft summer cyan from your new beach banner */
             --secondary: #000000;   /* Solid black */
@@ -614,6 +660,55 @@ color: #666;
 <body>
 
 <div class="container">
+    <!-- Avatar Creator Button -->
+
+<button class="avatar-btn" onclick="openAvatarModal()">
+🎨 Avatar Creator
+</button>
+
+<!-- Avatar Modal -->
+
+<div id="avatar-modal" class="modal-overlay hidden">
+<div class="modal-content">
+
+<h3>🎨 Create Your Avatar</h3>
+
+<input
+type="text"
+id="avatar-prompt"
+placeholder="Describe your avatar..."
+
+>
+
+<button onclick="generateAvatar()">
+Generate Avatar
+</button>
+
+<div id="avatar-loading"
+class="avatar-loading hidden">
+Creating your avatar...
+</div>
+
+<img
+id="avatar-preview"
+class="avatar-preview hidden"
+alt="Generated Avatar"
+
+>
+
+<div class="modal-buttons">
+<button
+type="button"
+class="cancel-btn"
+onclick="closeAvatarModal()"
+>
+Close
+</button>
+</div>
+
+</div>
+</div>
+
     <!-- Avatar Creator Button -->
 
 <button class="avatar-btn" onclick="openAvatarModal()">
@@ -1231,12 +1326,14 @@ Close
         localStorage.removeItem('autoClubUserName');
         location.reload();
     }
-/* =========================
+
+
+    /* =========================
 Avatar Creator
 ========================= */
 
-/* REPLACE WITH YOUR NEW API KEY */
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY =
+"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";
 
 const avatarModal =
 document.getElementById('avatar-modal');
