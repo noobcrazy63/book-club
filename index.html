@@ -41,6 +41,7 @@
             margin-bottom: 25px;
             border-bottom: 3px solid var(--primary);
             padding-bottom: 15px;
+            position: relative;
         }
 
         .brand-header img {
@@ -58,6 +59,32 @@
 
         .hidden {
             display: none !important;
+        }
+
+        /* Avatar Creator Button */
+        .avatar-creator-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            border: 2px solid var(--secondary);
+            border-radius: 50%;
+            color: var(--secondary);
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar-creator-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--secondary);
+            color: var(--primary);
         }
 
         /* Forms */
@@ -535,6 +562,8 @@
             max-width: 400px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-content h3 {
@@ -560,6 +589,46 @@
             background-color: #dddddd;
             color: #000000;
         }
+
+        /* Avatar Creator Modal Specific */
+        .avatar-preview {
+            width: 100%;
+            height: 300px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+        }
+
+        .avatar-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .avatar-prompt-input {
+            min-height: 80px;
+            resize: vertical;
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -570,6 +639,7 @@
 <div class="container">
     
     <div class="brand-header">
+        <button class="avatar-creator-btn" onclick="openAvatarModal()" title="Create Avatar">🎨</button>
         <img src="ChatGPT Image May 23, 2026, 11_32_08 AM.png" alt="Seelhoefer Summer Book-Club Banner">
     </div>
     
@@ -672,7 +742,29 @@
     </div>
 </div>
 
+<div id="avatar-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h3>🎨 Create Your Avatar</h3>
+        <form id="avatar-form">
+            <label for="avatar-prompt"><strong>Describe your avatar:</strong></label>
+            <textarea id="avatar-prompt" class="avatar-prompt-input" placeholder="E.g., A smiling bookworm character wearing beach clothes, cartoon style" required></textarea>
+            <div class="avatar-preview" id="avatar-preview">
+                <span id="preview-placeholder">Avatar will appear here</span>
+            </div>
+            <div id="avatar-loading" class="loading-spinner hidden"></div>
+            <div id="avatar-error" style="color: red; margin: 10px 0; display: none;"></div>
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" onclick="closeAvatarModal()">Cancel</button>
+                <button type="submit" id="avatar-submit-btn">Generate Avatar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+    // OpenAI API Configuration
+    const OPENAI_API_KEY = "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";
+
     const firebaseConfig = {
         apiKey: "AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs",
         authDomain: "book-club-54785.firebaseapp.com",
@@ -732,7 +824,9 @@
     const dashboardSection = document.getElementById('dashboard-section');
     const fabButton = document.getElementById('fab-add-book');
     const bookModal = document.getElementById('book-modal');
+    const avatarModal = document.getElementById('avatar-modal');
     const modalForm = document.getElementById('modal-book-form');
+    const avatarForm = document.getElementById('avatar-form');
     
     const authForm = document.getElementById('auth-form');
     const authName = document.getElementById('auth-name');
@@ -756,6 +850,73 @@
     const nextPageBtn = document.getElementById('next-page-btn');
     const pageIndicator = document.getElementById('page-indicator');
     const achievementsGrid = document.getElementById('achievements-grid');
+
+    // Avatar Creator Functions
+    function openAvatarModal() {
+        avatarModal.classList.remove('hidden');
+        document.getElementById('avatar-prompt').value = '';
+        document.getElementById('avatar-preview').innerHTML = '<span id="preview-placeholder">Avatar will appear here</span>';
+        document.getElementById('avatar-error').style.display = 'none';
+    }
+
+    function closeAvatarModal() {
+        avatarModal.classList.add('hidden');
+        avatarForm.reset();
+    }
+
+    async function generateAvatar(prompt) {
+        const loading = document.getElementById('avatar-loading');
+        const errorDiv = document.getElementById('avatar-error');
+        const submitBtn = document.getElementById('avatar-submit-btn');
+        const preview = document.getElementById('avatar-preview');
+
+        try {
+            loading.classList.remove('hidden');
+            submitBtn.disabled = true;
+            errorDiv.style.display = 'none';
+
+            const response = await fetch('https://api.openai.com/v1/images/generations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    n: 1,
+                    size: "512x512",
+                    model: "dall-e-2"
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error?.message || 'Failed to generate avatar');
+            }
+
+            const data = await response.json();
+            const imageUrl = data.data[0].url;
+
+            // Display the avatar
+            preview.innerHTML = `<img src="${imageUrl}" alt="Generated Avatar">`;
+            
+        } catch (error) {
+            errorDiv.textContent = 'Error: ' + error.message;
+            errorDiv.style.display = 'block';
+            console.error('Avatar generation error:', error);
+        } finally {
+            loading.classList.add('hidden');
+            submitBtn.disabled = false;
+        }
+    }
+
+    avatarForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const prompt = document.getElementById('avatar-prompt').value.trim();
+        if (prompt) {
+            generateAvatar(prompt);
+        }
+    });
 
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
@@ -998,7 +1159,6 @@
                 pages: pages,
                 inStock: true
             });
-            
             bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
             saveCatalogToCloud();
             closeAddBookModal();
@@ -1009,8 +1169,7 @@
         const book = bookDatabase[index];
         if (!selectedBooks[book.title]) {
             selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
-            book.inStock = false; 
-            
+            book.inStock = false;
             saveProfileToCloud();
             saveCatalogToCloud();
         }
@@ -1024,16 +1183,14 @@
             if (bookInCatalog) {
                 bookInCatalog.inStock = true;
             }
-
-            delete selectedBooks[bookTitle]; 
-
+            delete selectedBooks[bookTitle];
             saveProfileToCloud();
             saveCatalogToCloud();
-
             const entry = document.createElement('div');
             entry.classList.add('log-entry');
             entry.style.borderLeftColor = "#e63946";
-            entry.innerHTML = `<span>🔄 Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
+            entry.innerHTML = `<span>
+Returned: <strong>"${bookTitle}"</strong> has been turned back in to the library!</span>`;
             logHistory.prepend(entry);
         }
     }
@@ -1041,21 +1198,17 @@
     function updateDashboardProgressUI() {
         progressContainer.innerHTML = "";
         logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
-        
         const keys = Object.keys(selectedBooks);
         if (keys.length === 0) {
             trackingBox.classList.add('hidden');
             return;
         }
-        
         trackingBox.classList.remove('hidden');
         keys.forEach(title => {
             const data = selectedBooks[title];
             const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
-            
             // Escapes single quotes in book titles safely for the inline JavaScript call
             const safeTitleString = title.replace(/'/g, "\\'");
-
             const progItem = document.createElement('div');
             progItem.classList.add('progress-item');
             progItem.innerHTML = `
@@ -1071,7 +1224,6 @@
                 </div>
             `;
             progressContainer.appendChild(progItem);
-
             const opt = document.createElement('option');
             opt.value = title;
             opt.innerText = title;
@@ -1083,22 +1235,18 @@
         e.preventDefault();
         const selectedTitle = logBookSelect.value;
         const pagesEntered = parseInt(document.getElementById('pages-read').value);
-        
         if (!selectedTitle || isNaN(pagesEntered)) return;
-
         selectedBooks[selectedTitle].read += pagesEntered;
         totalPagesRead += pagesEntered;
         totalPagesDisplay.innerText = totalPagesRead;
-
         saveProfileToCloud();
         updatePersonalGoalUI();
         renderAchievements();
-
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
-        entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
+        entry.innerHTML = `<span>
+Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
         logHistory.prepend(entry);
-
         document.getElementById('pages-read').value = '';
     });
 
@@ -1106,18 +1254,15 @@
         e.preventDefault();
         const mins = parseInt(document.getElementById('minutes-read').value);
         if (isNaN(mins)) return;
-        
         totalMinutesRead += mins;
         totalMinutesDisplay.innerText = totalMinutesRead;
-        
         saveProfileToCloud();
         renderAchievements();
-
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
-        entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
+        entry.innerHTML = `<span>
+Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
         logHistory.prepend(entry);
-
         document.getElementById('minutes-read').value = '';
     });
 
@@ -1141,7 +1286,6 @@
 
     initLiveSync();
 </script>
+
 </body>
 </html>
-
-
