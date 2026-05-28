@@ -1,24 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-	<title></title>
-	<meta name="generator" content="LibreOffice 26.2.3.2 (Linux)"/>
-	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="00:00:00"/>
-	<style type="text/css">
-		@page { size: 8.27in 11.69in; margin: 0.79in }
-		p { margin-bottom: 0.1in; line-height: 115%; background: transparent }
-		pre { font-size: 10pt; font-family: "Liberation Mono", monospace; background: transparent }
-	</style>
-</head>
-<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre>&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-&lt;head&gt;
-&lt;meta charset=&quot;UTF-8&quot;&gt;
-&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
-&lt;title&gt;The Seelhoefer Summer Book-Club&lt;/title&gt;
-&lt;style&gt;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Seelhoefer Summer Book-Club</title>
+<style>
 :root {
 --primary: #BFE8FF; /* The exact soft summer cyan from your new beach banner */
 --secondary: #000000; /* Solid black */
@@ -636,218 +622,214 @@ cursor: pointer;
 font-weight: bold;
 }
 #avatar-download-btn:hover { background-color: #1f7a72; color: white; }
-&lt;/style&gt;
-&lt;script src=&quot;https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js&quot;&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;!-- Avatar Creator Button (fixed top-right) --&gt;
-&lt;button class=&quot;avatar-btn&quot; onclick=&quot;openAvatarModal()&quot;&gt;🎨 Create Avatar&lt;/button&gt;
-&lt;!-- Avatar Creator Modal --&gt;
-&lt;div id=&quot;avatar-modal&quot; class=&quot;avatar-modal-overlay hidden&quot;&gt;
-&lt;div class=&quot;avatar-modal-content&quot;&gt;
-&lt;h3&gt;🎨 Avatar Creator&lt;/h3&gt;
-&lt;p class=&quot;avatar-subtitle&quot;&gt;Describe your avatar and AI will generate it for you!&lt;/p&gt;
-&lt;textarea id=&quot;avatar-prompt&quot; placeholder=&quot;e.g. A cute cartoon kid reading a book at the beach with sunglasses and a sun hat&quot;&gt;&lt;/textarea&gt;
-&lt;div class=&quot;avatar-modal-buttons&quot;&gt;
-&lt;button type=&quot;button&quot; class=&quot;cancel-btn&quot; style=&quot;width:auto;padding:8px 16px;font-size:13px;&quot; onclick=&quot;closeAvatarModal()&quot;&gt;Close&lt;/button&gt;
-&lt;button type=&quot;button&quot; id=&quot;avatar-generate-btn&quot; style=&quot;width:auto;padding:8px 16px;font-size:13px;&quot; onclick=&quot;generateAvatar()&quot;&gt;✨ Generate&lt;/button&gt;
-&lt;a id=&quot;avatar-download-btn&quot; download=&quot;my-avatar.png&quot;&gt;⬇ Save Avatar&lt;/a&gt;
-&lt;/div&gt;
-&lt;div id=&quot;avatar-status&quot;&gt;&lt;/div&gt;
-&lt;img id=&quot;avatar-result-img&quot; src=&quot;&quot; alt=&quot;Generated Avatar&quot; style=&quot;display:none;&quot;&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class=&quot;container&quot;&gt;
-&lt;div class=&quot;brand-header&quot;&gt;
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+</head>
+<body>
+<!-- Avatar Creator Button (fixed top-right) -->
+<button class="avatar-btn" onclick="openAvatarModal()">🎨 Create Avatar</button>
+<!-- Avatar Creator Modal -->
+<div id="avatar-modal" class="avatar-modal-overlay hidden">
+<div class="avatar-modal-content">
+<h3>🎨 Avatar Creator</h3>
+<p class="avatar-subtitle">Describe your avatar and AI will generate it for you!</p>
+<textarea id="avatar-prompt" placeholder="e.g. A cute cartoon kid reading a book at the beach with sunglasses and a sun hat"></textarea>
+<div class="avatar-modal-buttons">
+<button type="button" class="cancel-btn" style="width:auto;padding:8px 16px;font-size:13px;" onclick="closeAvatarModal()">Close</button>
+<button type="button" id="avatar-generate-btn" style="width:auto;padding:8px 16px;font-size:13px;" onclick="generateAvatar()">✨ Generate</button>
+<a id="avatar-download-btn" download="my-avatar.png">⬇ Save Avatar</a>
+</div>
+<div id="avatar-status"></div>
+<img id="avatar-result-img" src="" alt="Generated Avatar" style="display:none;">
+</div>
+</div>
+<div class="container">
+<div class="brand-header">
 
 
-&lt;img src=&quot;ChatGPT Image May 23, 2026, 11_32_08 AM.png&quot; alt=&quot;Seelhoefer Summer
-Book-Club Banner&quot;&gt;
-&lt;/div&gt;
-&lt;div id=&quot;auth-section&quot;&gt;
-&lt;h2&gt;Welcome! Please Set Up Your Profile&lt;/h2&gt;
-&lt;form id=&quot;auth-form&quot;&gt;
-&lt;input type=&quot;text&quot; id=&quot;auth-name&quot; placeholder=&quot;What is your name?&quot; required&gt;
-&lt;button type=&quot;submit&quot;&gt;Start Tracking Progress&lt;/button&gt;
-&lt;/form&gt;
-&lt;/div&gt;
-&lt;div id=&quot;dashboard-section&quot; class=&quot;hidden&quot;&gt;
-&lt;div class=&quot;nav-bar&quot;&gt;
-&lt;h2&gt;Welcome Back, &lt;span id=&quot;user-display-name&quot;&gt;Reader&lt;/span&gt;!&lt;/h2&gt;
-&lt;button class=&quot;logout-btn&quot; onclick=&quot;clearProfile()&quot;&gt;Reset Profile&lt;/button&gt;
-&lt;/div&gt;
+<img src="ChatGPT Image May 23, 2026, 11_32_08 AM.png" alt="Seelhoefer Summer
+Book-Club Banner">
+</div>
+<div id="auth-section">
+<h2>Welcome! Please Set Up Your Profile</h2>
+<form id="auth-form">
+<input type="text" id="auth-name" placeholder="What is your name?" required>
+<button type="submit">Start Tracking Progress</button>
+</form>
+</div>
+<div id="dashboard-section" class="hidden">
+<div class="nav-bar">
+<h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
+<button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
+</div>
 
-📈
 
-&lt;div id=&quot;tracking-box&quot; class=&quot;selected-box hidden&quot;&gt;
-&lt;h3&gt;
-Your Reading Progress&lt;/h3&gt;
-&lt;div id=&quot;progress-container&quot;&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class=&quot;log-row&quot;&gt;
-&lt;div class=&quot;log-col&quot;&gt;
-&lt;h3&gt;
-Update Pages Read&lt;/h3&gt;
-&lt;form id=&quot;log-form&quot;&gt;
-&lt;select id=&quot;log-book-select&quot; required&gt;
-&lt;option value=&quot;&quot; disabled selected&gt;Choose book to update...&lt;/option&gt;
-&lt;/select&gt;
-&lt;input type=&quot;number&quot; id=&quot;pages-read&quot; placeholder=&quot;Pages read this session?&quot;
-min=&quot;1&quot; required&gt;
-&lt;button type=&quot;submit&quot;&gt;Log Pages&lt;/button&gt;
-&lt;/form&gt;
-&lt;/div&gt;
-&lt;div class=&quot;log-col&quot;&gt;
-&lt;h3&gt;
-Session Clock&lt;/h3&gt;
-&lt;form id=&quot;minute-form&quot;&gt;
-&lt;input type=&quot;number&quot; id=&quot;minutes-read&quot; placeholder=&quot;How many minutes?&quot;
-min=&quot;1&quot; required&gt;
-&lt;button type=&quot;submit&quot;&gt;Log Minutes&lt;/button&gt;
-&lt;/form&gt;
-&lt;/div&gt;
-&lt;/div&gt;
+<div id="tracking-box" class="selected-box hidden">
+<h3>
+Your Reading Progress</h3>
+<div id="progress-container"></div>
+</div>
+<div class="log-row">
+<div class="log-col">
+<h3>
+Update Pages Read</h3>
+<form id="log-form">
+<select id="log-book-select" required>
+<option value="" disabled selected>Choose book to update...</option>
+</select>
+<input type="number" id="pages-read" placeholder="Pages read this session?"
+min="1" required>
+<button type="submit">Log Pages</button>
+</form>
+</div>
+<div class="log-col">
+<h3>
+Session Clock</h3>
+<form id="minute-form">
+<input type="number" id="minutes-read" placeholder="How many minutes?"
+min="1" required>
+<button type="submit">Log Minutes</button>
+</form>
+</div>
+</div>
 
 ⏱️
 
 ⏳
 
 
-&lt;h4&gt;Totals Tracker: &lt;span id=&quot;total-pages&quot;&gt;0&lt;/span&gt; pages read | &lt;span
-id=&quot;total-minutes&quot;&gt;0&lt;/span&gt; minutes spent&lt;/h4&gt;
+<h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span
+id="total-minutes">0</span> minutes spent</h4>
 
 🏴‍☠️
 
-&lt;div class=&quot;personal-goal-box&quot;&gt;
-&lt;h3&gt;
-Pages Read Goal&lt;/h3&gt;
-&lt;img
-src=&quot;aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesP
+<div class="personal-goal-box">
+<h3>
+Pages Read Goal</h3>
+<img
+src="aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesP
 WtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-B
-KR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png&quot; alt=&quot;Treasure
-Chest&quot;&gt;
-&lt;div class=&quot;chest-bar-bg&quot;&gt;
-&lt;div id=&quot;chest-bar-fill&quot; class=&quot;chest-bar-fill&quot;&gt;&lt;/div&gt;
-&lt;div id=&quot;chest-bar-text&quot; class=&quot;chest-bar-text&quot;&gt;0 / 1000 pages read&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
+KR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png" alt="Treasure
+Chest">
+<div class="chest-bar-bg">
+<div id="chest-bar-fill" class="chest-bar-fill"></div>
+<div id="chest-bar-text" class="chest-bar-text">0 / 1000 pages read</div>
+</div>
+</div>
 
-🏅
 
-&lt;div class=&quot;achievements-box&quot;&gt;
-&lt;h3&gt;
-Your Beach Badges&lt;/h3&gt;
-&lt;div class=&quot;achievements-grid&quot; id=&quot;achievements-grid&quot;&gt;
-&lt;/div&gt;
-&lt;/div&gt;
+<div class="achievements-box">
+<h3>
+Your Beach Badges</h3>
+<div class="achievements-grid" id="achievements-grid">
+</div>
+</div>
 
-🏆
 
-&lt;div class=&quot;leaderboard-box&quot;&gt;
-&lt;h3&gt;
-Club Leaderboard&lt;/h3&gt;
-&lt;ul id=&quot;leaderboard-list&quot; class=&quot;leaderboard-list&quot;&gt;&lt;/ul&gt;
-&lt;/div&gt;
-&lt;div id=&quot;log-history&quot;&gt;&lt;/div&gt;
-&lt;hr&gt;
+<div class="leaderboard-box">
+<h3>
+Club Leaderboard</h3>
+<ul id="leaderboard-list" class="leaderboard-list"></ul>
+</div>
+<div id="log-history"></div>
+<hr>
 
-📚 Available Library Books&lt;/h3&gt;
+📚 Available Library Books</h3>
 
-&lt;h3&gt;
+<h3>
 
 🔍 Search library by title... (try
 
-&lt;div class=&quot;search-container&quot;&gt;
-&lt;input type=&quot;text&quot; id=&quot;catalog-search&quot; placeholder=&quot;
-typing 'blet')&quot; oninput=&quot;handleSearchSearch()&quot;&gt;
-&lt;/div&gt;
-&lt;div class=&quot;book-grid&quot; id=&quot;catalog-grid&quot;&gt;&lt;/div&gt;
-&lt;div class=&quot;pagination-controls&quot;&gt;
-&lt;button id=&quot;prev-page-btn&quot; class=&quot;page-arrow-btn&quot;
-onclick=&quot;goToPrevPage()&quot;&gt;←&lt;/button&gt;
+<div class="search-container">
+<input type="text" id="catalog-search" placeholder="
+typing 'blet')" oninput="handleSearchSearch()">
+</div>
+<div class="book-grid" id="catalog-grid"></div>
+<div class="pagination-controls">
+<button id="prev-page-btn" class="page-arrow-btn"
+onclick="goToPrevPage()">←</button>
 
 
-&lt;span id=&quot;page-indicator&quot; class=&quot;page-indicator-text&quot;&gt;Page 1 of 1&lt;/span&gt;
-&lt;button id=&quot;next-page-btn&quot; class=&quot;page-arrow-btn&quot;
-onclick=&quot;goToNextPage()&quot;&gt;→&lt;/button&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;button id=&quot;fab-add-book&quot; class=&quot;fab-btn hidden&quot; onclick=&quot;openAddBookModal()&quot;&gt;+&lt;/button&gt;
-&lt;div id=&quot;book-modal&quot; class=&quot;modal-overlay hidden&quot;&gt;
-&lt;div class=&quot;modal-content&quot;&gt;
-&lt;h3&gt;
-New Book&lt;/h3&gt;
-&lt;form id=&quot;modal-book-form&quot;&gt;
-&lt;input type=&quot;text&quot; id=&quot;modal-title&quot; placeholder=&quot;Book Title&quot; required&gt;
-&lt;input type=&quot;text&quot; id=&quot;modal-author&quot; placeholder=&quot;Author Name&quot; required&gt;
-&lt;input type=&quot;number&quot; id=&quot;modal-pages&quot; placeholder=&quot;Total Pages&quot; min=&quot;1&quot; required&gt;
-&lt;div class=&quot;modal-buttons&quot;&gt;
-&lt;button type=&quot;button&quot; class=&quot;cancel-btn&quot;
-onclick=&quot;closeAddBookModal()&quot;&gt;Cancel&lt;/button&gt;
-&lt;button type=&quot;submit&quot;&gt;Add to Library&lt;/button&gt;
-&lt;/div&gt;
-&lt;/form&gt;
-&lt;/div&gt;
-&lt;/div&gt;
+<span id="page-indicator" class="page-indicator-text">Page 1 of 1</span>
+<button id="next-page-btn" class="page-arrow-btn"
+onclick="goToNextPage()">→</button>
+</div>
+</div>
+</div>
+<button id="fab-add-book" class="fab-btn hidden" onclick="openAddBookModal()">+</button>
+<div id="book-modal" class="modal-overlay hidden">
+<div class="modal-content">
+<h3>
+New Book</h3>
+<form id="modal-book-form">
+<input type="text" id="modal-title" placeholder="Book Title" required>
+<input type="text" id="modal-author" placeholder="Author Name" required>
+<input type="number" id="modal-pages" placeholder="Total Pages" min="1" required>
+<div class="modal-buttons">
+<button type="button" class="cancel-btn"
+onclick="closeAddBookModal()">Cancel</button>
+<button type="submit">Add to Library</button>
+</div>
+</form>
+</div>
+</div>
 
-📖
 
-&lt;script&gt;
+<script>
 const firebaseConfig = {
-apiKey: &quot;AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs&quot;,
-authDomain: &quot;book-club-54785.firebaseapp.com&quot;,
-databaseURL: &quot;https://book-club-54785-default-rtdb.firebaseio.com&quot;,
-projectId: &quot;book-club-54785&quot;,
-storageBucket: &quot;book-club-54785.firebasestorage.app&quot;,
-messagingSenderId: &quot;476568040133&quot;,
-appId: &quot;1:476568040133:web:7155e40ba26924451c36ac&quot;,
-measurementId: &quot;G-115G2ZPTNB&quot;
+apiKey: "AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs",
+authDomain: "book-club-54785.firebaseapp.com",
+databaseURL: "https://book-club-54785-default-rtdb.firebaseio.com",
+projectId: "book-club-54785",
+storageBucket: "book-club-54785.firebasestorage.app",
+messagingSenderId: "476568040133",
+appId: "1:476568040133:web:7155e40ba26924451c36ac",
+measurementId: "G-115G2ZPTNB"
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const defaultBooks = [
-{ title: &quot;I.R.L.&quot;, author: &quot;Chris Valdez&quot;, pages: 256, inStock: true },
+{ title: "I.R.L.", author: "Chris Valdez", pages: 256, inStock: true },
 
 
-{ title: &quot;Donut Go Breaking My Heart&quot;, author: &quot;Suzanne Nelson&quot;, pages: 272, inStock: true
+{ title: "Donut Go Breaking My Heart", author: "Suzanne Nelson", pages: 272, inStock: true
 },
-{ title: &quot;The Misfits&quot;, author: &quot;James Patterson&quot;, pages: 290, inStock: true },
-{ title: &quot;The Bletchley Riddle&quot;, author: &quot;Ruta Sepetys &amp; Kristy Cambron&quot;, pages: 368,
+{ title: "The Misfits", author: "James Patterson", pages: 290, inStock: true },
+{ title: "The Bletchley Riddle", author: "Ruta Sepetys & Kristy Cambron", pages: 368,
 inStock: true },
-{ title: &quot;Middle School Get Me Out Of Here&quot;, author: &quot;James Patterson&quot;, pages: 304,
+{ title: "Middle School Get Me Out Of Here", author: "James Patterson", pages: 304,
 inStock: true },
-{ title: &quot;All's Faire in Middle School&quot;, author: &quot;Victoria Jamieson&quot;, pages: 240, inStock: true
+{ title: "All's Faire in Middle School", author: "Victoria Jamieson", pages: 240, inStock: true
 },
-{ title: &quot;What is Juneteenth?&quot;, author: &quot;Kirsti Jewel&quot;, pages: 112, inStock: true },
-{ title: &quot;Everything for a Dog&quot;, author: &quot;Ann M. Martin&quot;, pages: 240, inStock: true },
-{ title: &quot;A Batch Made In Heaven&quot;, author: &quot;Suzanne Nelson&quot;, pages: 250, inStock: true },
-{ title: &quot;Growing Home&quot;, author: &quot;Susan L. Lipson&quot;, pages: 208, inStock: true },
-{ title: &quot;Olivetti&quot;, author: &quot;Allie Millington&quot;, pages: 256, inStock: true },
-{ title: &quot;Return to Sender&quot;, author: &quot;Julia Alvarez&quot;, pages: 336, inStock: true },
-{ title: &quot;The Playbook&quot;, author: &quot;Kwame Alexander&quot;, pages: 176, inStock: true },
-{ title: &quot;Out of My Mind&quot;, author: &quot;Sharon M. Draper&quot;, pages: 320, inStock: true },
-{ title: &quot;Where the Red Fern Grows&quot;, author: &quot;Wilson Rawls&quot;, pages: 256, inStock: true },
-{ title: &quot;Where is the Bermuda Triangle?&quot;, author: &quot;Megan Stine&quot;, pages: 112, inStock: true
+{ title: "What is Juneteenth?", author: "Kirsti Jewel", pages: 112, inStock: true },
+{ title: "Everything for a Dog", author: "Ann M. Martin", pages: 240, inStock: true },
+{ title: "A Batch Made In Heaven", author: "Suzanne Nelson", pages: 250, inStock: true },
+{ title: "Growing Home", author: "Susan L. Lipson", pages: 208, inStock: true },
+{ title: "Olivetti", author: "Allie Millington", pages: 256, inStock: true },
+{ title: "Return to Sender", author: "Julia Alvarez", pages: 336, inStock: true },
+{ title: "The Playbook", author: "Kwame Alexander", pages: 176, inStock: true },
+{ title: "Out of My Mind", author: "Sharon M. Draper", pages: 320, inStock: true },
+{ title: "Where the Red Fern Grows", author: "Wilson Rawls", pages: 256, inStock: true },
+{ title: "Where is the Bermuda Triangle?", author: "Megan Stine", pages: 112, inStock: true
 },
-{ title: &quot;I Survived Graphic Novel: The Great Molasses Flood, 1919&quot;, author: &quot;Lauren
-Tarshis&quot;, pages: 160, inStock: true },
-{ title: &quot;Where is the Eiffel Tower?&quot;, author: &quot;Dina Anastasio&quot;, pages: 112, inStock: true },
-{ title: &quot;Percy Jackson I&quot;, author: &quot;Rick Riordan&quot;, pages: 384, inStock: true },
-{ title: &quot;Percy Jackson II&quot;, author: &quot;Rick Riordan&quot;, pages: 288, inStock: true },
-{ title: &quot;Percy Jackson III&quot;, author: &quot;Rick Riordan&quot;, pages: 320, inStock: true },
-{ title: &quot;Me Frida&quot;, author: &quot;Amy Novesky&quot;, pages: 40, inStock: true },
-{ title: &quot;My Jasper June&quot;, author: &quot;Laurel Snyder&quot;, pages: 304, inStock: true },
-{ title: &quot;Are you there God? It's Me Margaret&quot;, author: &quot;Judy Blume&quot;, pages: 192, inStock:
+{ title: "I Survived Graphic Novel: The Great Molasses Flood, 1919", author: "Lauren
+Tarshis", pages: 160, inStock: true },
+{ title: "Where is the Eiffel Tower?", author: "Dina Anastasio", pages: 112, inStock: true },
+{ title: "Percy Jackson I", author: "Rick Riordan", pages: 384, inStock: true },
+{ title: "Percy Jackson II", author: "Rick Riordan", pages: 288, inStock: true },
+{ title: "Percy Jackson III", author: "Rick Riordan", pages: 320, inStock: true },
+{ title: "Me Frida", author: "Amy Novesky", pages: 40, inStock: true },
+{ title: "My Jasper June", author: "Laurel Snyder", pages: 304, inStock: true },
+{ title: "Are you there God? It's Me Margaret", author: "Judy Blume", pages: 192, inStock:
 true },
-{ title: &quot;Zeus&quot;, author: &quot;George O'Connor&quot;, pages: 80, inStock: true },
-{ title: &quot;Deep Water&quot;, author: &quot;Watt Key&quot;, pages: 272, inStock: true },
-{ title: &quot;Anne Frank&quot;, author: &quot;Anne Frank&quot;, pages: 352, inStock: true }
+{ title: "Zeus", author: "George O'Connor", pages: 80, inStock: true },
+{ title: "Deep Water", author: "Watt Key", pages: 272, inStock: true },
+{ title: "Anne Frank", author: "Anne Frank", pages: 352, inStock: true }
 ];
 let bookDatabase = [];
 let filteredBooks = [];
-let currentUserName = localStorage.getItem('autoClubUserName') || &quot;&quot;;
+let currentUserName = localStorage.getItem('autoClubUserName') || "";
 let selectedBooks = {};
 let totalPagesRead = 0;
 let totalMinutesRead = 0;
@@ -882,7 +864,7 @@ const nextPageBtn = document.getElementById('next-page-btn');
 const pageIndicator = document.getElementById('page-indicator');
 const achievementsGrid = document.getElementById('achievements-grid');
 function initLiveSync() {
-database.ref('bookCatalog').on('value', snapshot =&gt; {
+database.ref('bookCatalog').on('value', snapshot => {
 const data = snapshot.val();
 if (data) {
 bookDatabase = data;
@@ -890,16 +872,16 @@ bookDatabase = data;
 bookDatabase = [...defaultBooks];
 database.ref('bookCatalog').set(defaultBooks);
 }
-bookDatabase.sort((a, b) =&gt; a.title.localeCompare(b.title));
+bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
 applyFilterAndRender();
 if (currentUserName) updateDashboardProgressUI();
 
 
 });
-database.ref('users').on('value', snapshot =&gt; {
+database.ref('users').on('value', snapshot => {
 const usersData = snapshot.val();
 renderLeaderboard(usersData);
-if (currentUserName &amp;&amp; snapshot.hasChild(currentUserName)) {
+if (currentUserName && snapshot.hasChild(currentUserName)) {
 const userSnapshot = snapshot.child(currentUserName).val();
 totalPagesRead = userSnapshot.totalPages || 0;
 totalMinutesRead = userSnapshot.totalMinutes || 0;
@@ -921,43 +903,43 @@ applyFilterAndRender();
 }
 function applyFilterAndRender() {
 const query = catalogSearch.value.toLowerCase().trim();
-if (query === &quot;&quot;) {
+if (query === "") {
 filteredBooks = [...bookDatabase];
 } else {
-filteredBooks = bookDatabase.filter(book =&gt; book.title.toLowerCase().includes(query));
+filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
 }
 renderCatalogPage();
 }
 function renderCatalogPage() {
-catalogGrid.innerHTML = &quot;&quot;;
+catalogGrid.innerHTML = "";
 
 
 const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
-if (currentPage &gt; totalPagesCount) currentPage = totalPagesCount;
+if (currentPage > totalPagesCount) currentPage = totalPagesCount;
 const startIndex = (currentPage - 1) * booksPerPage;
 const endIndex = startIndex + booksPerPage;
 const pageItems = filteredBooks.slice(startIndex, endIndex);
 if (pageItems.length === 0) {
-catalogGrid.innerHTML = `&lt;div style=&quot;grid-column: 1/-1; text-align: center; color:
-var(--muted-text); padding: 30px;&quot;&gt;No books match your search criteria.&lt;/div&gt;`;
+catalogGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color:
+var(--muted-text); padding: 30px;">No books match your search criteria.</div>`;
 } else {
-pageItems.forEach((book) =&gt; {
-const originalIndex = bookDatabase.findIndex(b =&gt; b.title === book.title);
+pageItems.forEach((book) => {
+const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
 const card = document.createElement('div');
 card.classList.add('book-card');
 card.innerHTML = `
-&lt;div class=&quot;book-info-container&quot;&gt;
-&lt;div&gt;
-&lt;div class=&quot;book-title&quot;&gt;${book.title}&lt;/div&gt;
-&lt;div class=&quot;book-author&quot;&gt;by ${book.author}&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class=&quot;status-container&quot;&gt;
-&lt;span class=&quot;stock-status ${book.inStock ? 'in' : 'out'}&quot;&gt;${book.inStock ? 'In
-Stock' : 'Out of Stock'}&lt;/span&gt;
-${book.inStock ? `&lt;button class=&quot;choose-btn&quot;
-onclick=&quot;chooseBook(${originalIndex})&quot;&gt;Choose&lt;/button&gt;` : ''}
-&lt;/div&gt;
-&lt;/div&gt;
+<div class="book-info-container">
+<div>
+<div class="book-title">${book.title}</div>
+<div class="book-author">by ${book.author}</div>
+</div>
+<div class="status-container">
+<span class="stock-status ${book.inStock ? 'in' : 'out'}">${book.inStock ? 'In
+Stock' : 'Out of Stock'}</span>
+${book.inStock ? `<button class="choose-btn"
+onclick="chooseBook(${originalIndex})">Choose</button>` : ''}
+</div>
+</div>
 `;
 catalogGrid.appendChild(card);
 });
@@ -967,7 +949,7 @@ prevPageBtn.disabled = currentPage === 1;
 nextPageBtn.disabled = currentPage === totalPagesCount;
 }
 function goToPrevPage() {
-if (currentPage &gt; 1) {
+if (currentPage > 1) {
 currentPage--;
 renderCatalogPage();
 
@@ -976,42 +958,41 @@ renderCatalogPage();
 }
 function goToNextPage() {
 const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
-if (currentPage &lt; totalPagesCount) {
+if (currentPage < totalPagesCount) {
 currentPage++;
 renderCatalogPage();
 }
 }
 function renderLeaderboard(usersData) {
-leaderboardList.innerHTML = &quot;&quot;;
+leaderboardList.innerHTML = "";
 let profiles = [];
 if (usersData) {
-Object.keys(usersData).forEach(name =&gt; {
+Object.keys(usersData).forEach(name => {
 profiles.push({
 name: name,
 pages: usersData[name].totalPages || 0
 });
 });
 }
-if (currentUserName &amp;&amp; !profiles.some(p =&gt; p.name === currentUserName)) {
+if (currentUserName && !profiles.some(p => p.name === currentUserName)) {
 profiles.push({ name: currentUserName, pages: totalPagesRead });
 }
-profiles.sort((a, b) =&gt; b.pages - a.pages);
-profiles.forEach((profile, index) =&gt; {
+profiles.sort((a, b) => b.pages - a.pages);
+profiles.forEach((profile, index) => {
 const li = document.createElement('li');
 li.classList.add('leaderboard-item');
-if (index === 0 &amp;&amp; profile.pages &gt; 0) {
+if (index === 0 && profile.pages > 0) {
 li.classList.add('top-reader');
 }
 li.innerHTML = `
-&lt;span&gt;${index + 1}. &lt;strong&gt;${profile.name}&lt;/strong&gt; ${index === 0 &amp;&amp;
-profile.pages &gt; 0 ? ' ' : ''}&lt;/span&gt;
-&lt;span&gt;${profile.pages} pages&lt;/span&gt;
+<span>${index + 1}. <strong>${profile.name}</strong> ${index === 0 &&
+profile.pages > 0 ? ' ' : ''}</span>
+<span>${profile.pages} pages</span>
 `;
 leaderboardList.appendChild(li);
 });
 }
 
-👑
 
 
 function updatePersonalGoalUI() {
@@ -1022,55 +1003,55 @@ chestBarFill.style.width = `${fillPercentage}%`;
 }
 /* Evaluates club metrics and maps them to your uploaded custom asset images */
 function renderAchievements() {
-achievementsGrid.innerHTML = &quot;&quot;;
+achievementsGrid.innerHTML = "";
 const badgesConfig = [
-{ id: &quot;comber&quot;, img: &quot;Beach_Comber.png&quot;, title: &quot;Beach Comber&quot;, desc: &quot;Log your first
-page read&quot;, unlocked: totalPagesRead &gt;= 1 },
-{ id: &quot;worm&quot;, img: &quot;Book_Worm.png&quot;, title: &quot;Book Worm&quot;, desc: &quot;Start exploring stories&quot;,
-unlocked: totalPagesRead &gt;= 50 },
-{ id: &quot;speed&quot;, img: &quot;Speed_Demon.png&quot;, title: &quot;Speed Demon&quot;, desc: &quot;Log 150+ total
-club pages&quot;, unlocked: totalPagesRead &gt;= 150 },
-{ id: &quot;snorkel&quot;, img: &quot;Snorkeler.png&quot;, title: &quot;Snorkeler&quot;, desc: &quot;Reach 250 total pages
-read&quot;, unlocked: totalPagesRead &gt;= 250 },
-{ id: &quot;diver&quot;, img: &quot;Deep_Sea_Diver.png&quot;, title: &quot;Deep Sea Diver&quot;, desc: &quot;Reach 500 total
-pages read&quot;, unlocked: totalPagesRead &gt;= 500 },
-{ id: &quot;legend&quot;, img: &quot;Library_Legend.png&quot;, title: &quot;Library Legend&quot;, desc: &quot;Reach 750 total
-pages read&quot;, unlocked: totalPagesRead &gt;= 750 },
-{ id: &quot;hunter&quot;, img:
-&quot;aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtV
+{ id: "comber", img: "Beach_Comber.png", title: "Beach Comber", desc: "Log your first
+page read", unlocked: totalPagesRead >= 1 },
+{ id: "worm", img: "Book_Worm.png", title: "Book Worm", desc: "Start exploring stories",
+unlocked: totalPagesRead >= 50 },
+{ id: "speed", img: "Speed_Demon.png", title: "Speed Demon", desc: "Log 150+ total
+club pages", unlocked: totalPagesRead >= 150 },
+{ id: "snorkel", img: "Snorkeler.png", title: "Snorkeler", desc: "Reach 250 total pages
+read", unlocked: totalPagesRead >= 250 },
+{ id: "diver", img: "Deep_Sea_Diver.png", title: "Deep Sea Diver", desc: "Reach 500 total
+pages read", unlocked: totalPagesRead >= 500 },
+{ id: "legend", img: "Library_Legend.png", title: "Library Legend", desc: "Reach 750 total
+pages read", unlocked: totalPagesRead >= 750 },
+{ id: "hunter", img:
+"aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtV
 WYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2
-P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png&quot;, title: &quot;Treasure
-Hunter&quot;, desc: &quot;Hit the 1,000 pages milestone&quot;, unlocked: totalPagesRead &gt;= 1000 },
-{ id: &quot;warmup&quot;, img: &quot;Warm_Up.png&quot;, title: &quot;Warm Up&quot;, desc: &quot;Log 60 minutes of reading
-time&quot;, unlocked: totalMinutesRead &gt;= 60 },
-{ id: &quot;marathon&quot;, img: &quot;Marathoner.png&quot;, title: &quot;Marathoner&quot;, desc: &quot;Log 300 minutes of
-reading time&quot;, unlocked: totalMinutesRead &gt;= 300 },
-{ id: &quot;streak&quot;, img: &quot;Daily_Streak.png&quot;, title: &quot;Daily Streak&quot;, desc: &quot;Log 500+ minutes or
-keep reading&quot;, unlocked: totalMinutesRead &gt;= 500 }
+P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png", title: "Treasure
+Hunter", desc: "Hit the 1,000 pages milestone", unlocked: totalPagesRead >= 1000 },
+{ id: "warmup", img: "Warm_Up.png", title: "Warm Up", desc: "Log 60 minutes of reading
+time", unlocked: totalMinutesRead >= 60 },
+{ id: "marathon", img: "Marathoner.png", title: "Marathoner", desc: "Log 300 minutes of
+reading time", unlocked: totalMinutesRead >= 300 },
+{ id: "streak", img: "Daily_Streak.png", title: "Daily Streak", desc: "Log 500+ minutes or
+keep reading", unlocked: totalMinutesRead >= 500 }
 ];
-badgesConfig.forEach(badge =&gt; {
+badgesConfig.forEach(badge => {
 const el = document.createElement('div');
 el.className = `badge-card ${badge.unlocked ? 'unlocked' : 'locked'}`;
 el.innerHTML = `
-&lt;img src=&quot;${badge.img}&quot; class=&quot;badge-image&quot; alt=&quot;${badge.title}&quot;&gt;
-&lt;div class=&quot;badge-title&quot;&gt;${badge.title}&lt;/div&gt;
+<img src="${badge.img}" class="badge-image" alt="${badge.title}">
+<div class="badge-title">${badge.title}</div>
 
 
-&lt;div class=&quot;badge-desc&quot;&gt;${badge.desc}&lt;/div&gt;
-&lt;div class=&quot;badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}&quot;&gt;
+<div class="badge-desc">${badge.desc}</div>
+<div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
 ${badge.unlocked ? 'Earned' : 'Locked'}
-&lt;/div&gt;
+</div>
 `;
 achievementsGrid.appendChild(el);
 });
 }
 authForm.addEventListener('submit', function(e) {
 e.preventDefault();
-const inputName = authName.value.trim().replace(/[.#$\[\]]/g, &quot;&quot;);
-if (inputName !== &quot;&quot;) {
+const inputName = authName.value.trim().replace(/[.#$\[\]]/g, "");
+if (inputName !== "") {
 currentUserName = inputName;
 localStorage.setItem('autoClubUserName', currentUserName);
-database.ref('users/' + currentUserName).once('value', snapshot =&gt; {
+database.ref('users/' + currentUserName).once('value', snapshot => {
 const val = snapshot.val();
 if (val) {
 selectedBooks = val.selectedBooks || {};
@@ -1112,14 +1093,14 @@ e.preventDefault();
 const title = document.getElementById('modal-title').value.trim();
 const author = document.getElementById('modal-author').value.trim();
 const pages = parseInt(document.getElementById('modal-pages').value);
-if (title &amp;&amp; author &amp;&amp; !isNaN(pages)) {
+if (title && author && !isNaN(pages)) {
 bookDatabase.push({
 title: title,
 author: author,
 pages: pages,
 inStock: true
 });
-bookDatabase.sort((a, b) =&gt; a.title.localeCompare(b.title));
+bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
 saveCatalogToCloud();
 closeAddBookModal();
 }
@@ -1139,7 +1120,7 @@ saveCatalogToCloud();
 function turnInBook(bookTitle) {
 if (selectedBooks[bookTitle]) {
 // Find the original object location in the master catalog array to restock it
-const bookInCatalog = bookDatabase.find(b =&gt; b.title === bookTitle);
+const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
 if (bookInCatalog) {
 bookInCatalog.inStock = true;
 }
@@ -1148,48 +1129,47 @@ saveProfileToCloud();
 saveCatalogToCloud();
 const entry = document.createElement('div');
 entry.classList.add('log-entry');
-entry.style.borderLeftColor = &quot;#e63946&quot;;
-entry.innerHTML = `&lt;span&gt;
-Returned: &lt;strong&gt;&quot;${bookTitle}&quot;&lt;/strong&gt; has been
-turned back in to the library!&lt;/span&gt;`;
+entry.style.borderLeftColor = "#e63946";
+entry.innerHTML = `<span>
+Returned: <strong>"${bookTitle}"</strong> has been
+turned back in to the library!</span>`;
 logHistory.prepend(entry);
 }
 }
 
-🔄
 
 function updateDashboardProgressUI() {
-progressContainer.innerHTML = &quot;&quot;;
-logBookSelect.innerHTML = '&lt;option value=&quot;&quot; disabled selected&gt;Choose book to
-update...&lt;/option&gt;';
+progressContainer.innerHTML = "";
+logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to
+update...</option>';
 const keys = Object.keys(selectedBooks);
 if (keys.length === 0) {
 trackingBox.classList.add('hidden');
 return;
 }
 trackingBox.classList.remove('hidden');
-keys.forEach(title =&gt; {
+keys.forEach(title => {
 const data = selectedBooks[title];
 const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
 // Escapes single quotes in book titles safely for the inline JavaScript call
-const safeTitleString = title.replace(/'/g, &quot;\\'&quot;);
+const safeTitleString = title.replace(/'/g, "\\'");
 const progItem = document.createElement('div');
 progItem.classList.add('progress-item');
 progItem.innerHTML = `
 
 
-&lt;div class=&quot;progress-header-row&quot;&gt;
-&lt;div class=&quot;progress-labels&quot;&gt;
-&lt;span class=&quot;progress-book-name&quot;&gt;${title}&lt;/span&gt;
-&lt;span class=&quot;progress-book-stats&quot;&gt;${data.read} / ${data.total} pages completed
-(${percentage}%)&lt;/span&gt;
-&lt;/div&gt;
-&lt;button class=&quot;turn-in-btn&quot; onclick=&quot;turnInBook('${safeTitleString}')&quot;&gt;Turn In
-Book&lt;/button&gt;
-&lt;/div&gt;
-&lt;div class=&quot;progress-bar-bg&quot;&gt;
-&lt;div class=&quot;progress-bar-fill&quot; style=&quot;width: ${percentage}%&quot;&gt;&lt;/div&gt;
-&lt;/div&gt;
+<div class="progress-header-row">
+<div class="progress-labels">
+<span class="progress-book-name">${title}</span>
+<span class="progress-book-stats">${data.read} / ${data.total} pages completed
+(${percentage}%)</span>
+</div>
+<button class="turn-in-btn" onclick="turnInBook('${safeTitleString}')">Turn In
+Book</button>
+</div>
+<div class="progress-bar-bg">
+<div class="progress-bar-fill" style="width: ${percentage}%"></div>
+</div>
 `;
 progressContainer.appendChild(progItem);
 const opt = document.createElement('option');
@@ -1211,12 +1191,11 @@ updatePersonalGoalUI();
 renderAchievements();
 const entry = document.createElement('div');
 entry.classList.add('log-entry');
-entry.innerHTML = `&lt;span&gt;
-Progress: added &lt;strong&gt;${pagesEntered} pages&lt;/strong&gt;
-to &quot;${selectedTitle}&quot;&lt;/span&gt;`;
+entry.innerHTML = `<span>
+Progress: added <strong>${pagesEntered} pages</strong>
+to "${selectedTitle}"</span>`;
 logHistory.prepend(entry);
 
-📖
 
 document.getElementById('pages-read').value = '';
 
@@ -1232,9 +1211,9 @@ saveProfileToCloud();
 renderAchievements();
 const entry = document.createElement('div');
 entry.classList.add('log-entry');
-entry.innerHTML = `&lt;span&gt;
-Session: Clocked &lt;strong&gt;${mins} minutes&lt;/strong&gt; of
-reading!&lt;/span&gt;`;
+entry.innerHTML = `<span>
+Session: Clocked <strong>${mins} minutes</strong> of
+reading!</span>`;
 logHistory.prepend(entry);
 
 ⏳
@@ -1314,12 +1293,6 @@ statusEl.innerText = '❌ Something went wrong. Please try again.';
 generateBtn.disabled = false;
 generateBtn.innerText = '✨ Generate';
 }
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-
-
-
-</pre>
+</script>
 </body>
 </html>
