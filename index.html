@@ -872,13 +872,23 @@
             submitBtn.disabled = true;
             errorDiv.style.display = 'none';
 
-            const response = await fetch('/api/generate-avatar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ prompt: prompt })
-            });
+            let response;
+            try {
+                response = await fetch('/api/generate-avatar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+            } catch (networkError) {
+                throw new Error('Cannot reach the server. Please make sure you are running the app with "npm start" and opening http://localhost:3000');
+            }
+
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                throw new Error('Server did not return JSON. Please make sure you are running the app with "npm start" and opening http://localhost:3000');
+            }
 
             if (!response.ok) {
                 const error = await response.json();
