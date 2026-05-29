@@ -22,16 +22,17 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-image-1",
-        prompt,
+        prompt: prompt.slice(0, 500),
         size: "1024x1024"
       })
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      console.log("OpenAI image error:", JSON.stringify(data));
       return res.status(response.status).json({
-        error: data.error?.message || "Image generation failed"
+        error: data.error?.message || JSON.stringify(data)
       });
     }
 
@@ -57,6 +58,7 @@ export default async function handler(req, res) {
 
     return res.status(500).json({ error: "Unsupported image response format" });
   } catch (err) {
+    console.log("Avatar function error:", err);
     return res.status(500).json({ error: err.message || "Server error" });
   }
 }
