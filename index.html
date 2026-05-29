@@ -168,7 +168,6 @@
             display: flex;
             gap: 15px;
         }
-
         .log-col {
             flex: 1;
         }
@@ -352,10 +351,7 @@
         }
 
         hr {
-            border: 0;
-            height: 2px;
-            background: var(--primary);
-            margin: 30px 0;
+            border: 0; height: 2px; background: var(--primary); margin: 30px 0;
         }
 
         .log-entry {
@@ -514,7 +510,6 @@
             padding: 0;
             margin: 10px 0 0 0;
         }
-
         .leaderboard-item {
             display: flex;
             justify-content: space-between;
@@ -524,7 +519,6 @@
             border: 1px solid #e0e0e0;
             border-radius: 4px;
         }
-
         .leaderboard-item.top-reader {
             background: #f0f8ff;
             border-color: var(--primary);
@@ -645,7 +639,7 @@
         <div class="nav-left">
             <h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
             <div class="avatar-header-wrap hidden" id="avatar-header-wrap">
-                <div id="avatar-preview" class="avatar-preview" aria-label="User avatar preview"></div>
+                <div id="avatar-preview" class="avatar-preview"></div>
                 <button id="avatar-plus-btn" class="avatar-plus-btn" type="button" title="Create avatar">+</button>
             </div>
         </div>
@@ -737,44 +731,26 @@
     <div class="modal-content avatar-modal-content">
         <h3>Create Your Avatar</h3>
 
-        <label>Initials</label>
-        <input type="text" id="avatar-initials" maxlength="2" placeholder="AS">
-
-        <label>Face Color</label>
-        <select id="avatar-skin">
-            <option value="#F2C9A0">Light</option>
-            <option value="#D8A06A">Tan</option>
-            <option value="#8D5A3B">Brown</option>
-            <option value="#5A3825">Deep</option>
-        </select>
-
-        <label>Hair Color</label>
-        <select id="avatar-hair">
-            <option value="#2C2C2C">Black</option>
-            <option value="#6B3E26">Brown</option>
-            <option value="#B97A57">Auburn</option>
-            <option value="#D4B15A">Blonde</option>
-        </select>
-
-        <label>Background</label>
-        <select id="avatar-bg">
-            <option value="#BFE8FF">Cyan</option>
-            <option value="#000000">Black</option>
-            <option value="#FFFFFF">White</option>
-            <option value="#FFD700">Gold</option>
-        </select>
+        <label>Describe your avatar</label>
+        <input type="text" id="avatar-prompt" placeholder="Beach-themed cartoon reader with cyan and black colors">
 
         <label>Style</label>
         <select id="avatar-style">
-            <option value="round">Round</option>
-            <option value="square">Square</option>
-            <option value="soft">Soft Square</option>
+            <option value="cartoon">Cartoon</option>
+            <option value="clean">Clean flat</option>
+            <option value="storybook">Storybook</option>
+            <option value="cute">Cute</option>
         </select>
 
+        <label>Extra details</label>
+        <input type="text" id="avatar-details" placeholder="round face, smiling, book lover, summer vibe">
+
         <div class="avatar-modal-buttons">
-            <button id="avatar-save-btn" type="button">Save Avatar</button>
+            <button id="avatar-generate-btn" type="button">Generate Avatar</button>
             <button id="avatar-cancel-btn" type="button" class="cancel-btn">Cancel</button>
         </div>
+
+        <p id="avatar-status" style="font-size: 13px; color: var(--muted-text); margin-top: 8px;"></p>
     </div>
 </div>
 
@@ -862,49 +838,41 @@
     const avatarPreview = document.getElementById('avatar-preview');
     const avatarPlusBtn = document.getElementById('avatar-plus-btn');
     const avatarModal = document.getElementById('avatar-modal');
-    const avatarInitials = document.getElementById('avatar-initials');
-    const avatarSkin = document.getElementById('avatar-skin');
-    const avatarHair = document.getElementById('avatar-hair');
-    const avatarBg = document.getElementById('avatar-bg');
+    const avatarPrompt = document.getElementById('avatar-prompt');
     const avatarStyle = document.getElementById('avatar-style');
-    const avatarSaveBtn = document.getElementById('avatar-save-btn');
+    const avatarDetails = document.getElementById('avatar-details');
+    const avatarGenerateBtn = document.getElementById('avatar-generate-btn');
     const avatarCancelBtn = document.getElementById('avatar-cancel-btn');
+    const avatarStatus = document.getElementById('avatar-status');
 
-    function renderAvatar(data) {
-        const rx = data.style === 'round' ? 50 : data.style === 'soft' ? 18 : 8;
+    function renderFallbackAvatar() {
+        const name = (currentUserName || 'AS').slice(0, 2).toUpperCase();
         avatarPreview.innerHTML = `
             <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" rx="${rx}" fill="${data.bg}"></rect>
-                <circle cx="50" cy="42" r="18" fill="${data.skin}"></circle>
-                <path d="M32 38 C34 18, 66 18, 68 38 C65 28, 35 28, 32 38 Z" fill="${data.hair}"></path>
-                <path d="M34 65 C38 57, 62 57, 66 65 L66 78 L34 78 Z" fill="${data.skin}"></path>
+                <rect width="100" height="100" rx="50" fill="#BFE8FF"></rect>
+                <circle cx="50" cy="42" r="18" fill="#F2C9A0"></circle>
+                <path d="M32 38 C34 18, 66 18, 68 38 C65 28, 35 28, 32 38 Z" fill="#2C2C2C"></path>
+                <path d="M34 65 C38 57, 62 57, 66 65 L66 78 L34 78 Z" fill="#F2C9A0"></path>
                 <circle cx="43" cy="41" r="2" fill="#000"></circle>
                 <circle cx="57" cy="41" r="2" fill="#000"></circle>
                 <path d="M44 49 Q50 53 56 49" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"></path>
-                <text x="50" y="93" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#000">${data.initials || 'AS'}</text>
+                <text x="50" y="93" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#000">${name}</text>
             </svg>
         `;
-        avatarPreview.style.borderRadius = data.style === 'round' ? '50%' : data.style === 'soft' ? '18px' : '8px';
     }
 
-    function loadAvatar() {
-        const saved = JSON.parse(localStorage.getItem('builtInAvatar') || 'null');
-        const data = saved || {
-            initials: 'AS',
-            skin: '#F2C9A0',
-            hair: '#2C2C2C',
-            bg: '#BFE8FF',
-            style: 'round'
-        };
-        avatarInitials.value = data.initials || 'AS';
-        avatarSkin.value = data.skin || '#F2C9A0';
-        avatarHair.value = data.hair || '#2C2C2C';
-        avatarBg.value = data.bg || '#BFE8FF';
-        avatarStyle.value = data.style || 'round';
-        renderAvatar(data);
+    function loadSavedAvatar() {
+        const saved = JSON.parse(localStorage.getItem('generatedAvatar') || 'null');
+        if (saved && saved.dataUrl) {
+            avatarPreview.innerHTML = `<img src="${saved.dataUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            return true;
+        }
+        renderFallbackAvatar();
+        return false;
     }
 
     function openAvatarModal() {
+        avatarStatus.textContent = "";
         avatarModal.classList.remove('hidden');
     }
 
@@ -914,43 +882,57 @@
 
     avatarPlusBtn.addEventListener('click', openAvatarModal);
     avatarCancelBtn.addEventListener('click', closeAvatarModal);
-
-    avatarModal.addEventListener('click', function(e) {
+    avatarModal.addEventListener('click', (e) => {
         if (e.target === avatarModal) closeAvatarModal();
     });
 
-    avatarSaveBtn.addEventListener('click', function() {
-        const data = {
-            initials: avatarInitials.value.trim().toUpperCase().slice(0, 2) || 'AS',
-            skin: avatarSkin.value,
-            hair: avatarHair.value,
-            bg: avatarBg.value,
-            style: avatarStyle.value
-        };
-        localStorage.setItem('builtInAvatar', JSON.stringify(data));
-        renderAvatar(data);
-        closeAvatarModal();
-    });
+    function buildPrompt() {
+        const p = avatarPrompt.value.trim();
+        const s = avatarStyle.value;
+        const d = avatarDetails.value.trim();
+        return [
+            "Create a high-quality custom avatar portrait for a book club app.",
+            "Use the user’s theme colors cyan and black when appropriate.",
+            `Art style: ${s}.`,
+            d ? `Extra details: ${d}.` : "",
+            p ? `Main prompt: ${p}.` : "Main prompt: friendly reading-themed avatar with a warm smile.",
+            "Clean centered composition, simple background, crisp edges, modern and friendly."
+        ].filter(Boolean).join(" ");
+    }
 
-    [avatarInitials, avatarSkin, avatarHair, avatarBg, avatarStyle].forEach(el => {
-        el.addEventListener('input', () => {
-            renderAvatar({
-                initials: avatarInitials.value.trim().toUpperCase().slice(0, 2) || 'AS',
-                skin: avatarSkin.value,
-                hair: avatarHair.value,
-                bg: avatarBg.value,
-                style: avatarStyle.value
+    avatarGenerateBtn.addEventListener('click', async () => {
+        const prompt = buildPrompt();
+        avatarStatus.textContent = "Generating avatar...";
+        avatarGenerateBtn.disabled = true;
+
+        try {
+            const res = await fetch('/api/generate-avatar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
             });
-        });
-        el.addEventListener('change', () => {
-            renderAvatar({
-                initials: avatarInitials.value.trim().toUpperCase().slice(0, 2) || 'AS',
-                skin: avatarSkin.value,
-                hair: avatarHair.value,
-                bg: avatarBg.value,
-                style: avatarStyle.value
-            });
-        });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Avatar generation failed');
+            }
+
+            const dataUrl = data.dataUrl;
+            localStorage.setItem('generatedAvatar', JSON.stringify({
+                dataUrl,
+                prompt
+            }));
+
+            avatarPreview.innerHTML = `<img src="${dataUrl}" alt="Generated avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            avatarStatus.textContent = "Avatar generated and saved.";
+            closeAvatarModal();
+        } catch (err) {
+            avatarStatus.textContent = "Could not generate avatar. Using fallback avatar.";
+            renderFallbackAvatar();
+            console.error(err);
+        } finally {
+            avatarGenerateBtn.disabled = false;
+        }
     });
 
     function initLiveSync() {
@@ -1146,7 +1128,7 @@
         userDisplayName.innerText = currentUserName;
         totalPagesDisplay.innerText = totalPagesRead;
         totalMinutesDisplay.innerText = totalMinutesRead;
-        loadAvatar();
+        loadSavedAvatar();
         applyFilterAndRender();
         updateDashboardProgressUI();
         updatePersonalGoalUI();
