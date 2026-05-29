@@ -1,13 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname)));
 
 app.post('/api/generate-avatar', async (req, res) => {
     try {
