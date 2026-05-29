@@ -9,9 +9,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing prompt" });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.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;
     if (!apiKey) {
-      return res.status(500).json({ error: "OPENAI_API_KEY is not set" });
+      return res.status(500).json({ error: "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 is not set" });
     }
 
     const response = await fetch("https://api.openai.com/v1/images/generations", {
