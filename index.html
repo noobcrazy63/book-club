@@ -6,14 +6,14 @@
     <title>The Seelhoefer Summer Book-Club</title>
     <style>
         :root {
-            --primary: #BFE8FF;
-            --secondary: #000000;
-            --bg: #f5fafd;
+            --primary: #BFE8FF;     /* The exact soft summer cyan from your new beach banner */
+            --secondary: #000000;   /* Solid black */
+            --bg: #f5fafd;          
             --white: #ffffff;
             --muted-text: #555555;
-            --instock: #2a9d8f;
+            --instock: #2a9d8f;     
             --outstock: #e63946;
-            --gold-yellow: #FFD700;
+            --gold-yellow: #FFD700; /* Bright treasure yellow */    
         }
 
         body {
@@ -28,7 +28,7 @@
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 850px; 
             background: var(--white);
             padding: 30px;
             border-radius: 12px;
@@ -60,6 +60,7 @@
             display: none !important;
         }
 
+        /* Forms */
         input, select {
             width: 100%;
             padding: 12px;
@@ -98,6 +99,7 @@
             color: var(--primary);
         }
 
+        /* Dashboard Navbar */
         .nav-bar {
             display: flex;
             justify-content: space-between;
@@ -105,14 +107,6 @@
             border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
             margin-bottom: 15px;
-            gap: 12px;
-        }
-
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
         }
 
         .logout-btn {
@@ -123,47 +117,7 @@
             border: 1px solid var(--secondary);
         }
 
-        .avatar-header-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .avatar-preview {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid var(--secondary);
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-        }
-
-        .avatar-plus-btn {
-            width: 34px;
-            height: 34px;
-            padding: 0;
-            margin: 0;
-            border-radius: 50%;
-            border: 2px solid var(--secondary);
-            background: var(--primary);
-            color: var(--secondary);
-            font-size: 24px;
-            font-weight: 700;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .avatar-plus-btn:hover {
-            background: var(--white);
-        }
-
+        /* Twin Input Columns */
         .log-row {
             display: flex;
             gap: 15px;
@@ -172,6 +126,7 @@
             flex: 1;
         }
 
+        /* Search Section */
         .search-container {
             margin-top: 10px;
             margin-bottom: 15px;
@@ -181,6 +136,7 @@
             font-size: 15px;
         }
 
+        /* Book Grid Layout */
         .book-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -245,6 +201,7 @@
             font-size: 13px;
         }
 
+        /* Pagination Layout */
         .pagination-controls {
             display: flex;
             justify-content: center;
@@ -265,7 +222,7 @@
             justify-content: center;
             line-height: 1;
         }
-
+        
         .page-arrow-btn:disabled {
             background-color: #eeeeee;
             border-color: #cccccc;
@@ -279,6 +236,7 @@
             color: var(--muted-text);
         }
 
+        /* Selected Progress Section */
         .selected-box {
             background-color: #f9f9f9;
             border: 2px dashed var(--primary);
@@ -344,7 +302,7 @@
         }
 
         .progress-bar-fill {
-            background-color: var(--secondary);
+            background-color: var(--secondary); 
             height: 100%;
             width: 0%;
             transition: width 0.4s ease;
@@ -365,6 +323,7 @@
             align-items: center;
         }
 
+        /* Individual Pages Read Goal Layout */
         .personal-goal-box {
             text-align: center;
             background: #fdfdfd;
@@ -414,6 +373,7 @@
             color: var(--secondary);
         }
 
+        /* Achievements Layout */
         .achievements-box {
             background: #fcfdfe;
             border: 2px dashed #a4d2ed;
@@ -455,6 +415,7 @@
             transition: filter 0.3s, opacity 0.3s;
         }
 
+        /* Locked state styling using CSS grayscale filter */
         .badge-card.locked {
             background: #f7f9fa;
             border-color: #e6ebed;
@@ -497,6 +458,7 @@
             color: #888888;
         }
 
+        /* Leaderboard Styles */
         .leaderboard-box {
             background: #ffffff;
             border: 2px solid var(--secondary);
@@ -504,7 +466,6 @@
             padding: 15px;
             margin: 15px 0 20px 0;
         }
-
         .leaderboard-list {
             list-style: none;
             padding: 0;
@@ -525,6 +486,7 @@
             font-weight: bold;
         }
 
+        /* Floating Action Button (FAB) */
         .fab-btn {
             position: fixed;
             bottom: 30px;
@@ -551,6 +513,7 @@
             background-color: var(--white);
         }
 
+        /* Modal Popup Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -597,116 +560,98 @@
             background-color: #dddddd;
             color: #000000;
         }
-
-        .avatar-modal-content label {
-            display: block;
-            margin-top: 10px;
-            margin-bottom: 6px;
-            font-weight: 700;
-        }
-
-        .avatar-modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .avatar-modal-buttons button {
-            flex: 1;
-        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
+
 <div class="container">
+    
+    <div class="brand-header">
+        <img src="ChatGPT Image May 23, 2026, 11_32_08 AM.png" alt="Seelhoefer Summer Book-Club Banner">
+    </div>
+    
+    <div id="auth-section">
+        <h2>Welcome! Please Set Up Your Profile</h2>
+        <form id="auth-form">
+            <input type="text" id="auth-name" placeholder="What is your name?" required>
+            <button type="submit">Start Tracking Progress</button>
+        </form>
+    </div>
 
-<div class="brand-header">
-    <img src="ChatGPT Image May 23, 2026, 11_32_08 AM.png" alt="Seelhoefer Summer Book-Club Banner">
-</div>
-
-<div id="auth-section">
-    <h2>Welcome! Please Set Up Your Profile</h2>
-    <form id="auth-form">
-        <input type="text" id="auth-name" placeholder="What is your name?" required>
-        <button type="submit">Start Tracking Progress</button>
-    </form>
-</div>
-
-<div id="dashboard-section" class="hidden">
-    <div class="nav-bar">
-        <div class="nav-left">
+    <div id="dashboard-section" class="hidden">
+        <div class="nav-bar">
             <h2>Welcome Back, <span id="user-display-name">Reader</span>!</h2>
-            <div class="avatar-header-wrap hidden" id="avatar-header-wrap">
-                <div id="avatar-preview" class="avatar-preview"></div>
-                <button id="avatar-plus-btn" class="avatar-plus-btn" type="button" title="Create avatar">+</button>
+            <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
+        </div>
+
+        <div id="tracking-box" class="selected-box hidden">
+            <h3>📈 Your Reading Progress</h3>
+            <div id="progress-container"></div>
+        </div>
+
+        <div class="log-row">
+            <div class="log-col">
+                <h3>⏱️ Update Pages Read</h3>
+                <form id="log-form">
+                    <select id="log-book-select" required>
+                        <option value="" disabled selected>Choose book to update...</option>
+                    </select>
+                    <input type="number" id="pages-read" placeholder="Pages read this session?" min="1" required>
+                    <button type="submit">Log Pages</button>
+                </form>
+            </div>
+            <div class="log-col">
+                <h3>⏳ Session Clock</h3>
+                <form id="minute-form">
+                    <input type="number" id="minutes-read" placeholder="How many minutes?" min="1" required>
+                    <button type="submit">Log Minutes</button>
+                </form>
             </div>
         </div>
-        <button class="logout-btn" onclick="clearProfile()">Reset Profile</button>
-    </div>
 
-    <div id="tracking-box" class="selected-box hidden">
-        <h3>📈 Your Reading Progress</h3>
-        <div id="progress-container"></div>
-    </div>
-
-    <div class="log-row">
-        <div class="log-col">
-            <h3>⏱️ Update Pages Read</h3>
-            <form id="log-form">
-                <select id="log-book-select" required>
-                    <option value="" disabled selected>Choose book to update...</option>
-                </select>
-                <input type="number" id="pages-read" placeholder="Pages read this session?" min="1" required>
-                <button type="submit">Log Pages</button>
-            </form>
+        <h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span id="total-minutes">0</span> minutes spent</h4>
+        
+        <div class="personal-goal-box">
+            <h3>🏴‍☠️ Pages Read Goal</h3>
+            <img src="aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png" alt="Treasure Chest">
+            <div class="chest-bar-bg">
+                <div id="chest-bar-fill" class="chest-bar-fill"></div>
+                <div id="chest-bar-text" class="chest-bar-text">0 / 1000 pages read</div>
+            </div>
         </div>
-        <div class="log-col">
-            <h3>⏳ Session Clock</h3>
-            <form id="minute-form">
-                <input type="number" id="minutes-read" placeholder="How many minutes?" min="1" required>
-                <button type="submit">Log Minutes</button>
-            </form>
+
+        <div class="achievements-box">
+            <h3>🏅 Your Beach Badges</h3>
+            <div class="achievements-grid" id="achievements-grid">
+                </div>
+        </div>
+
+        <div class="leaderboard-box">
+            <h3>🏆 Club Leaderboard</h3>
+            <ul id="leaderboard-list" class="leaderboard-list"></ul>
+        </div>
+
+        <div id="log-history"></div>
+
+        <hr>
+
+        <h3>📚 Available Library Books</h3>
+        
+        <div class="search-container">
+            <input type="text" id="catalog-search" placeholder="🔍 Search library by title... (try typing 'blet')" oninput="handleSearchSearch()">
+        </div>
+
+        <div class="book-grid" id="catalog-grid"></div>
+
+        <div class="pagination-controls">
+            <button id="prev-page-btn" class="page-arrow-btn" onclick="goToPrevPage()">←</button>
+            <span id="page-indicator" class="page-indicator-text">Page 1 of 1</span>
+            <button id="next-page-btn" class="page-arrow-btn" onclick="goToNextPage()">→</button>
         </div>
     </div>
-
-    <h4>Totals Tracker: <span id="total-pages">0</span> pages read | <span id="total-minutes">0</span> minutes spent</h4>
-
-    <div class="personal-goal-box">
-        <h3>🏴‍☠️ Pages Read Goal</h3>
-        <img src="aUf7Z4zSBUPdCnA6iY0GKH29jGnUD1kQguP3TcEra1pXKNd68xyH0cjG1qKb1BRM4iesPWtVWYHjfV3ltmYZkknZYXaRPHk0BelsQt_y8lEGVKmz9jP5lFtljL9j9VqUcZ5GCc5dKLvD3dN-BKR2P1XdL_oY6bM1UU0kSJpQudIZHTU-EZpudoWGd54a06_W-removeb.png" alt="Treasure Chest">
-        <div class="chest-bar-bg">
-            <div id="chest-bar-fill" class="chest-bar-fill"></div>
-            <div id="chest-bar-text" class="chest-bar-text">0 / 1000 pages read</div>
-        </div>
-    </div>
-
-    <div class="achievements-box">
-        <h3>🏅 Your Beach Badges</h3>
-        <div class="achievements-grid" id="achievements-grid"></div>
-    </div>
-
-    <div class="leaderboard-box">
-        <h3>🏆 Club Leaderboard</h3>
-        <ul id="leaderboard-list" class="leaderboard-list"></ul>
-    </div>
-
-    <div id="log-history"></div>
-    <hr>
-
-    <h3>📚 Available Library Books</h3>
-    <div class="search-container">
-        <input type="text" id="catalog-search" placeholder="🔍 Search library by title... (try typing 'blet')" oninput="handleSearchSearch()">
-    </div>
-    <div class="book-grid" id="catalog-grid"></div>
-
-    <div class="pagination-controls">
-        <button id="prev-page-btn" class="page-arrow-btn" onclick="goToPrevPage()">←</button>
-        <span id="page-indicator" class="page-indicator-text">Page 1 of 1</span>
-        <button id="next-page-btn" class="page-arrow-btn" onclick="goToNextPage()">→</button>
-    </div>
-</div>
 
 </div>
 
@@ -724,30 +669,6 @@
                 <button type="submit">Add to Library</button>
             </div>
         </form>
-    </div>
-</div>
-
-<div id="avatar-modal" class="modal-overlay hidden">
-    <div class="modal-content avatar-modal-content">
-        <h3>Create Your Avatar</h3>
-
-        <label>Describe your avatar</label>
-        <input type="text" id="avatar-prompt" placeholder="Beach-themed cartoon reader with cyan and black colors">
-
-        <label>Style</label>
-        <select id="avatar-style">
-            <option value="gpt-image-2">GPT Image 2</option>
-        </select>
-
-        <label>Extra details</label>
-        <input type="text" id="avatar-details" placeholder="round face, smiling, book lover, summer vibe">
-
-        <div class="avatar-modal-buttons">
-            <button id="avatar-generate-btn" type="button">Generate Avatar</button>
-            <button id="avatar-cancel-btn" type="button" class="cancel-btn">Cancel</button>
-        </div>
-
-        <p id="avatar-status" style="font-size: 13px; color: var(--muted-text); margin-top: 8px;"></p>
     </div>
 </div>
 
@@ -799,9 +720,11 @@
     let bookDatabase = [];
     let filteredBooks = [];
     let currentUserName = localStorage.getItem('autoClubUserName') || "";
-    let selectedBooks = {};
+    let selectedBooks = {}; 
     let totalPagesRead = 0;
     let totalMinutesRead = 0;
+
+    // Pagination Configurations
     let currentPage = 1;
     const booksPerPage = 25;
 
@@ -810,6 +733,7 @@
     const fabButton = document.getElementById('fab-add-book');
     const bookModal = document.getElementById('book-modal');
     const modalForm = document.getElementById('modal-book-form');
+    
     const authForm = document.getElementById('auth-form');
     const authName = document.getElementById('auth-name');
     const userDisplayName = document.getElementById('user-display-name');
@@ -823,76 +747,15 @@
     const totalMinutesDisplay = document.getElementById('total-minutes');
     const logHistory = document.getElementById('log-history');
     const leaderboardList = document.getElementById('leaderboard-list');
+    
     const chestBarFill = document.getElementById('chest-bar-fill');
     const chestBarText = document.getElementById('chest-bar-text');
     const catalogSearch = document.getElementById('catalog-search');
+
     const prevPageBtn = document.getElementById('prev-page-btn');
     const nextPageBtn = document.getElementById('next-page-btn');
     const pageIndicator = document.getElementById('page-indicator');
     const achievementsGrid = document.getElementById('achievements-grid');
-
-    const avatarHeaderWrap = document.getElementById('avatar-header-wrap');
-    const avatarPreview = document.getElementById('avatar-preview');
-    const avatarPlusBtn = document.getElementById('avatar-plus-btn');
-    const avatarModal = document.getElementById('avatar-modal');
-    const avatarPrompt = document.getElementById('avatar-prompt');
-    const avatarDetails = document.getElementById('avatar-details');
-    const avatarGenerateBtn = document.getElementById('avatar-generate-btn');
-    const avatarCancelBtn = document.getElementById('avatar-cancel-btn');
-    const avatarStatus = document.getElementById('avatar-status');
-
-    function buildPrompt() {
-        const p = avatarPrompt.value.trim();
-        const d = avatarDetails.value.trim();
-        return [
-            "Create a high-quality custom avatar portrait for a book club app.",
-            "Use cyan and black colors when appropriate.",
-            "Clean centered composition, simple background, crisp edges, modern and friendly.",
-            p ? `Main prompt: ${p}.` : "Main prompt: friendly reading-themed avatar with a warm smile.",
-            d ? `Extra details: ${d}.` : ""
-        ].filter(Boolean).join(" ");
-    }
-
-    function renderFallbackAvatar() {
-        const name = (currentUserName || 'AS').slice(0, 2).toUpperCase();
-        avatarPreview.innerHTML = `
-            <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" rx="50" fill="#BFE8FF"></rect>
-                <circle cx="50" cy="42" r="18" fill="#F2C9A0"></circle>
-                <path d="M32 38 C34 18, 66 18, 68 38 C65 28, 35 28, 32 38 Z" fill="#2C2C2C"></path>
-                <path d="M34 65 C38 57, 62 57, 66 65 L66 78 L34 78 Z" fill="#F2C9A0"></path>
-                <circle cx="43" cy="41" r="2" fill="#000"></circle>
-                <circle cx="57" cy="41" r="2" fill="#000"></circle>
-                <path d="M44 49 Q50 53 56 49" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"></path>
-                <text x="50" y="93" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#000">${name}</text>
-            </svg>
-        `;
-    }
-
-    function loadSavedAvatar() {
-        const saved = JSON.parse(localStorage.getItem('generatedAvatar') || 'null');
-        if (saved && saved.dataUrl) {
-            avatarPreview.innerHTML = `<img src="${saved.dataUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-            return true;
-        }
-        renderFallbackAvatar();
-        return false;
-    }
-
-    function openAvatarModal() {
-        avatarStatus.textContent = "";
-        avatarModal.classList.remove('hidden');
-    }
-
-    function closeAvatarModal() {
-        avatarModal.classList.add('hidden');
-    }
-
-    avatarPlusBtn.addEventListener('click', openAvatarModal);
-    avatarCancelBtn.addEventListener('click', closeAvatarModal);
-    avatarModal.addEventListener('click', (e) => {
-        if (e.target === avatarModal) closeAvatarModal();
-    });
 
     function initLiveSync() {
         database.ref('bookCatalog').on('value', snapshot => {
@@ -903,6 +766,7 @@
                 bookDatabase = [...defaultBooks];
                 database.ref('bookCatalog').set(defaultBooks);
             }
+            
             bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
             applyFilterAndRender();
             if (currentUserName) updateDashboardProgressUI();
@@ -911,11 +775,13 @@
         database.ref('users').on('value', snapshot => {
             const usersData = snapshot.val();
             renderLeaderboard(usersData);
+            
             if (currentUserName && snapshot.hasChild(currentUserName)) {
                 const userSnapshot = snapshot.child(currentUserName).val();
                 totalPagesRead = userSnapshot.totalPages || 0;
                 totalMinutesRead = userSnapshot.totalMinutes || 0;
                 selectedBooks = userSnapshot.selectedBooks || {};
+                
                 totalPagesDisplay.innerText = totalPagesRead;
                 totalMinutesDisplay.innerText = totalMinutesRead;
                 updateDashboardProgressUI();
@@ -936,12 +802,19 @@
 
     function applyFilterAndRender() {
         const query = catalogSearch.value.toLowerCase().trim();
-        filteredBooks = query === "" ? [...bookDatabase] : bookDatabase.filter(book => book.title.toLowerCase().includes(query));
+        
+        if (query === "") {
+            filteredBooks = [...bookDatabase];
+        } else {
+            filteredBooks = bookDatabase.filter(book => book.title.toLowerCase().includes(query));
+        }
+        
         renderCatalogPage();
     }
 
     function renderCatalogPage() {
         catalogGrid.innerHTML = "";
+        
         const totalPagesCount = Math.ceil(filteredBooks.length / booksPerPage) || 1;
         if (currentPage > totalPagesCount) currentPage = totalPagesCount;
 
@@ -954,6 +827,7 @@
         } else {
             pageItems.forEach((book) => {
                 const originalIndex = bookDatabase.findIndex(b => b.title === book.title);
+
                 const card = document.createElement('div');
                 card.classList.add('book-card');
                 card.innerHTML = `
@@ -972,7 +846,7 @@
             });
         }
 
-        pageIndicator.innerText = `Page ${currentPage} of ${totalPagesCount}`;
+        pageIndicator.innerText = `${currentPage} out of ${totalPagesCount} pages`;
         prevPageBtn.disabled = currentPage === 1;
         nextPageBtn.disabled = currentPage === totalPagesCount;
     }
@@ -995,6 +869,7 @@
     function renderLeaderboard(usersData) {
         leaderboardList.innerHTML = "";
         let profiles = [];
+
         if (usersData) {
             Object.keys(usersData).forEach(name => {
                 profiles.push({
@@ -1003,10 +878,13 @@
                 });
             });
         }
+
         if (currentUserName && !profiles.some(p => p.name === currentUserName)) {
             profiles.push({ name: currentUserName, pages: totalPagesRead });
         }
+
         profiles.sort((a, b) => b.pages - a.pages);
+
         profiles.forEach((profile, index) => {
             const li = document.createElement('li');
             li.classList.add('leaderboard-item');
@@ -1028,8 +906,10 @@
         chestBarFill.style.width = `${fillPercentage}%`;
     }
 
+    /* Evaluates club metrics and maps them to your uploaded custom asset images */
     function renderAchievements() {
         achievementsGrid.innerHTML = "";
+        
         const badgesConfig = [
             { id: "comber", img: "Beach_Comber.png", title: "Beach Comber", desc: "Log your first page read", unlocked: totalPagesRead >= 1 },
             { id: "worm", img: "Book_Worm.png", title: "Book Worm", desc: "Start exploring stories", unlocked: totalPagesRead >= 50 },
@@ -1050,63 +930,21 @@
                 <img src="${badge.img}" class="badge-image" alt="${badge.title}">
                 <div class="badge-title">${badge.title}</div>
                 <div class="badge-desc">${badge.desc}</div>
-                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">${badge.unlocked ? 'Earned' : 'Locked'}</div>
+                <div class="badge-status ${badge.unlocked ? 'unlocked-label' : 'locked-label'}">
+                    ${badge.unlocked ? 'Earned' : 'Locked'}
+                </div>
             `;
             achievementsGrid.appendChild(el);
         });
     }
 
-    avatarGenerateBtn.addEventListener('click', async () => {
-        avatarStatus.textContent = "Generating avatar...";
-        avatarGenerateBtn.disabled = true;
-
-        try {
-            const prompt = buildPrompt();
-            const res = await fetch('/api/generate-avatar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt })
-            });
-
-            let data = {};
-            try {
-                data = await res.json();
-            } catch {
-                data = {};
-            }
-
-            if (!res.ok) {
-                throw new Error(data.error || `Request failed with status ${res.status}`);
-            }
-
-            const imageUrl = data.dataUrl || data.url;
-            if (!imageUrl) {
-                throw new Error("No image data returned");
-            }
-
-            localStorage.setItem('generatedAvatar', JSON.stringify({
-                dataUrl: imageUrl,
-                prompt
-            }));
-
-            avatarPreview.innerHTML = `<img src="${imageUrl}" alt="Generated avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-            avatarStatus.textContent = "Avatar generated and saved.";
-            closeAvatarModal();
-        } catch (err) {
-            avatarStatus.textContent = `Avatar failed: ${err.message}`;
-            renderFallbackAvatar();
-            console.error(err);
-        } finally {
-            avatarGenerateBtn.disabled = false;
-        }
-    });
-
     authForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, "");
+        const inputName = authName.value.trim().replace(/[.#$\[\]]/g, ""); 
         if (inputName !== "") {
             currentUserName = inputName;
             localStorage.setItem('autoClubUserName', currentUserName);
+
             database.ref('users/' + currentUserName).once('value', snapshot => {
                 const val = snapshot.val();
                 if (val) {
@@ -1127,12 +965,11 @@
     function loadDashboard() {
         authSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
-        fabButton.classList.remove('hidden');
-        avatarHeaderWrap.classList.remove('hidden');
+        fabButton.classList.remove('hidden'); 
         userDisplayName.innerText = currentUserName;
         totalPagesDisplay.innerText = totalPagesRead;
         totalMinutesDisplay.innerText = totalMinutesRead;
-        loadSavedAvatar();
+
         applyFilterAndRender();
         updateDashboardProgressUI();
         updatePersonalGoalUI();
@@ -1153,6 +990,7 @@
         const title = document.getElementById('modal-title').value.trim();
         const author = document.getElementById('modal-author').value.trim();
         const pages = parseInt(document.getElementById('modal-pages').value);
+
         if (title && author && !isNaN(pages)) {
             bookDatabase.push({
                 title: title,
@@ -1160,6 +998,7 @@
                 pages: pages,
                 inStock: true
             });
+            
             bookDatabase.sort((a, b) => a.title.localeCompare(b.title));
             saveCatalogToCloud();
             closeAddBookModal();
@@ -1170,21 +1009,27 @@
         const book = bookDatabase[index];
         if (!selectedBooks[book.title]) {
             selectedBooks[book.title] = { index: index, read: 0, total: book.pages };
-            book.inStock = false;
+            book.inStock = false; 
+            
             saveProfileToCloud();
             saveCatalogToCloud();
         }
     }
 
+    /* FIX: Looks up the book target directly by its string Title key inside selectedBooks */
     function turnInBook(bookTitle) {
         if (selectedBooks[bookTitle]) {
+            // Find the original object location in the master catalog array to restock it
             const bookInCatalog = bookDatabase.find(b => b.title === bookTitle);
             if (bookInCatalog) {
                 bookInCatalog.inStock = true;
             }
-            delete selectedBooks[bookTitle];
+
+            delete selectedBooks[bookTitle]; 
+
             saveProfileToCloud();
             saveCatalogToCloud();
+
             const entry = document.createElement('div');
             entry.classList.add('log-entry');
             entry.style.borderLeftColor = "#e63946";
@@ -1196,16 +1041,21 @@
     function updateDashboardProgressUI() {
         progressContainer.innerHTML = "";
         logBookSelect.innerHTML = '<option value="" disabled selected>Choose book to update...</option>';
+        
         const keys = Object.keys(selectedBooks);
         if (keys.length === 0) {
             trackingBox.classList.add('hidden');
             return;
         }
+        
         trackingBox.classList.remove('hidden');
         keys.forEach(title => {
             const data = selectedBooks[title];
             const percentage = Math.min(Math.round((data.read / data.total) * 100), 100);
+            
+            // Escapes single quotes in book titles safely for the inline JavaScript call
             const safeTitleString = title.replace(/'/g, "\\'");
+
             const progItem = document.createElement('div');
             progItem.classList.add('progress-item');
             progItem.innerHTML = `
@@ -1233,17 +1083,22 @@
         e.preventDefault();
         const selectedTitle = logBookSelect.value;
         const pagesEntered = parseInt(document.getElementById('pages-read').value);
+        
         if (!selectedTitle || isNaN(pagesEntered)) return;
+
         selectedBooks[selectedTitle].read += pagesEntered;
         totalPagesRead += pagesEntered;
         totalPagesDisplay.innerText = totalPagesRead;
+
         saveProfileToCloud();
         updatePersonalGoalUI();
         renderAchievements();
+
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
         entry.innerHTML = `<span>📖 Progress: added <strong>${pagesEntered} pages</strong> to "${selectedTitle}"</span>`;
         logHistory.prepend(entry);
+
         document.getElementById('pages-read').value = '';
     });
 
@@ -1251,14 +1106,18 @@
         e.preventDefault();
         const mins = parseInt(document.getElementById('minutes-read').value);
         if (isNaN(mins)) return;
+        
         totalMinutesRead += mins;
         totalMinutesDisplay.innerText = totalMinutesRead;
+        
         saveProfileToCloud();
         renderAchievements();
+
         const entry = document.createElement('div');
         entry.classList.add('log-entry');
         entry.innerHTML = `<span>⏳ Session: Clocked <strong>${mins} minutes</strong> of reading!</span>`;
         logHistory.prepend(entry);
+
         document.getElementById('minutes-read').value = '';
     });
 
@@ -1284,3 +1143,5 @@
 </script>
 </body>
 </html>
+
+
