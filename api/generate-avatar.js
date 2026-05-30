@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -22,17 +22,20 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-image-1",
-        prompt: prompt.slice(0, 500),
+        prompt: prompt.slice(0, 300),
         size: "1024x1024"
       })
     });
 
-    const data = await response.json().catch(() => ({}));
+    const raw = await response.text();
+    let data = {};
+    try {
+      data = JSON.parse(raw);
+    } catch {}
 
     if (!response.ok) {
-      console.log("OpenAI image error:", JSON.stringify(data));
       return res.status(response.status).json({
-        error: data.error?.message || JSON.stringify(data)
+        error: data.error?.message || raw || "Image generation failed"
       });
     }
 
@@ -58,7 +61,6 @@ export default async function handler(req, res) {
 
     return res.status(500).json({ error: "Unsupported image response format" });
   } catch (err) {
-    console.log("Avatar function error:", err);
     return res.status(500).json({ error: err.message || "Server error" });
   }
-}
+};
