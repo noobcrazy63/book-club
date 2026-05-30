@@ -1,5 +1,5 @@
 const CF_ACCOUNT_ID = '8274e2b1f05f63c555216671bc77d9a9';
-const CF_API_TOKEN = 'cfut_S57n940U5SZLA8WiPTb62ysNtNsxEoXC3Akz2idB73e4afa1';
+const CF_API_TOKEN = 'cfut_RmTtHV5qqOMcHZkEOBMycMzrntfWqJ11EmmHutSD19df8909';
 const CF_MODEL = '@cf/black-forest-labs/flux-1-schnell';
 
 function sanitizePrompt(text) {
@@ -15,7 +15,7 @@ async function generateAvatarFromPrompt(prompt) {
   if (!CF_ACCOUNT_ID || CF_ACCOUNT_ID === '8274e2b1f05f63c555216671bc77d9a9') {
     throw new Error('Cloudflare Account ID is not set.');
   }
-  if (!CF_API_TOKEN || CF_API_TOKEN === 'cfut_S57n940U5SZLA8WiPTb62ysNtNsxEoXC3Akz2idB73e4afa1') {
+  if (!CF_API_TOKEN || CF_API_TOKEN === 'cfut_RmTtHV5qqOMcHZkEOBMycMzrntfWqJ11EmmHutSD19df8909') {
     throw new Error('Cloudflare API token is not set.');
   }
 
