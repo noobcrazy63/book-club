@@ -265,7 +265,7 @@
             justify-content: center;
             line-height: 1;
         }
-        
+
         .page-arrow-btn:disabled {
             background-color: #eeeeee;
             border-color: #cccccc;
@@ -344,7 +344,7 @@
         }
 
         .progress-bar-fill {
-            background-color: var(--secondary); 
+            background-color: var(--secondary);
             height: 100%;
             width: 0%;
             transition: width 0.4s ease;
@@ -731,19 +731,16 @@
     <div class="modal-content avatar-modal-content">
         <h3>Create Your Avatar</h3>
 
-        <label>Describe your avatar</label>
-        <input type="text" id="avatar-prompt" placeholder="Beach-themed cartoon reader with cyan and black colors">
+        <label>Seed</label>
+        <input type="text" id="avatar-seed" placeholder="Use your name or a short phrase">
 
         <label>Style</label>
         <select id="avatar-style">
-            <option value="cartoon">Cartoon</option>
-            <option value="clean">Clean flat</option>
-            <option value="storybook">Storybook</option>
-            <option value="cute">Cute</option>
+            <option value="avataaars">Avataaars</option>
+            <option value="personas">Personas</option>
+            <option value="thumbs">Thumbs</option>
+            <option value="shapes">Shapes</option>
         </select>
-
-        <label>Extra details</label>
-        <input type="text" id="avatar-details" placeholder="round face, smiling, book lover, summer vibe">
 
         <div class="avatar-modal-buttons">
             <button id="avatar-generate-btn" type="button">Generate Avatar</button>
@@ -838,12 +835,16 @@
     const avatarPreview = document.getElementById('avatar-preview');
     const avatarPlusBtn = document.getElementById('avatar-plus-btn');
     const avatarModal = document.getElementById('avatar-modal');
-    const avatarPrompt = document.getElementById('avatar-prompt');
+    const avatarSeed = document.getElementById('avatar-seed');
     const avatarStyle = document.getElementById('avatar-style');
-    const avatarDetails = document.getElementById('avatar-details');
     const avatarGenerateBtn = document.getElementById('avatar-generate-btn');
     const avatarCancelBtn = document.getElementById('avatar-cancel-btn');
     const avatarStatus = document.getElementById('avatar-status');
+
+    function buildDiceBearUrl(seed, style = "avataaars") {
+        const safeSeed = encodeURIComponent(seed || currentUserName || "Reader");
+        return `https://api.dicebear.com/10.x/${style}/svg?seed=${safeSeed}`;
+    }
 
     function renderFallbackAvatar() {
         const name = (currentUserName || 'AS').slice(0, 2).toUpperCase();
@@ -884,64 +885,6 @@
     avatarCancelBtn.addEventListener('click', closeAvatarModal);
     avatarModal.addEventListener('click', (e) => {
         if (e.target === avatarModal) closeAvatarModal();
-    });
-
-    function buildPrompt() {
-        const p = avatarPrompt.value.trim();
-        const s = avatarStyle.value;
-        const d = avatarDetails.value.trim();
-        return [
-            "Create a high-quality custom avatar portrait for a book club app.",
-            "Use cyan and black colors when appropriate.",
-            `Art style: ${s}.`,
-            d ? `Extra details: ${d}.` : "",
-            p ? `Main prompt: ${p}.` : "Main prompt: friendly reading-themed avatar with a warm smile.",
-            "Clean centered composition, simple background, crisp edges, modern and friendly."
-        ].filter(Boolean).join(" ");
-    }
-
-    avatarGenerateBtn.addEventListener('click', async () => {
-        const prompt = buildPrompt();
-        avatarStatus.textContent = "Generating avatar...";
-        avatarGenerateBtn.disabled = true;
-
-        try {
-            const res = await fetch('/api/generate-avatar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt })
-            });
-
-            let data = {};
-            try {
-                data = await res.json();
-            } catch {
-                data = {};
-            }
-
-            if (!res.ok) {
-                throw new Error(data.error || `Request failed with status ${res.status}`);
-            }
-
-            if (!data.dataUrl) {
-                throw new Error("No image data returned");
-            }
-
-            localStorage.setItem('generatedAvatar', JSON.stringify({
-                dataUrl: data.dataUrl,
-                prompt
-            }));
-
-            avatarPreview.innerHTML = `<img src="${data.dataUrl}" alt="Generated avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-            avatarStatus.textContent = "Avatar generated and saved.";
-            closeAvatarModal();
-        } catch (err) {
-            avatarStatus.textContent = `Avatar failed: ${err.message}`;
-            renderFallbackAvatar();
-            console.error(err);
-        } finally {
-            avatarGenerateBtn.disabled = false;
-        }
     });
 
     function initLiveSync() {
@@ -1105,6 +1048,32 @@
             achievementsGrid.appendChild(el);
         });
     }
+
+    avatarGenerateBtn.addEventListener('click', async () => {
+        avatarStatus.textContent = "Generating avatar...";
+        avatarGenerateBtn.disabled = true;
+
+        try {
+            const seed = (avatarSeed.value || currentUserName || "Reader").trim();
+            const style = avatarStyle.value;
+            const url = buildDiceBearUrl(seed, style);
+
+            avatarPreview.innerHTML = `<img src="${url}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            localStorage.setItem('generatedAvatar', JSON.stringify({
+                dataUrl: url,
+                seed,
+                style
+            }));
+            avatarStatus.textContent = "Avatar generated and saved.";
+            closeAvatarModal();
+        } catch (err) {
+            avatarStatus.textContent = `Avatar failed: ${err.message}`;
+            renderFallbackAvatar();
+            console.error(err);
+        } finally {
+            avatarGenerateBtn.disabled = false;
+        }
+    });
 
     authForm.addEventListener('submit', function(e) {
         e.preventDefault();
