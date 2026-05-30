@@ -731,16 +731,16 @@
     <div class="modal-content avatar-modal-content">
         <h3>Create Your Avatar</h3>
 
-        <label>Seed</label>
-        <input type="text" id="avatar-seed" placeholder="Use your name or a short phrase">
+        <label>Describe your avatar</label>
+        <input type="text" id="avatar-prompt" placeholder="Beach-themed cartoon reader with cyan and black colors">
 
         <label>Style</label>
         <select id="avatar-style">
-            <option value="avataaars">Avataaars</option>
-            <option value="personas">Personas</option>
-            <option value="thumbs">Thumbs</option>
-            <option value="shapes">Shapes</option>
+            <option value="gpt-image-2">GPT Image 2</option>
         </select>
+
+        <label>Extra details</label>
+        <input type="text" id="avatar-details" placeholder="round face, smiling, book lover, summer vibe">
 
         <div class="avatar-modal-buttons">
             <button id="avatar-generate-btn" type="button">Generate Avatar</button>
@@ -835,15 +835,22 @@
     const avatarPreview = document.getElementById('avatar-preview');
     const avatarPlusBtn = document.getElementById('avatar-plus-btn');
     const avatarModal = document.getElementById('avatar-modal');
-    const avatarSeed = document.getElementById('avatar-seed');
-    const avatarStyle = document.getElementById('avatar-style');
+    const avatarPrompt = document.getElementById('avatar-prompt');
+    const avatarDetails = document.getElementById('avatar-details');
     const avatarGenerateBtn = document.getElementById('avatar-generate-btn');
     const avatarCancelBtn = document.getElementById('avatar-cancel-btn');
     const avatarStatus = document.getElementById('avatar-status');
 
-    function buildDiceBearUrl(seed, style = "avataaars") {
-        const safeSeed = encodeURIComponent(seed || currentUserName || "Reader");
-        return `https://api.dicebear.com/10.x/${style}/svg?seed=${safeSeed}`;
+    function buildPrompt() {
+        const p = avatarPrompt.value.trim();
+        const d = avatarDetails.value.trim();
+        return [
+            "Create a high-quality custom avatar portrait for a book club app.",
+            "Use cyan and black colors when appropriate.",
+            "Clean centered composition, simple background, crisp edges, modern and friendly.",
+            p ? `Main prompt: ${p}.` : "Main prompt: friendly reading-themed avatar with a warm smile.",
+            d ? `Extra details: ${d}.` : ""
+        ].filter(Boolean).join(" ");
     }
 
     function renderFallbackAvatar() {
@@ -1054,16 +1061,35 @@
         avatarGenerateBtn.disabled = true;
 
         try {
-            const seed = (avatarSeed.value || currentUserName || "Reader").trim();
-            const style = avatarStyle.value;
-            const url = buildDiceBearUrl(seed, style);
+            const prompt = buildPrompt();
+            const res = await fetch('/api/generate-avatar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
 
-            avatarPreview.innerHTML = `<img src="${url}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            let data = {};
+            try {
+                data = await res.json();
+            } catch {
+                data = {};
+            }
+
+            if (!res.ok) {
+                throw new Error(data.error || `Request failed with status ${res.status}`);
+            }
+
+            const imageUrl = data.dataUrl || data.url;
+            if (!imageUrl) {
+                throw new Error("No image data returned");
+            }
+
             localStorage.setItem('generatedAvatar', JSON.stringify({
-                dataUrl: url,
-                seed,
-                style
+                dataUrl: imageUrl,
+                prompt
             }));
+
+            avatarPreview.innerHTML = `<img src="${imageUrl}" alt="Generated avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
             avatarStatus.textContent = "Avatar generated and saved.";
             closeAvatarModal();
         } catch (err) {
