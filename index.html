@@ -639,6 +639,77 @@ min-height: 1.2em;
 </div>
 
 <script>
+const avatarForm = document.getElementById('avatar-form');
+const avatarPrompt = document.getElementById('avatar-prompt');
+const avatarStyle = document.getElementById('avatar-style');
+const avatarExtra = document.getElementById('avatar-extra');
+const avatarPreview = document.getElementById('avatar-preview');
+const dashboardAvatarPreview = document.getElementById('dashboard-avatar-preview');
+const avatarCaption = document.getElementById('avatar-caption');
+const dashboardAvatarCaption = document.getElementById('dashboard-avatar-caption');
+const avatarError = document.getElementById('avatar-error');
+
+function buildAvatarPrompt() {
+  const name = (document.getElementById('auth-name')?.value || 'Reader').trim();
+  const prompt = (avatarPrompt?.value || '').trim();
+  const style = (avatarStyle?.value || 'friendly digital portrait').trim();
+  const extra = (avatarExtra?.value || '').trim();
+
+  return `Create a ${style} for a summer book club user named ${name}. ${prompt ? prompt + '. ' : ''}${extra ? extra + '. ' : ''}Make it polished, colorful, and suitable for a circular profile picture.`;
+}
+
+async function generateAvatarFromPrompt(prompt) {
+  const res = await fetch('/api/generate-avatar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || 'Avatar generation failed');
+  return data.image;
+}
+
+function setAvatar(src) {
+  avatarPreview.src = src;
+  dashboardAvatarPreview.src = src;
+  localStorage.setItem('autoClubAvatarDataUrl', src);
+}
+
+function openAvatarModal() {
+  document.getElementById('avatar-modal')?.classList.remove('hidden');
+}
+
+function closeAvatarModal() {
+  document.getElementById('avatar-modal')?.classList.add('hidden');
+}
+
+window.openAvatarModal = openAvatarModal;
+window.closeAvatarModal = closeAvatarModal;
+
+avatarForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  avatarError.textContent = '';
+  avatarCaption.textContent = 'Generating avatar...';
+
+  try {
+    const prompt = buildAvatarPrompt();
+    const image = await generateAvatarFromPrompt(prompt);
+    setAvatar(image);
+    avatarCaption.textContent = 'Avatar generated successfully.';
+    dashboardAvatarCaption.textContent = 'Saved avatar loaded.';
+    localStorage.setItem('autoClubAvatarPrompt', prompt);
+    closeAvatarModal();
+  } catch (err) {
+    avatarError.textContent = err.message || 'Avatar generation failed.';
+    avatarCaption.textContent = 'Type a prompt below to create your profile avatar.';
+  }
+});
+
+const savedAvatar = localStorage.getItem('autoClubAvatarDataUrl');
+if (savedAvatar) {
+  setAvatar(savedAvatar);
+}  
 const firebaseConfig = {
 apiKey: "AIzaSyATOe4plVvbKRV33eYJC2JciuhBthMUbcs",
 authDomain: "book-club-54785.firebaseapp.com",
