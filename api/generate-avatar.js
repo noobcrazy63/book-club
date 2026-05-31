@@ -6,7 +6,9 @@ export default async function handler(req, res) {
 
   try {
     const { prompt } = req.body || {};
-    if (!prompt || !String(prompt).trim()) {
+    const cleanPrompt = String(prompt || '').trim();
+
+    if (!cleanPrompt) {
       return res.status(400).json({ error: 'Missing prompt' });
     }
 
@@ -25,7 +27,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiToken}`
         },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ prompt: cleanPrompt })
       }
     );
 
@@ -40,13 +42,12 @@ export default async function handler(req, res) {
     const result = data?.result || data?.data || data;
     const image =
       result?.image ||
-      result?.images?.[0]?.b64_json ||
-      result?.images?.[0]?.url ||
       result?.output ||
-      result?.response;
+      result?.images?.[0]?.b64_json ||
+      result?.images?.[0]?.url;
 
     if (!image) {
-      return res.status(500).json({ error: 'No image returned' });
+      return res.status(500).json({ error: 'No image returned from model' });
     }
 
     return res.status(200).json({ image });
